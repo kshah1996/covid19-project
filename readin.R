@@ -44,4 +44,7 @@ dat <- global_confirmed %>%
   mutate(day = row_number()-1) %>%
   filter(keep == "yes") %>%
   ungroup() %>%
-  select(Country.Region, date, day, total_cases, new_cases, total_deaths, new_deaths)
+  select(Country.Region, date, day, total_cases, new_cases, total_deaths, new_deaths) %>%
+  filter(Country.Region != "Cruise Ship")
+
+#saveRDS(dat, "dat.rds")
