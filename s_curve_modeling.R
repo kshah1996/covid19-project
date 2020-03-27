@@ -17,3 +17,11 @@ china2 <- filter(dat, Country.Region == "China" & day < 10)
 fit2 <- nls(total_cases ~ SSlogis(day, Asym, xmid, scal), data = china2)
 plot(china$total_cases ~ china$day)
 lines(seq(0, 80, length.out = 100), predict(fit2, newdata = data.frame(day = seq(0, 80, length.out = 100))))
+
+
+# Random Effects Attempt (will need to convert from linear to generalized)
+
+# Random intercept and slope
+fm2 <- lmer(log(total_cases) ~ day + (day | Country.Region), data = dat)
+summary(fm2)
+ranef(fm2) # Country estimates of random effect variations
