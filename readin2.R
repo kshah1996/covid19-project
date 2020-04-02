@@ -1,0 +1,26 @@
+library(tidyverse)
+dataset_folder <- c("country_data/")
+datasets <- c("ghs.csv",
+              "API_SP.POP.65UP.TO.ZS_DS2_en_csv_v2_887563/API_SP.POP.65UP.TO.ZS_DS2_en_csv_v2_887563.csv",
+              "API_SP.URB.TOTL.IN.ZS_DS2_en_csv_v2_888117/API_SP.URB.TOTL.IN.ZS_DS2_en_csv_v2_888117.csv")
+
+covid_dat <- readRDS("dat.rds")
+# GHS Data
+dat <- read_csv(paste(dataset_folder,datasets[1],sep=""))
+dat <- dat %>% rename(Country.Region = Country)
+covid_dat <- left_join(covid_dat, dat, by= "Country.Region")
+
+# World Bank Data
+dat <- read_csv(paste(dataset_folder,datasets[2],sep=""),skip=4)
+dat <- dat %>% select("Country Name", "2018")
+names(dat)[names(dat) == "Country Name"] <- "Country.Region"
+names(dat)[names(dat) == "2018"] <- "AgeGEQ65"
+covid_dat <- left_join(covid_dat, dat, by= "Country.Region")
+
+dat <- read_csv(paste(dataset_folder,datasets[3],sep=""),skip=4)
+dat <- dat %>% select("Country Name", "2018")
+names(dat)[names(dat) == "Country Name"] <- "Country.Region"
+names(dat)[names(dat) == "2018"] <- "UrbanPop"
+covid_dat <- left_join(covid_dat, dat, by= "Country.Region")
+
+saveRDS(covid_dat, "dat2.rds")
