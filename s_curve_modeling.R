@@ -2,6 +2,7 @@
 
 library(tidyverse)
 library(stats)
+library(lme4)
 
 dat <- readRDS("dat.rds")
 
@@ -25,3 +26,25 @@ lines(seq(0, 80, length.out = 100), predict(fit2, newdata = data.frame(day = seq
 fm2 <- lmer(log(total_cases) ~ day + (day | Country.Region), data = dat)
 summary(fm2)
 ranef(fm2) # Country estimates of random effect variations
+
+## Poisson GLMM
+
+glmm1 <- glmer(total_cases ~ day + (day | Country.Region), data = dat, family = poisson)
+ranef(glmm1)
+
+
+
+
+
+
+###
+
+library(nlme)
+data <- groupedData(total_cases ~ day | Country.Region, data=dat)
+#initVals <- getInitial(y ~ SSlogis(t, Asym, xmid, scal), data = data)
+baseModel<- nlme(y ~ SSlogis(day, Asym, xmid, scal),
+                 data = data,
+                 fixed = list(Asym ~ 1, xmid ~ 1, scal ~ 1),
+                 random = Asym + xmid + scal ~ 1,
+                 start = c(Asym=50000, xmid = 20, scal=0.1)
+)
