@@ -8,6 +8,8 @@ covid_dat <- readRDS("dat.rds")
 # GHS Data
 dat <- read_csv(paste(dataset_folder,datasets[1],sep=""))
 dat <- dat %>% rename(Country.Region = Country)
+dat[which((dat$Country.Region)=="United States"),1] = "US"
+dat[which((dat$Country.Region)=="South Korea"),1] = "Korea, South"
 covid_dat <- left_join(covid_dat, dat, by= "Country.Region")
 
 # World Bank Data
@@ -15,12 +17,16 @@ dat <- read_csv(paste(dataset_folder,datasets[2],sep=""),skip=4)
 dat <- dat %>% select("Country Name", "2018")
 names(dat)[names(dat) == "Country Name"] <- "Country.Region"
 names(dat)[names(dat) == "2018"] <- "AgeGEQ65"
+dat[which((dat$Country.Region)=="United States"),1] = "US"
+dat[which((dat$Country.Region)=="Korea, Rep."),1] = "Korea, South"
 covid_dat <- left_join(covid_dat, dat, by= "Country.Region")
 
 dat <- read_csv(paste(dataset_folder,datasets[3],sep=""),skip=4)
 dat <- dat %>% select("Country Name", "2018")
 names(dat)[names(dat) == "Country Name"] <- "Country.Region"
 names(dat)[names(dat) == "2018"] <- "UrbanPop"
+dat[which((dat$Country.Region)=="United States"),1] = "US"
+dat[which((dat$Country.Region)=="Korea, Rep."),1] = "Korea, South"
 covid_dat <- left_join(covid_dat, dat, by= "Country.Region")
 
 saveRDS(covid_dat, "dat2.rds")
