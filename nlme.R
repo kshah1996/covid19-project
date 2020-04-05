@@ -35,7 +35,8 @@ usa <- filter(dat_old, Country.Region == "US")
 preds <- predict(nestedModel2)
 preds_dat <- data.frame(country = attr(preds, "names"), pred = preds)
 preds_dat_usa <- preds_dat %>% 
-  filter(country == "US") %>%
+  filter(country == "US") 
+preds_dat_usa <- preds_dat_usa %>%
   mutate(day = as.numeric(rownames(preds_dat_usa)) - 1)
 
 # Model has great predictions on USA data up till March 25, predicting a normal curve with peak new cases at day 29
