@@ -45,7 +45,7 @@ lines(preds_dat_usa$day, preds_dat_usa$pred)
 
 
 #### Now with new data, the model does not run
-baseModel <- nlme(new_cases ~ bellcurve.model(d, mu, var, x = day), 
+baseModel2 <- nlme(new_cases ~ bellcurve.model(d, mu, var, x = day), 
                   data = dat, 
                   fixed = list(d ~ 1, mu ~ 1, var ~ 1),
                   random = d + mu + var ~ 1|Country.Region,
