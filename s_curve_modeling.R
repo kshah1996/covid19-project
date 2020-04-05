@@ -3,6 +3,7 @@
 library(tidyverse)
 library(stats)
 library(lme4)
+library(nlme)
 
 dat <- readRDS("dat.rds")
 
@@ -32,13 +33,7 @@ ranef(fm2) # Country estimates of random effect variations
 glmm1 <- glmer(total_cases ~ day + (day | Country.Region), data = dat, family = poisson)
 ranef(glmm1)
 
-
-
-
-
-
-###
-
+# NL Mixed Effects
 library(nlme)
 data <- groupedData(total_cases ~ day | Country.Region, data=dat)
 #initVals <- getInitial(y ~ SSlogis(t, Asym, xmid, scal), data = data)
@@ -48,3 +43,38 @@ baseModel<- nlme(y ~ SSlogis(day, Asym, xmid, scal),
                  random = Asym + xmid + scal ~ 1,
                  start = c(Asym=50000, xmid = 20, scal=0.1)
 )
+
+## NLS
+southkorea <- filter(dat, Country.Region == "Korea, South")
+usa <- filter(dat, Country.Region == "US")
+ggplot(data = southkorea, aes(x = day, y = new_cases)) + geom_line()
+
+bellcurve.model <- function(d, mu, var, x) {
+  f <- d*exp(-((x - mu)^2) / (2*var))
+  return(f)
+}
+
+m1 <- nls(new_cases ~ bellcurve.model(d, mu, var, x = day), start = list(d = 800, mu = 15, var = 25), data = southkorea, trace = TRUE, lower = list(d = 1, mu = 1, var = 0))
+plot(southkorea$day, southkorea$new_cases)
+lines(southkorea$day, predict(m1))
+
+m2 <- nls(new_cases ~ bellcurve.model(d, mu, var, x = day), start = list(d = 5000, mu = 15, var = 25), data = filter(dat, Country.Region == "US"), trace = TRUE, algorithm = "port", lower = list(d = 1, mu = 1, var = 0))
+plot(usa$day, usa$new_cases)
+lines(usa$day, predict(m2))
+
+# NLME
+
+baseModel <- nlme(new_cases ~ bellcurve.model(d, mu, var, x = day), 
+                  data = dat, 
+                  fixed = list(d ~ 1, mu ~ 1, var ~ 1),
+                  random = d + mu + var ~ 1|Country.Region,
+                  start = list(fixed = c(1000, 20, 20)),
+                  na.action = na.omit)
+
+nestedModel <- update(baseModel, fixed = list(d ~ 1, mu ~ 1, var ~ 1), start = fixef(baseModel))
+nestedModel2 <- update(nestedModel, fixed = list(d ~ 1, mu ~ 1, var ~ 1), start = fixef(nestedModel))
+nestedModel3 <- update(nestedModel2, fixed = list(d ~ 1, mu ~ 1, var ~ 1), start = fixef(nestedModel2))
+
+preds <- predict(nestedModel2)
+preds_dat <- data.frame(country = attr(preds, "names"), pred = preds)
+
