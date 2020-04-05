@@ -65,7 +65,7 @@ lines(usa$day, predict(m2))
 # NLME
 
 baseModel <- nlme(new_cases ~ bellcurve.model(d, mu, var, x = day), 
-                  data = dat, 
+                  data = dat[1:2000,], 
                   fixed = list(d ~ 1, mu ~ 1, var ~ 1),
                   random = d + mu + var ~ 1|Country.Region,
                   start = list(fixed = c(1000, 20, 20)),
