@@ -1,0 +1,57 @@
+---
+title: "Logistic"
+author: "Taylor Krajewski"
+date: "4/5/2020"
+output: html_document
+---
+
+````{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Fit a nonlinear regression with a logistic growth function (nlme). 
+
+
+Looking at a few countries to see if logistic growth makes sense:
+```{r}
+library(lme4)
+afg <- subset(covid_dat, Country.Region == "Afghanistan", select = c(day, total_cases, new_cases))
+plot(afg$day, afg$total_cases)
+
+
+us <- subset(covid_dat, Country.Region == "US", select = c(day, total_cases, new_cases))
+plot(us$day, us$total_cases)
+
+
+chi <- subset(covid_dat, Country.Region == "China", select = c(day, total_cases, new_cases))
+plot(chi$day, chi$total_cases)
+
+
+ita <- subset(covid_dat, Country.Region == "Italy", select = c(day, total_cases, new_cases))
+plot(ita$day, ita$total_cases)
+
+
+jap <- subset(covid_dat, Country.Region == "Japan", select = c(day, total_cases, new_cases))
+plot(jap$day, jap$total_cases)
+```
+
+Based on these few countries, it seems reasonable to use logistic regression. 
+
+
+```{r}
+
+logisticModel <- nls(total_cases ~ K/(1+exp(Po + r * day)), start=list(Po=0, r=-.05, K=20), data=afg)
+
+
+initVals <- getInitial(total_cases ~ SSlogis(day, Asym, xmid, scal), data=covid_dat)
+baseModel <- nlme(total_cases ~ SSlogis(day, Asym, xmid, scal),
+                  data=covid_dat,
+                  fixed = list(Asym ~ 1, xmid~1, scal~1),
+                  random = Asym + xmid + scal ~ 1|Country.Region,
+                  start = initVals)
+
+
+```
+
+
