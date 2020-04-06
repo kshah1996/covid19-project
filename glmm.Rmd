@@ -1,0 +1,181 @@
+---
+title: "GLMM"
+author: "Jonathan Zhang"
+date: "4/6/2020"
+output: html_document
+---
+
+###Setup
+```{r, echo = T, results = 'hide', message = FALSE}
+library(tidyverse)
+library(stats)
+library(lme4)
+dat <- readRDS("dat2.rds")
+```
+###Generalized Mixed Model
+We use a log linear mixed model to model the number of new cases.
+
+$log(E[Y_{ij}|b_i])=\beta_0+\beta_1 Time_{ij}+\beta_2 Time_{ij}^2+\beta_3 GHSScore_i+\beta_4 AgeGEQ65_i+\beta_5 UrbanPop_i+b_{i0}+b_{i1}Time_{ij}$
+
+We could consider another random effect for $Time_{ij}^2$ as well.
+
+We remove NAs that could arise from missing data on certain countries, or from inconsistent naming.
+```{r}
+dat <- dat %>% mutate(day2 = day^2) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
+```
+
+We fit the previous model, with and without the $Time_{ij}^2$ random effect term with glmer
+
+```{r}
+glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dat, family = poisson)
+glmm2 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day + day2 | Country.Region), data = dat, family = poisson)
+```
+
+There are a couple of warnings here. The first deals with non-convergence, which could be caused by having multiple random and fixed effects. I tried using both bobyqa and Nelder-Mead for the optimzation algorithm in glmer but could not achieve convergence at their threshold. A model with only two random effects (intercept and day) and two fixed effects (intercept and day) does not have this error. The second warning deals with unidentifiability. I have tried rescaling parameters by normalizing them and using the log odds from percentiles but could not get this warning to go away either. Nonetheless, we still get a fit.
+
+```{r}
+summary(glmm1)
+```
+
+For Model 1, it seems that for fixed effects, all but AgeGEQ65 and UrbanPop were significant.
+
+```{r}
+summary(glmm2)
+```
+
+For Model 2, it seems that for fixed effects, all but GHS_Score, AgeGEQ65 and UrbanPop were significant.
+
+We now compare the model to the observed counts for several different countries and view their predictions.
+
+###US Model 1
+
+```{r}
+country = 103
+country_name = 'US'
+rand_ef = ranef(glmm1)$Country.Region[country,]
+fix_ef = fixef(glmm1)
+coef = c(fix_ef[[1]]+rand_ef[[1]],fix_ef[[2]]+rand_ef[[2]],fix_ef[[3]],fix_ef[[4]],fix_ef[[5]],fix_ef[[6]])
+dat2 <- dat %>% 
+  filter(Country.Region==country_name) %>% 
+  mutate(model=exp(coef[1]+coef[2]*day+coef[3]*day^2+coef[[4]]*GHS_Score+fix_ef[[5]]*AgeGEQ65+fix_ef[[6]]*UrbanPop))
+ggplot(data=dat2)+geom_line(aes(x=day,y=new_cases))+geom_line(aes(x=day,y=model))
+```
+
+and the prediction
+
+```{r}
+t<-tibble(day=1:100)%>%mutate(day2=(1:100)^2,GHS_Score=dat2$GHS_Score[1],AgeGEQ65=dat2$AgeGEQ65[1],UrbanPop=dat2$UrbanPop[1])%>%
+  mutate(model=exp(coef[1]+coef[2]*day+coef[3]*day^2+coef[[4]]*GHS_Score+fix_ef[[5]]*AgeGEQ65+fix_ef[[6]]*UrbanPop))
+ggplot(data=t)+geom_line(aes(x=day,y=model))
+```
+
+###US Model 2
+
+```{r}
+country = 103
+country_name = 'US'
+rand_ef = ranef(glmm2)$Country.Region[country,]
+fix_ef = fixef(glmm2)
+coef = c(fix_ef[[1]]+rand_ef[[1]],fix_ef[[2]]+rand_ef[[2]],fix_ef[[3]]+rand_ef[[3]],fix_ef[[4]],fix_ef[[5]],fix_ef[[6]])
+dat2 <- dat %>% 
+  filter(Country.Region==country_name) %>% 
+  mutate(model=exp(coef[1]+coef[2]*day+coef[3]*day^2+coef[[4]]*GHS_Score+fix_ef[[5]]*AgeGEQ65+fix_ef[[6]]*UrbanPop))
+ggplot(data=dat2)+geom_line(aes(x=day,y=new_cases))+geom_line(aes(x=day,y=model))
+```
+
+and the prediction
+
+```{r}
+t<-tibble(day=1:100)%>%mutate(day2=(1:100)^2,GHS_Score=dat2$GHS_Score[1],AgeGEQ65=dat2$AgeGEQ65[1],UrbanPop=dat2$UrbanPop[1])%>%
+  mutate(model=exp(coef[1]+coef[2]*day+coef[3]*day^2+coef[[4]]*GHS_Score+fix_ef[[5]]*AgeGEQ65+fix_ef[[6]]*UrbanPop))
+ggplot(data=t)+geom_line(aes(x=day,y=model))
+```
+
+###China Model 1
+
+```{r}
+country = 23
+country_name = 'China'
+rand_ef = ranef(glmm1)$Country.Region[country,]
+fix_ef = fixef(glmm1)
+coef = c(fix_ef[[1]]+rand_ef[[1]],fix_ef[[2]]+rand_ef[[2]],fix_ef[[3]],fix_ef[[4]],fix_ef[[5]],fix_ef[[6]])
+dat2 <- dat %>% 
+  filter(Country.Region==country_name) %>% 
+  mutate(model=exp(coef[1]+coef[2]*day+coef[3]*day^2+coef[[4]]*GHS_Score+fix_ef[[5]]*AgeGEQ65+fix_ef[[6]]*UrbanPop))
+ggplot(data=dat2)+geom_line(aes(x=day,y=new_cases))+geom_line(aes(x=day,y=model))
+```
+
+and the prediction
+
+```{r}
+t<-tibble(day=1:100)%>%mutate(day2=(1:100)^2,GHS_Score=dat2$GHS_Score[1],AgeGEQ65=dat2$AgeGEQ65[1],UrbanPop=dat2$UrbanPop[1])%>%
+  mutate(model=exp(coef[1]+coef[2]*day+coef[3]*day^2+coef[[4]]*GHS_Score+fix_ef[[5]]*AgeGEQ65+fix_ef[[6]]*UrbanPop))
+ggplot(data=t)+geom_line(aes(x=day,y=model))
+```
+
+###China Model 2
+
+```{r}
+country = 23
+country_name = 'China'
+rand_ef = ranef(glmm2)$Country.Region[country,]
+fix_ef = fixef(glmm2)
+coef = c(fix_ef[[1]]+rand_ef[[1]],fix_ef[[2]]+rand_ef[[2]],fix_ef[[3]]+rand_ef[[3]],fix_ef[[4]],fix_ef[[5]],fix_ef[[6]])
+dat2 <- dat %>% 
+  filter(Country.Region==country_name) %>% 
+  mutate(model=exp(coef[1]+coef[2]*day+coef[3]*day^2+coef[[4]]*GHS_Score+fix_ef[[5]]*AgeGEQ65+fix_ef[[6]]*UrbanPop))
+ggplot(data=dat2)+geom_line(aes(x=day,y=new_cases))+geom_line(aes(x=day,y=model))
+```
+
+and the prediction
+
+```{r}
+t<-tibble(day=1:100)%>%mutate(day2=(1:100)^2,GHS_Score=dat2$GHS_Score[1],AgeGEQ65=dat2$AgeGEQ65[1],UrbanPop=dat2$UrbanPop[1])%>%
+  mutate(model=exp(coef[1]+coef[2]*day+coef[3]*day^2+coef[[4]]*GHS_Score+fix_ef[[5]]*AgeGEQ65+fix_ef[[6]]*UrbanPop))
+ggplot(data=t)+geom_line(aes(x=day,y=model))
+```
+
+###South Korea Model 1
+
+```{r}
+country = 54
+country_name = 'Korea, South'
+rand_ef = ranef(glmm1)$Country.Region[country,]
+fix_ef = fixef(glmm1)
+coef = c(fix_ef[[1]]+rand_ef[[1]],fix_ef[[2]]+rand_ef[[2]],fix_ef[[3]],fix_ef[[4]],fix_ef[[5]],fix_ef[[6]])
+dat2 <- dat %>% 
+  filter(Country.Region==country_name) %>% 
+  mutate(model=exp(coef[1]+coef[2]*day+coef[3]*day^2+coef[[4]]*GHS_Score+fix_ef[[5]]*AgeGEQ65+fix_ef[[6]]*UrbanPop))
+ggplot(data=dat2)+geom_line(aes(x=day,y=new_cases))+geom_line(aes(x=day,y=model))
+```
+
+and the prediction
+
+```{r}
+t<-tibble(day=1:100)%>%mutate(day2=(1:100)^2,GHS_Score=dat2$GHS_Score[1],AgeGEQ65=dat2$AgeGEQ65[1],UrbanPop=dat2$UrbanPop[1])%>%
+  mutate(model=exp(coef[1]+coef[2]*day+coef[3]*day^2+coef[[4]]*GHS_Score+fix_ef[[5]]*AgeGEQ65+fix_ef[[6]]*UrbanPop))
+ggplot(data=t)+geom_line(aes(x=day,y=model))
+```
+
+###South Korea Model 2
+
+```{r}
+country = 54
+country_name = 'Korea, South'
+rand_ef = ranef(glmm2)$Country.Region[country,]
+fix_ef = fixef(glmm2)
+coef = c(fix_ef[[1]]+rand_ef[[1]],fix_ef[[2]]+rand_ef[[2]],fix_ef[[3]]+rand_ef[[3]],fix_ef[[4]],fix_ef[[5]],fix_ef[[6]])
+dat2 <- dat %>% 
+  filter(Country.Region==country_name) %>% 
+  mutate(model=exp(coef[1]+coef[2]*day+coef[3]*day^2+coef[[4]]*GHS_Score+fix_ef[[5]]*AgeGEQ65+fix_ef[[6]]*UrbanPop))
+ggplot(data=dat2)+geom_line(aes(x=day,y=new_cases))+geom_line(aes(x=day,y=model))
+```
+
+and the prediction
+
+```{r}
+t<-tibble(day=1:100)%>%mutate(day2=(1:100)^2,GHS_Score=dat2$GHS_Score[1],AgeGEQ65=dat2$AgeGEQ65[1],UrbanPop=dat2$UrbanPop[1])%>%
+  mutate(model=exp(coef[1]+coef[2]*day+coef[3]*day^2+coef[[4]]*GHS_Score+fix_ef[[5]]*AgeGEQ65+fix_ef[[6]]*UrbanPop))
+ggplot(data=t)+geom_line(aes(x=day,y=model))
+```
+
