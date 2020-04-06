@@ -7,10 +7,18 @@ output: html_document
 
 ````{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(stats)
+library(lme4)
+library(nlme)
+
+#Run readin2.R to get covid_dat data
+covid_dat
 ```
 
 
-Fit a nonlinear regression with a logistic growth function (nlme). 
+Fit a nonlinear regression with a logistic growth function (nlme). Note, the parameters in this model represent total number of cases, rate of growth, and 
 
 
 Looking at a few countries to see if logistic growth makes sense:
@@ -41,16 +49,115 @@ Based on these few countries, it seems reasonable to use logistic regression.
 
 ```{r}
 
-logisticModel <- nls(total_cases ~ K/(1+exp(Po + r * day)), start=list(Po=0, r=-.05, K=20), data=afg)
+# Just playing around with functions
+#logisticModel <- nls(total_cases ~ K/(1+exp(Po + r * day)), start=list(Po=0, r=-.05, K=20), data=afg)
 
 
+
+#Note: Model is evaluating at each day; Asym = Estimated make number of cases; xmid = estimated day of inflection; scal = a numeric scale parameter on the input axis
+
+#get initial values (SSlogis is self)
 initVals <- getInitial(total_cases ~ SSlogis(day, Asym, xmid, scal), data=covid_dat)
+
+#initial value for xmid seems to be way too high, so try initVals2 to see if it adjusts
+
+initVals2 = c(initVals[1], 10, initVals[3])
+
+
 baseModel <- nlme(total_cases ~ SSlogis(day, Asym, xmid, scal),
                   data=covid_dat,
                   fixed = list(Asym ~ 1, xmid~1, scal~1),
-                  random = Asym + xmid + scal ~ 1|Country.Region,
-                  start = initVals)
+                  random = Asym + xmid + scal~ 1|Country.Region,
+                  start = initVals2)
 
+
+```
+
+
+Run everything below once model runs correctly:
+
+#### Summary
+
+```{r}
+summary(baseModel)
+```
+
+#### Fixed Effects
+
+```{r}
+# Fixed effects of the model parameters
+summary(baseModel)
+```
+
+#### Random Effects
+
+```{r}
+# Random effects of the model parameters by country
+ranef(baseModel)
+```
+
+
+
+###USA
+```{r}
+# Data manipulation to create USA predictions in the next step
+usa <- filter(covid_dat, Country.Region == "US")
+preds <- predict(baseModel)
+preds_dat <- data.frame(country = attr(preds, "names"), pred = preds)
+preds_dat_usa <- preds_dat %>% 
+  filter(country == "US") 
+preds_dat_usa <- preds_dat_usa %>%
+  mutate(day = as.numeric(rownames(preds_dat_usa)) - 1)
+
+# Model has great predictions on USA data up till March 25, predicting a normal curve with peak new cases at day 29
+plot(usa$day, usa$total_cases)
+lines(preds_dat_usa$day, preds_dat_usa$pred)
+```
+
+
+###China
+```{r}
+# Data manipulation to create USA predictions in the next step
+china <- filter(covid_dat, Country.Region == "China")
+preds <- predict(baseModel)
+preds_dat <- data.frame(country = attr(preds, "names"), pred = preds)
+preds_dat_china <- preds_dat %>% 
+  filter(country == "China") 
+preds_dat_china <- preds_dat_china %>%
+  mutate(day = as.numeric(rownames(preds_dat_china)) - 1)
+
+# Model has great predictions on USA data up till March 25, predicting a normal curve with peak new cases at day 29
+plot(china$day, china$total_cases)
+lines(preds_dat_china$day, preds_dat_china$pred)
+```
+
+
+###South Korea
+```{r}
+# Data manipulation to create USA predictions in the next step
+sk <- filter(covid_dat, Country.Region == "Korea, South")
+preds <- predict(baseModel)
+preds_dat <- data.frame(country = attr(preds, "names"), pred = preds)
+preds_dat_sk <- preds_dat %>% 
+  filter(country == "Korea, South") 
+preds_dat_sk <- preds_dat_sk %>%
+  mutate(day = as.numeric(rownames(preds_dat_sk)) - 1)
+
+# Model has great predictions on USA data up till March 25, predicting a normal curve with peak new cases at day 29
+plot(sk$day, sk$total_cases)
+lines(preds_dat_sk$day, preds_dat_sk$pred)
+```
+
+
+
+
+###Try with no random effects:
+
+```{r}
+
+#Try with no random effects:
+fit <- nls(total_cases ~ SSlogis(day, Asym, xmid, scal), data=covid_dat)
+summary(fit)
 
 ```
 
