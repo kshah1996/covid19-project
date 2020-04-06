@@ -90,6 +90,8 @@ lines(preds_dat_usa$day, preds_dat_usa$pred)
 
 ## Modeling the New Dataset
 
+### Nonlinear Mixed Effects Model (NLME)
+
 Now we try to run the same model using the new data, called `dat`. If you uncomment this code and run it, you'll get an error: `Error in nlme.formula(new_cases ~ bellcurve.model(d, mu, var, x = day),  : Singularity in backsolve at level 0, block 1`
 
 ```{r}
@@ -101,5 +103,58 @@ Now we try to run the same model using the new data, called `dat`. If you uncomm
 #                  na.action = na.omit)
 ```
 
+### Nonlinear Least Squares
 
+This is an alternative modeling method we can use, but it would just be limited to one country at at time without borrowing information from other countries. Also probably limited to countries with lots of data. Here's a quick example.
+
+```{r}
+# Same bell curve function as before
+bellcurve.model <- function(d, mu, var, x) {
+  f <- d*exp(-((x - mu)^2) / (2*var))
+  return(f)
+}
+```
+
+
+#### South Korea
+
+Starting parameter estimates chosen as d=800, mu=15, and var=25 based on a quick look at South Korea's scatterplot.
+
+```{r}
+southkorea <- filter(dat, Country.Region == "Korea, South")
+
+m1 <- nls(new_cases ~ bellcurve.model(d, mu, var, x = day), 
+          start = list(d = 800, mu = 15, var = 25), 
+          data = southkorea, 
+          #trace = TRUE, 
+          lower = list(d = 1, mu = 1, var = 0))
+
+plot(southkorea$day, southkorea$new_cases)
+lines(southkorea$day, predict(m1))
+
+# South Korea estimates from the model
+summary(m1)
+```
+
+#### USA
+
+Starting parameter estimates chosen as d=5000, mu=15, and var=25 based on a looking at USA's scatterplot.
+
+```{r}
+usa <- filter(dat, Country.Region == "US")
+
+# Model fit, with lower bounds for parameter estimates that can be specified for the port algorithm
+m2 <- nls(new_cases ~ bellcurve.model(d, mu, var, x = day), 
+          start = list(d = 5000, mu = 15, var = 25), 
+          data = usa, 
+          #trace = TRUE, 
+          algorithm = "port", 
+          lower = list(d = 1, mu = 1, var = 0))
+
+plot(usa$day, usa$new_cases)
+lines(usa$day, predict(m2))
+
+# USA estimates from the model
+summary(m2)
+```
 
