@@ -1,0 +1,105 @@
+---
+title: "NLME"
+author: "Kushal Shah"
+date: "4/5/2020"
+output: html_document
+---
+
+### Setup and Read-in
+
+```{r, echo = T, results = 'hide', message = FALSE}
+library(tidyverse)
+library(stats)
+library(lme4)
+library(nlme)
+
+dat <- readRDS("dat.rds")
+dat_old <- readRDS("dat_old.rds")
+```
+
+### Bell Curve Functional Form
+
+We begin with the assumption that the normal distribution kernel, scaled by a constant, appears to be a good approximation. Here, we have three parameters that can be customized to every country: d (constant that changes the height of the curve), mu (approximately represents the day of peak cases), and var (spread of the bell curve).
+
+```{r}
+# Functional form of new COVID cases
+bellcurve.model <- function(d, mu, var, x) {
+  f <- d*exp(-((x - mu)^2) / (2*var))
+  return(f)
+}
+```
+
+## Modeling the Old Dataset
+
+Using data from approximately ten days ago, called `dat_old`.
+
+### Nonlinear Mixed Effects Model (Old Dataset)
+
+Uses the nlme function of the nlme library to fit a nonlinear mixed model. Here, every country is given a random effect for d, mu, and var. We start at fixed estimates of d=1000, mu=20, var=20.
+
+The model updates following the base model are something I don't fully understand yet, but each update increase the accuracy of the model.
+
+```{r}
+# NLME model using old dataset
+baseModel <- nlme(new_cases ~ bellcurve.model(d, mu, var, x = day), 
+                  data = dat_old, 
+                  fixed = list(d ~ 1, mu ~ 1, var ~ 1),
+                  random = d + mu + var ~ 1|Country.Region,
+                  start = list(fixed = c(1000, 20, 20)),
+                  na.action = na.omit)
+
+# Updates to increase accuracy of the model
+nestedModel <- update(baseModel, fixed = list(d ~ 1, mu ~ 1, var ~ 1), start = fixef(baseModel))
+nestedModel2 <- update(nestedModel, fixed = list(d ~ 1, mu ~ 1, var ~ 1), start = fixef(nestedModel))
+```
+
+### Model Summary
+
+#### Fixed Effects
+
+```{r}
+# Fixed effects of the model parameters
+summary(nestedModel2)
+```
+
+#### Random Effects
+
+```{r}
+# Random effects of the model parameters by country
+ranef(nestedModel2)
+```
+
+### Model Fit and Predictions for USA
+
+From the following output, it seems like the model had good predictions on the USA data and accurately has the peak of the bell curve not occuring well past the latest day available in the dataset.
+
+```{r}
+# Data manipulation to create USA predictions in the next step
+usa <- filter(dat_old, Country.Region == "US")
+preds <- predict(nestedModel2)
+preds_dat <- data.frame(country = attr(preds, "names"), pred = preds)
+preds_dat_usa <- preds_dat %>% 
+  filter(country == "US") 
+preds_dat_usa <- preds_dat_usa %>%
+  mutate(day = as.numeric(rownames(preds_dat_usa)) - 1)
+
+# Model has great predictions on USA data up till March 25, predicting a normal curve with peak new cases at day 29
+plot(usa$day, usa$new_cases)
+lines(preds_dat_usa$day, preds_dat_usa$pred)
+```
+
+## Modeling the New Dataset
+
+Now we try to run the same model using the new data, called `dat`. If you uncomment this code and run it, you'll get an error: `Error in nlme.formula(new_cases ~ bellcurve.model(d, mu, var, x = day),  : Singularity in backsolve at level 0, block 1`
+
+```{r}
+#baseModel2 <- nlme(new_cases ~ bellcurve.model(d, mu, var, x = day), 
+#                  data = dat, 
+#                  fixed = list(d ~ 1, mu ~ 1, var ~ 1),
+#                  random = d + mu + var ~ 1|Country.Region,
+#                  start = list(fixed = c(1000, 20, 20)),
+#                  na.action = na.omit)
+```
+
+
+
