@@ -155,6 +155,13 @@ plot(usa$day, usa$new_cases)
 lines(usa$day, predict(m2))
 
 # USA estimates from the model
-summary(m2)
+
+## 4/5/20 - 855,600 by 5/4. Peak 4/8 @ 35,400.
+##summary(m2)
+##sum(bellcurve.model(d = 35436.6, mu = 43.818, var = 92.778, x = 1:70))
+##as.Date("2020-02-24")+70 # Final date of prediction
+##as.Date("2020-02-24")+44 # Peak single day
+
+
 ```
 
