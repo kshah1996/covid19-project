@@ -34,14 +34,17 @@ glmm2 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day +
 There are a couple of warnings here. The first deals with non-convergence, which could be caused by having multiple random and fixed effects. I tried using both bobyqa and Nelder-Mead for the optimzation algorithm in glmer but could not achieve convergence at their threshold. A model with only two random effects (intercept and day) and two fixed effects (intercept and day) does not have this error. The second warning deals with unidentifiability. I have tried rescaling parameters by normalizing them and using the log odds from percentiles but could not get this warning to go away either. Nonetheless, we still get a fit.
 
 ```{r}
-dats <- dat
-dats["AgeGEQ65"] <- scale(dats["AgeGEQ65"])
-dats["GHS_Score"] <- scale(dats["GHS_Score"])
-glmm11 <- glmer(new_cases ~ day + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dats, family = poisson)
+# dats <- dat
+# dats["AgeGEQ65"] <- scale(dats["AgeGEQ65"])
+# dats["GHS_Score"] <- scale(dats["GHS_Score"])
+# glmm1_wo_day2 <- glmer(new_cases ~ day + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dats, family = poisson)
 ```
 
 ```{r}
 summary(glmm1)
+```
+```{r}
+# summary(glmm1_wo_day2)
 ```
 
 For Model 1, it seems that for fixed effects, all but AgeGEQ65 and UrbanPop were significant.
