@@ -1,0 +1,69 @@
+---
+title: "**COVID-19**"
+author: "Emily Damone, Taylor Krajewski, Alex Quinter, Kushal Shah, Euphy Wu, Jonathan Zhang"
+date: "4/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **Introduction**
+(Background on Covid and a short description of difficulties in making real-time predictions as well as why we wanted to do this project/what we hypothesized)
+
+# **Project Goal**
+
+To predict the number of new cases of Covid-19 a country can expect on a chosen day given that country's previous number of recorded cases and a few measurable variables specific to that country that may affect the spread of cases.
+
+
+# **Data**
+
+## *Raw Data*
+
+
+### Hopkin’s COVID-19 Data
+(give brief description of dataset)
+
+### World Bank Data
+(give brief discussion and talk about decision to add this data as covariates in model)
+
+### Global Health Index Data
+(give brief discussion and talk about decision to add this data as covariates in model)
+
+## *Data Processing*
+(Data processing summary - should discuss joining Covid data with country data from the other sources mentioned above)
+
+## *Finalized Data*
+(give a peak at our final data - maybe pick a country or two and show the data we will use from that country in our model?)
+
+# **Packaging**
+(description of our R package - functions and datasets it holds)
+
+# **Methods**
+
+## *Poisson GLMM*
+(describe GLMM model that we are modeling from scratch)
+
+## *Machine Learning Method*
+(describe machine learning method used)
+
+## *Model Evaluation*
+(describe how we evaluated our model prediction and include comparison of Module 2/Module 3 methods)
+
+# **Results**
+
+## *Poisson GLMM*
+
+## *Machine Learning*
+
+## *Comparison on Methods*
+
+# **Discussion**
+(give brief summary of what was shown in the results section and add in any subjective thoughts.)
+
+## *Limitations*
+(This could go on for pages - will try to focus on a brief description. Discussed including one or two plots, such as South Korea, to show some limitations)
+
+# **References**
+(add in any articles we referenced, websites where data came from, etc.)
