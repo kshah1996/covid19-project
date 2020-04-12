@@ -13,15 +13,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
-# **Introduction**
+# Introduction
 (Background on Covid and a short description of difficulties in making real-time predictions as well as why we wanted to do this project/what we hypothesized)
 
-# **Project Goal**
+# Project Goal
 
 To predict the number of new cases of Covid-19 a country can expect on a chosen day given that country's previous number of recorded cases and a few measurable variables specific to that country that may affect the spread of the virus.
 
 
-# **Data**
+# Data
 
 ## *Raw Data*
 
@@ -41,10 +41,10 @@ To predict the number of new cases of Covid-19 a country can expect on a chosen 
 ## *Finalized Data*
 (give a peak at our final data - maybe pick a country or two and show the data we will use from that country in our model?)
 
-# **Packaging**
+# Packaging
 (description of our R package - functions and datasets it holds)
 
-# **Methods**
+# Methods
 
 ## *Poisson GLMM*
 
@@ -92,7 +92,7 @@ We maximized this log-likelihood to obtain estimates for $\beta$ and $G$.
 (describe how we evaluated our model prediction and include comparison of Module 2/Module 3 methods)
 
 
-# **Results**
+# Results
 
 ## *Poisson GLMM*
 
@@ -100,13 +100,13 @@ We maximized this log-likelihood to obtain estimates for $\beta$ and $G$.
 
 ## *Comparison on Methods*
 
-# **Discussion**
+# Discussion
 (give brief summary of what was shown in the results section and add in any subjective thoughts.Interpretation or possible future directions)
 
 ## *Limitations*
 (This could go on for pages - will try to focus on a brief description. Discussed including one or two plots, such as South Korea, to show some limitations)
 
-# **References**
+# References
 
 Google Cloud Platform, Google, console.cloud.google.com/marketplace/details/johnshopkins/covid19_jhu_global_cases.
 
