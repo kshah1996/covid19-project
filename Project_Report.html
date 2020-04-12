@@ -375,7 +375,7 @@ summary {
 </div>
 <div id="project-goal" class="section level1">
 <h1><strong>Project Goal</strong></h1>
-<p>To predict the number of new cases of Covid-19 a country can expect on a chosen day given that country’s previous number of recorded cases and a few measurable variables specific to that country that may affect the spread of cases.</p>
+<p>To predict the number of new cases of Covid-19 a country can expect on a chosen day given that country’s previous number of recorded cases and a few measurable variables specific to that country that may affect the spread of the virus.</p>
 </div>
 <div id="data" class="section level1">
 <h1><strong>Data</strong></h1>
@@ -411,7 +411,21 @@ summary {
 <h1><strong>Methods</strong></h1>
 <div id="poisson-glmm" class="section level2">
 <h2><em>Poisson GLMM</em></h2>
-<p>(describe GLMM model that we are modeling from scratch)</p>
+<p>Let <span class="math inline">\(y_{ij}\)</span> be the number of new cases country <span class="math inline">\(i\)</span> has on day <span class="math inline">\(j\)</span>.</p>
+<p>We assume that each <span class="math inline">\(y_{ij} \sim Poisson(\lambda_{ij})\)</span>, where the mean and variance of <span class="math inline">\(y_{ij}\)</span> is assumed to be some <span class="math inline">\(\lambda_{ij}\)</span></p>
+<p>Let the covariate vector pertaining to the <span class="math inline">\(i^{th}\)</span> countrh in the <span class="math inline">\(j^{th}\)</span> month be defined as <span class="math inline">\(x_{ij} = (1, t_{ij}, t^2_{ij}, GHS, AgeGEQ65, UrbanPop)\)</span>.</p>
+<p>We assume an intercept, <span class="math inline">\(\beta_0\)</span>, in our model, and thus we have <span class="math inline">\(\beta = (\beta_0, \beta_1, \beta_2, \beta_3, \beta_4, \beta_5, \beta_6)^T\)</span>.</p>
+<p>We assumed counts can be modeled with a Poisson GLMM such that <span class="math inline">\(log(\lambda_{ij})=x_{ij}\beta+\gamma_{i1}+\gamma_{i2}t_{ij} = x_{ij}\beta+z_{ij}\gamma_i\)</span>, where <span class="math inline">\(b_i\)</span> is a vector of unobserved country-level random effects. We assume that</p>
+<p><span class="math display">\[\left(\begin{array}{cc}\gamma_{i1} \\\gamma_{i2}\end{array}\right) \sim N_2\bigg(\left(\begin{array}{cc}0 \\0\end{array}\right),\left(\begin{array}{cc}g_{11} &amp; g_{12} \\g_{21} &amp; g_{22}\end{array}\right)\bigg)\]</span></p>
+<p>So, in our model, <span class="math inline">\(\gamma_{i1}\)</span> is the deviation of the <span class="math inline">\(i^{th}\)</span> country from the baseline number of new cases, which we have set to 50, and <span class="math inline">\(\gamma_{i2}\)</span> is the deviation of the <span class="math inline">\(i^{th}\)</span> country from the average effect of the covariates in our model on number of new cases.</p>
+<p>As in all GLMMs, the random effects are unobservable. Therefore, in order to obtain the likelihood, we must integrate them out.</p>
+<p>Thus, we must perform separate integrals for each <span class="math inline">\(\left(\begin{array}{cc}\gamma_{i1} \\\gamma_{i2}\end{array}\right)\)</span>, which share the common distribution dtermined by <span class="math inline">\(G=\left(\begin{array}{cc}g_{11} &amp; g_{12} \\g_{21} &amp; g_{22}\end{array}\right)\)</span>.</p>
+<p>Thus, we write the likelihood:</p>
+<p><span class="math display">\[L(\beta, G | y, \gamma)=\prod^{n}_{i=1}\bigg(\prod^{n_i}_{j=1}f(y_{ij}|\lambda_{ij})\bigg)\phi(\gamma_i | 0, G) = \prod^{n}_{i=1}\int\bigg[\bigg(\prod^{n_i}_{j=1}f(y_{ij}|\lambda_{ij})\bigg)\phi(\gamma_i|0,G)\bigg]d\gamma_i\]</span></p>
+<p>and the log-likelihood:</p>
+<p><span class="math display">\[l(\beta, G | y, \gamma)=\sum^{n}_{i=1}log\bigg[\int\bigg[\bigg(\prod^{n_i}_{j=1}f(y_{ij}|\lambda_{ij})\bigg)\phi(\gamma_i|0,G)\bigg]d\gamma_i\bigg]\]</span></p>
+<p>where <span class="math inline">\(f(y_{ij}|\lambda_{ij})\)</span> is the Poisson PMF with mean <span class="math inline">\(\lambda_{ij}\)</span>, as defined above, and <span class="math inline">\(\phi(\gamma_i|0,G)\)</span> is the bivariate Normal PDF with mean 0 and covariance matrix <span class="math inline">\(G=\left(\begin{array}{cc}g_{11} &amp; g_{12} \\g_{21} &amp; g_{22}\end{array}\right)\)</span>.</p>
+<p>We maximized this log-likelihood to obtain estimates for <span class="math inline">\(\beta\)</span> and <span class="math inline">\(G\)</span>. <strong><em>Need to explain how we did this here!</em></strong></p>
 </div>
 <div id="machine-learning-method" class="section level2">
 <h2><em>Machine Learning Method</em></h2>

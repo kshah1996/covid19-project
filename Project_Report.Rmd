@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # **Project Goal**
 
-To predict the number of new cases of Covid-19 a country can expect on a chosen day given that country's previous number of recorded cases and a few measurable variables specific to that country that may affect the spread of cases.
+To predict the number of new cases of Covid-19 a country can expect on a chosen day given that country's previous number of recorded cases and a few measurable variables specific to that country that may affect the spread of the virus.
 
 
 # **Data**
@@ -43,7 +43,40 @@ To predict the number of new cases of Covid-19 a country can expect on a chosen 
 # **Methods**
 
 ## *Poisson GLMM*
-(describe GLMM model that we are modeling from scratch)
+
+Let $y_{ij}$ be the number of new cases country $i$ has on day $j$. 
+
+We assume that each $y_{ij} \sim Poisson(\lambda_{ij})$, where the mean and variance of $y_{ij}$ is assumed to be some $\lambda_{ij}$
+
+Let the covariate vector pertaining to the $i^{th}$ countrh in the $j^{th}$ month be defined as $x_{ij} = (1, t_{ij}, t^2_{ij}, GHS, AgeGEQ65, UrbanPop)$.
+
+We assume an intercept, $\beta_0$, in our model, and thus we have $\beta = (\beta_0, \beta_1, \beta_2, \beta_3, \beta_4, \beta_5, \beta_6)^T$.
+
+We assumed counts can be modeled with a Poisson GLMM such that $log(\lambda_{ij})=x_{ij}\beta+\gamma_{i1}+\gamma_{i2}t_{ij} = x_{ij}\beta+z_{ij}\gamma_i$, where $b_i$ is a vector of unobserved country-level random effects. We assume that
+
+$$\left(\begin{array}{cc}\gamma_{i1} \\\gamma_{i2}\end{array}\right) \sim N_2\bigg(\left(\begin{array}{cc}0 \\0\end{array}\right),\left(\begin{array}{cc}g_{11} & g_{12} \\g_{21} & g_{22}\end{array}\right)\bigg)$$
+
+So, in our model, $\gamma_{i1}$ is the deviation of the $i^{th}$ country from the baseline number of new cases, which we have set to 50, and $\gamma_{i2}$ is the deviation of the $i^{th}$ country from the average effect of the covariates in our model on number of new cases.
+
+
+As in all GLMMs, the random effects are unobservable. Therefore, in order to obtain the likelihood, we must integrate them out.
+
+Thus, we must perform separate integrals for each $\left(\begin{array}{cc}\gamma_{i1} \\\gamma_{i2}\end{array}\right)$, which share the common distribution dtermined by $G=\left(\begin{array}{cc}g_{11} & g_{12} \\g_{21} & g_{22}\end{array}\right)$.
+
+Thus, we write the likelihood:
+
+$$L(\beta, G | y, \gamma)=\prod^{n}_{i=1}\bigg(\prod^{n_i}_{j=1}f(y_{ij}|\lambda_{ij})\bigg)\phi(\gamma_i | 0, G) = \prod^{n}_{i=1}\int\bigg[\bigg(\prod^{n_i}_{j=1}f(y_{ij}|\lambda_{ij})\bigg)\phi(\gamma_i|0,G)\bigg]d\gamma_i$$
+
+and the log-likelihood:
+
+$$l(\beta, G | y, \gamma)=\sum^{n}_{i=1}log\bigg[\int\bigg[\bigg(\prod^{n_i}_{j=1}f(y_{ij}|\lambda_{ij})\bigg)\phi(\gamma_i|0,G)\bigg]d\gamma_i\bigg]$$
+
+where $f(y_{ij}|\lambda_{ij})$ is the Poisson PMF with mean $\lambda_{ij}$, as defined above, and $\phi(\gamma_i|0,G)$ is the bivariate Normal PDF with mean 0 and covariance matrix $G=\left(\begin{array}{cc}g_{11} & g_{12} \\g_{21} & g_{22}\end{array}\right)$.
+
+
+We maximized this log-likelihood to obtain estimates for $\beta$ and $G$.
+
+***Need to explain how we did this here!***
 
 ## *Machine Learning Method*
 (describe machine learning method used)
