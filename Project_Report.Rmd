@@ -44,6 +44,9 @@ To predict the number of new cases of Covid-19 a country can expect on a chosen 
 
 ## *Poisson GLMM*
 
+***Add in paragraph on why we fit a model with tij^2 and how the logistic growth of cumulative counts leads to the normal curve for new cases***
+
+
 Let $y_{ij}$ be the number of new cases country $i$ has on day $j$. 
 
 We assume that each $y_{ij} \sim Poisson(\lambda_{ij})$, where the mean and variance of $y_{ij}$ is assumed to be some $\lambda_{ij}$
@@ -75,14 +78,15 @@ where $f(y_{ij}|\lambda_{ij})$ is the Poisson PMF with mean $\lambda_{ij}$, as d
 
 
 We maximized this log-likelihood to obtain estimates for $\beta$ and $G$.
-
 ***Need to explain how we did this here!***
+
 
 ## *Machine Learning Method*
 (describe machine learning method used)
 
 ## *Model Evaluation*
 (describe how we evaluated our model prediction and include comparison of Module 2/Module 3 methods)
+
 
 # **Results**
 
@@ -99,4 +103,10 @@ We maximized this log-likelihood to obtain estimates for $\beta$ and $G$.
 (This could go on for pages - will try to focus on a brief description. Discussed including one or two plots, such as South Korea, to show some limitations)
 
 # **References**
-(add in any articles we referenced, websites where data came from, etc.)
+
+Google Cloud Platform, Google, console.cloud.google.com/marketplace/details/johnshopkins/covid19_jhu_global_cases.
+
+
+“The Global Health Security Index.” GHS Index, www.ghsindex.org/. 
+
+“World Bank Open Data.” Data, 7 Apr. 2020, data.worldbank.org/.
