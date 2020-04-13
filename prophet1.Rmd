@@ -1,0 +1,30 @@
+---
+title: "prophet"
+author: "Emily Damone"
+date: "April 13, 2020"
+output: html_document
+---
+
+US forecast of total cases using logistic growth - need to add 
+```{r setup, include=FALSE}
+library(tidyverse)
+library(prophet)
+
+dat <- readRDS("dat2.rds")
+dat <- dat[dat$Country.Region == "US", ]
+prophet_dat <- as.data.frame(dat$date)
+prophet_dat$y <- as.numeric(dat$total_cases)
+#prophet needs a capacity when forecasting logistic, currently total population - we would need this for all countries
+prophet_dat$cap <- rep(328200000, length(prophet_dat$y))
+
+colnames(prophet_dat) <- c("ds", "y", "cap")
+
+now <- prophet(prophet_dat, growth = "logistic")
+
+future <- make_future_dataframe(now, periods = 10)
+future$cap <- rep(328200000, length(future$ds))
+
+forecast <- predict(now, future, )
+
+plot(now, forecast, plot_cap=FALSE, uncertainty = TRUE)
+```
