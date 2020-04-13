@@ -9,8 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-![](C:\Users\tjk\Documents\BIOS 735\covid19-project\mask.png) 
-
+<p align="center">
+<img width="250" src="mask.png">
+</p>
 
 
 # Introduction
@@ -25,9 +26,11 @@ To predict the number of new cases of Covid-19 a country can expect on a chosen 
 
 ## *Raw Data*
 
+### Hopkins COVID-19 Data
 
-### Hopkin’s COVID-19 Data
-(give brief description of dataset)
+Our initial dataset comes from the Johns Hopkins CSSE, a team which has been refreshing the dataset daily during the ongoing COVID-19 crisis. The dataset includes coronavirus total cases, recoveries, active cases, and deaths per day by country, with information for certain regions given in more detail (e.g. US states). 
+
+For this project, the focus was confirmed cases. Dates from the original dataset wre standardized by relabeling the date at which a country passes 50 total cases as "Day 0", with every day past that used for modeling purposes. A variable for new cases was created by lagging over total cases. 
 
 ### World Bank Data
 (give brief discussion and talk about decision to add this data as covariates in model)
@@ -39,7 +42,7 @@ To predict the number of new cases of Covid-19 a country can expect on a chosen 
 (Data processing summary - should discuss joining Covid data with country data from the other sources mentioned above)
 
 ## *Finalized Data*
-(give a peak at our final data - maybe pick a country or two and show the data we will use from that country in our model?)
+(give a peek at our final data - maybe pick a country or two and show the data we will use from that country in our model?)
 
 # Packaging
 (description of our R package - functions and datasets it holds)

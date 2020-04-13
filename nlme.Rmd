@@ -162,6 +162,6 @@ lines(usa$day, predict(m2))
 ##as.Date("2020-02-24")+70 # Final date of prediction
 ##as.Date("2020-02-24")+44 # Peak single day
 
-
+## 4/11/20 - 790000 by 5/4.
 ```
 

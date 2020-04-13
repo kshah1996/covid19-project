@@ -28,8 +28,11 @@ dat_over_10 <- dat %>%
 ```
 
 ```{r}
-# Terrible fit
-REEMresult <- REEMtree(new_cases ~ day, data = as.data.frame(dat), random = ~1|Country.Region)
+# Works but terrible fit
+REEMresult <- REEMtree(new_cases ~ day, data = as.data.frame(dat), random = ~ day|Country.Region)
+#REEMresult <- REEMtree(new_cases ~ day, data = as.data.frame(dat), random = ~day|Country.Region, tree.control = rpart.control(minsplit=5, cp=.001))
+fitted.REEMtree(REEMresult)
+dat$pred2 <- fitted(REEMresult)
 
 # Cannot have more than 53 categories of a predictor
 # randomForest(new_cases ~ Country.Region + day, data = dat)
