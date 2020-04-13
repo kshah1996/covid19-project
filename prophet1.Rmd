@@ -6,7 +6,7 @@ output: html_document
 ---
 
 US forecast of total cases using logistic growth - need to add 
-```{r setup, include=FALSE}
+```{r setup}
 library(tidyverse)
 library(prophet)
 
