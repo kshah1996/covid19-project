@@ -1,0 +1,46 @@
+---
+title: "REEM Tree"
+author: "Kushal Shah"
+date: "4/12/2020"
+output: html_document
+---
+
+```{r, echo = T, results = 'hide', message = FALSE}
+library(tidyverse)
+library(stats)
+library(lme4)
+library(nlme)
+library(REEMtree)
+library(randomForest)
+library(glmertree)
+library(MixRF)
+
+dat <- readRDS("dat.rds")
+dat_old <- readRDS("dat_old.rds")
+
+dat <- dat %>%
+  filter(!(Country.Region == "China" & day == 0))
+
+over_10 <- unique((dat %>% filter(day>=10))$Country.Region)
+
+dat_over_10 <- dat %>%
+  filter(Country.Region %in% over_10)
+```
+
+```{r}
+# Terrible fit
+REEMresult <- REEMtree(new_cases ~ day, data = as.data.frame(dat), random = ~1|Country.Region)
+
+# Cannot have more than 53 categories of a predictor
+# randomForest(new_cases ~ Country.Region + day, data = dat)
+
+# Unidentifiable model
+g <- glmertree(new_cases ~ day | (1+day|Country.Region), data = dat_over_10, family = "poisson")
+
+df_model_X <- dat %>%
+  select(Country.Region, day)
+df_model_X <- as.data.frame(df_model_X)
+
+fit <- MixRF(Y = dat$new_cases, X = as.data.frame(dat$day), random = "(day|Country.Region)", data = dat)
+```
+
