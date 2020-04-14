@@ -1,0 +1,10 @@
+Iter: 1 Qf: -582103.933 sigma_gamma1: 10.979922 sigma_gamma2: 0.096295 beta0: -1.180 beta1:0.491 beta2: -0.003 beta3:0.011 beta4: 0.016 beta5:-0.008 eps:57.210393
+Iter: 2 Qf: -400835.315 sigma_gamma1: 12.420114 sigma_gamma2: 0.114533 beta0: -1.430 beta1:0.512 beta2: -0.003 beta3:0.016 beta4: 0.024 beta5:-0.010 eps:0.311402
+Iter: 3 Qf: -332722.217 sigma_gamma1: 13.265103 sigma_gamma2: 0.126142 beta0: -1.464 beta1:0.508 beta2: -0.004 beta3:0.018 beta4: 0.030 beta5:-0.010 eps:0.169928
+Iter: 4 Qf: -271822.272 sigma_gamma1: 13.257457 sigma_gamma2: 0.127668 beta0: -1.472 beta1:0.505 beta2: -0.004 beta3:0.019 beta4: 0.033 beta5:-0.010 eps:0.183035
+Iter: 5 Qf: -197990.992 sigma_gamma1: 13.101685 sigma_gamma2: 0.127707 beta0: -1.462 beta1:0.503 beta2: -0.004 beta3:0.019 beta4: 0.034 beta5:-0.010 eps:0.271616
+Iter: 6 Qf: -165731.026 sigma_gamma1: 13.077708 sigma_gamma2: 0.126724 beta0: -1.454 beta1:0.503 beta2: -0.004 beta3:0.018 beta4: 0.034 beta5:-0.010 eps:0.162937
+Iter: 7 Qf: -151484.358 sigma_gamma1: 13.132487 sigma_gamma2: 0.126675 beta0: -1.468 beta1:0.504 beta2: -0.004 beta3:0.019 beta4: 0.035 beta5:-0.010 eps:0.085963
+Iter: 8 Qf: -135619.303 sigma_gamma1: 13.183886 sigma_gamma2: 0.127504 beta0: -1.472 beta1:0.506 beta2: -0.004 beta3:0.018 beta4: 0.034 beta5:-0.010 eps:0.104731
+Iter: 9 Qf: -127994.817 sigma_gamma1: 13.186003 sigma_gamma2: 0.125748 beta0: -1.483 beta1:0.507 beta2: -0.004 beta3:0.018 beta4: 0.034 beta5:-0.010 eps:0.056220
+Iter: 10 Qf: -121106.429 sigma_gamma1: 13.287118 sigma_gamma2: 0.126273 beta0: -1.494 beta1:0.509 beta2: -0.004 beta3:0.018 beta4: 0.033 beta5:-0.010 eps:0.053818
