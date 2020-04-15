@@ -314,8 +314,8 @@ while(eps > tol & iter < maxit){
     ## print out info to keep track
     cat(sprintf("Iter: %d Qf: %.3f g11: %f g12: %f g22: %f beta0: %.3f beta1:%.3f beta2:%.3f beta3:%.3f beta4 :%.3f
                     beta5:%.3f eps:%f\n",iter, qfunction,diag(Sigma_gamma)[1],Sigma_gamma[1,2],  diag(Sigma_gamma)[2], 
-                beta[1],beta[2], beta[3], beta[4], beta[5], beta[6], eps)
-        #, file = "GLMM_amwg.txt", append = TRUE)
+                beta[1],beta[2], beta[3], beta[4], beta[5], beta[6], eps))
+        , file = "GLMM_amwg_R.txt", append = TRUE)
     
 }
 

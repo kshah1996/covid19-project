@@ -20,9 +20,10 @@ g.sim = function(Sigma_gammat) {
     rmvnorm(1,sigma=Sigma_gammat)
 }
 
+
 # rw density
-h.sim = function(){
-    rnorm(1)
+h.sim = function(var = 1){
+    rnorm(1, mean = 0, sd = sqrt(var))
 }
 
 # new MH ratio function (proposal density cancels out due to symmetr\boldsymbol{y})
@@ -34,7 +35,7 @@ R = function(xt,x, f, yi, Xi, betat, Sigma_gammat){
 }
 
 
-mwg.rw.sampler = function(yi, Xi, betat, Sigma_gammat, M, prev.gamma.i = NULL){
+adaptive.mwg.rw.sampler = function(yi, Xi, betat, Sigma_gammat, M, prev.gamma.i = NULL, b = 50){
     
     # get dimension of gammai
     q = ncol(Sigma_gammat)
@@ -42,16 +43,26 @@ mwg.rw.sampler = function(yi, Xi, betat, Sigma_gammat, M, prev.gamma.i = NULL){
     # initialize the chain vector
     x.indep.chain = matrix(0, M, q)
     
+    
+    # initialize proposal variance
+    prop.var = rep(1, q)
+    
     if(is.null(prev.gamma.i)){
         # Simulate initial draw from original proposal density g
         x.indep.chain[1,] = g.sim(Sigma_gammat)
     }else{
         # if last value from previous chain avail, start there
-        x.indep.chain[1,] = prev.gamma.i    
+        x.indep.chain[1,] = prev.gamma.i  
+        
     }
     
+    #intialize batch index
+    batch = 0
+    
     # now start chain
-    accept = rep(0,q)
+    accept = b.accept = rep(0,q)
+    
+    
     for(i in 1:(M-1)){
         
         # set the value at current iteration of the chain to variable xt
@@ -65,7 +76,8 @@ mwg.rw.sampler = function(yi, Xi, betat, Sigma_gammat, M, prev.gamma.i = NULL){
             x = xt 
             
             # only update the jth component
-            x[j] = x[j] + h.sim()
+            # proposal variance is based on vector
+            x[j] = x[j] + h.sim(var = prop.var[j])
             
             # calculate MH ratio
             r = min(
@@ -85,18 +97,46 @@ mwg.rw.sampler = function(yi, Xi, betat, Sigma_gammat, M, prev.gamma.i = NULL){
                 # reset xt
                 xt = x
                 
-                #  update number of acceptacnes
+                #  update number of acceptances
                 accept[j] = accept[j] + 1
+                b.accept[j] = b.accept[j] + 1 
             }else{
                 # otherwise, carry over value from the current iteration
                 x.indep.chain[i+1,] = xt
             }
         }
         # end of a single gibbs cycle
+        
+        # if at end of batch
+        if(floor(i/b) == ceiling(i/b)){
+            
+            # increment for proposal variance
+            delta.b = min(0.01, 1/sqrt(i))
+            
+            # loop over proposal density variance vector
+            for(j in 1:q){
+                if(b.accept[j]/b > 0.44){
+                    # if greater, add to variance
+                    prop.var[j] = log(sqrt(prop.var[j])) + delta.b        
+                }else{
+                    # otherwise, subtract
+                    prop.var[j] = log(sqrt(prop.var[j])) - delta.b
+                }
+            }
+            
+            # tranform back from log sqrt scale
+            prop.var = exp(prop.var)^2
+            # reset batch counter
+            b.accept = rep(0, q)
+            
+            # increment batch index
+            batch = batch + 1
+        } 
+        
     }
     # end chain 
     
-    return(list(gammai = x.indep.chain, ar = accept/M))
+    return(list(gammai = x.indep.chain, ar = accept/M, prop.var = prop.var))
 }
 
 e.step = function(y, X, betat, Sigma_gammat, M , n, sampler, burn.in=200, prev.gamma= NULL) {
@@ -227,7 +267,7 @@ X <- cbind(1,dat$day,dat$day2,dat$GHS_Score,dat$AgeGEQ65,dat$UrbanPop)
 n <- max(dat$ID)
 
 ## fix chain length at 1000 in E-step
-M = 1000
+M = 10
 # M=10
 start = Sys.time()
 while(eps > tol & iter < maxit){
@@ -241,7 +281,7 @@ while(eps > tol & iter < maxit){
     }
     
     ## E-step
-    estep = e.step(y = dat$new_cases, X = X, betat = beta, Sigma_gammat = Sigma_gamma, M = M, n = n,sampler = mwg.rw.sampler, prev.gamma = prev.gamma)
+    estep = e.step(y = dat$new_cases, X = X, betat = beta, Sigma_gammat = Sigma_gamma, M = M, n = n,sampler = adaptive.mwg.rw.sampler, prev.gamma = prev.gamma)
     gamma = estep$gamma
     qfunction = estep$Qfunction
     offset = estep$offset
@@ -275,7 +315,7 @@ while(eps > tol & iter < maxit){
     cat(sprintf("Iter: %d Qf: %.3f g11: %f g12: %f g22: %f beta0: %.3f beta1:%.3f beta2:%.3f beta3:%.3f beta4 :%.3f
                     beta5:%.3f eps:%f\n",iter, qfunction,diag(Sigma_gamma)[1],Sigma_gamma[1,2],  diag(Sigma_gamma)[2], 
                 beta[1],beta[2], beta[3], beta[4], beta[5], beta[6], eps)
-        , file = "/nas/longleaf/home/euphyw/Desktop/covid19-project/GLMM_mwg_rw_LL.txt", append = TRUE)
+    , file = "/nas/longleaf/home/euphyw/Desktop/covid19-project/GLMM_amwg_LL.txt", append = TRUE)
     
 }
 
