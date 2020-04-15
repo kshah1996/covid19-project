@@ -2,6 +2,7 @@ library(tidyverse)
 library(stats)
 library(lme4)
 library(mvtnorm)
+set.seed(1)
 setwd("/nas/longleaf/home/euphyw/Desktop/covid19-project")
 dat <- readRDS("dat2.rds")
 dat <- dat %>% mutate(day2 = day^2) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)  %>% drop_na(GHS_Score)
@@ -97,10 +98,11 @@ e.step = function(y, X, betat, Sigma_gammat, M , n, sampler, burn.in=200, prev.g
     # loop over observations
     for(i in 1:n){
         
-        
+        if (i == 1) {ni.prev=0}
+        subject.prev=which(dat$ID < i)
+        ni.prev=length(subject.prev)
         # subject i indices
         subjecti = which(dat$ID == i)
-        
         ni = length(subjecti)
         # grab subject i data
         yi = y[subjecti]
@@ -162,8 +164,8 @@ e.step = function(y, X, betat, Sigma_gammat, M , n, sampler, burn.in=200, prev.g
         Qfunction = Qfunction + Qi
         
         # save offset, yaug, xaug for later
-        a = (i-1)*M*ni + 1
-        b = i*M*ni
+        a = M*ni.prev + 1
+        b = M*ni+ a-1
         offset[a:b] = Zgammaaug
         yaug[a:b] = yi_aug
         Xaug[a:b,] = Xi_aug
