@@ -418,7 +418,998 @@ summary {
 </div>
 <div id="finalized-data" class="section level2">
 <h2><em>Finalized Data</em></h2>
-<p>(give a peek at our final data - maybe pick a country or two and show the data we will use from that country in our model?)</p>
+<p>Below is a preview of what our final data set looks like. Each country has a row for each day of recorded cases from baseline (day of 50 cases) until April 12, 2020.</p>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<td colspan="6" style="text-align: left;">
+United States Data
+</td>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Day
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Total Cases
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+New Cases
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+GHS Index
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+% 65+
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+% Urban Setting
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">
+0
+</td>
+<td style="text-align: center;">
+51
+</td>
+<td style="text-align: center;">
+36
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+1
+</td>
+<td style="text-align: center;">
+51
+</td>
+<td style="text-align: center;">
+0
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+2
+</td>
+<td style="text-align: center;">
+57
+</td>
+<td style="text-align: center;">
+6
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+3
+</td>
+<td style="text-align: center;">
+58
+</td>
+<td style="text-align: center;">
+1
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+4
+</td>
+<td style="text-align: center;">
+60
+</td>
+<td style="text-align: center;">
+2
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+5
+</td>
+<td style="text-align: center;">
+68
+</td>
+<td style="text-align: center;">
+8
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+6
+</td>
+<td style="text-align: center;">
+74
+</td>
+<td style="text-align: center;">
+6
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+7
+</td>
+<td style="text-align: center;">
+98
+</td>
+<td style="text-align: center;">
+24
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+8
+</td>
+<td style="text-align: center;">
+118
+</td>
+<td style="text-align: center;">
+20
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+9
+</td>
+<td style="text-align: center;">
+149
+</td>
+<td style="text-align: center;">
+31
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+10
+</td>
+<td style="text-align: center;">
+217
+</td>
+<td style="text-align: center;">
+68
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+11
+</td>
+<td style="text-align: center;">
+262
+</td>
+<td style="text-align: center;">
+45
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+12
+</td>
+<td style="text-align: center;">
+402
+</td>
+<td style="text-align: center;">
+140
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+13
+</td>
+<td style="text-align: center;">
+518
+</td>
+<td style="text-align: center;">
+116
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+14
+</td>
+<td style="text-align: center;">
+583
+</td>
+<td style="text-align: center;">
+65
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+15
+</td>
+<td style="text-align: center;">
+959
+</td>
+<td style="text-align: center;">
+376
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+16
+</td>
+<td style="text-align: center;">
+1281
+</td>
+<td style="text-align: center;">
+322
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+17
+</td>
+<td style="text-align: center;">
+1663
+</td>
+<td style="text-align: center;">
+382
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+18
+</td>
+<td style="text-align: center;">
+2179
+</td>
+<td style="text-align: center;">
+516
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+19
+</td>
+<td style="text-align: center;">
+2727
+</td>
+<td style="text-align: center;">
+548
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+20
+</td>
+<td style="text-align: center;">
+3499
+</td>
+<td style="text-align: center;">
+772
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+21
+</td>
+<td style="text-align: center;">
+4632
+</td>
+<td style="text-align: center;">
+1133
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+22
+</td>
+<td style="text-align: center;">
+6421
+</td>
+<td style="text-align: center;">
+1789
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+23
+</td>
+<td style="text-align: center;">
+7783
+</td>
+<td style="text-align: center;">
+1362
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+24
+</td>
+<td style="text-align: center;">
+13747
+</td>
+<td style="text-align: center;">
+5964
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+25
+</td>
+<td style="text-align: center;">
+19273
+</td>
+<td style="text-align: center;">
+5526
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+26
+</td>
+<td style="text-align: center;">
+25600
+</td>
+<td style="text-align: center;">
+6327
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+27
+</td>
+<td style="text-align: center;">
+33276
+</td>
+<td style="text-align: center;">
+7676
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+28
+</td>
+<td style="text-align: center;">
+43847
+</td>
+<td style="text-align: center;">
+10571
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+29
+</td>
+<td style="text-align: center;">
+53740
+</td>
+<td style="text-align: center;">
+9893
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+30
+</td>
+<td style="text-align: center;">
+65778
+</td>
+<td style="text-align: center;">
+12038
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+31
+</td>
+<td style="text-align: center;">
+83836
+</td>
+<td style="text-align: center;">
+18058
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+32
+</td>
+<td style="text-align: center;">
+101657
+</td>
+<td style="text-align: center;">
+17821
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+33
+</td>
+<td style="text-align: center;">
+121465
+</td>
+<td style="text-align: center;">
+19808
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+34
+</td>
+<td style="text-align: center;">
+140909
+</td>
+<td style="text-align: center;">
+19444
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+35
+</td>
+<td style="text-align: center;">
+161831
+</td>
+<td style="text-align: center;">
+20922
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+36
+</td>
+<td style="text-align: center;">
+188172
+</td>
+<td style="text-align: center;">
+26341
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+37
+</td>
+<td style="text-align: center;">
+213372
+</td>
+<td style="text-align: center;">
+25200
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+38
+</td>
+<td style="text-align: center;">
+243762
+</td>
+<td style="text-align: center;">
+30390
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+39
+</td>
+<td style="text-align: center;">
+275586
+</td>
+<td style="text-align: center;">
+31824
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+40
+</td>
+<td style="text-align: center;">
+308853
+</td>
+<td style="text-align: center;">
+33267
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+41
+</td>
+<td style="text-align: center;">
+337072
+</td>
+<td style="text-align: center;">
+28219
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+42
+</td>
+<td style="text-align: center;">
+366667
+</td>
+<td style="text-align: center;">
+29595
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+43
+</td>
+<td style="text-align: center;">
+396223
+</td>
+<td style="text-align: center;">
+29556
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+44
+</td>
+<td style="text-align: center;">
+429052
+</td>
+<td style="text-align: center;">
+32829
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+45
+</td>
+<td style="text-align: center;">
+461437
+</td>
+<td style="text-align: center;">
+32385
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="text-align: center;">
+46
+</td>
+<td style="text-align: center;">
+496535
+</td>
+<td style="text-align: center;">
+35098
+</td>
+<td style="text-align: center;">
+83.5
+</td>
+<td style="text-align: center;">
+15.8076540556035
+</td>
+<td style="text-align: center;">
+82.256
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+47
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+526396
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+29861
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+83.5
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+15.8076540556035
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+82.256
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="packaging" class="section level1">
@@ -427,9 +1418,9 @@ summary {
 </div>
 <div id="methods" class="section level1">
 <h1>Methods</h1>
+<p><strong><em>Add in paragraph on why we fit a model with tij^2 and how the logistic growth of cumulative counts leads to the normal curve for new cases</em></strong></p>
 <div id="poisson-glmm" class="section level2">
 <h2><em>Poisson GLMM</em></h2>
-<p><strong><em>Add in paragraph on why we fit a model with tij^2 and how the logistic growth of cumulative counts leads to the normal curve for new cases</em></strong></p>
 <p>Let <span class="math inline">\(y_{ij}\)</span> be the number of new cases country <span class="math inline">\(i\)</span> has on day <span class="math inline">\(j\)</span>.</p>
 <p>We assume that each <span class="math inline">\(y_{ij} \sim Poisson(\lambda_{ij})\)</span>, where the mean and variance of <span class="math inline">\(y_{ij}\)</span> is assumed to be some <span class="math inline">\(\lambda_{ij}\)</span></p>
 <p>Let the covariate vector pertaining to the <span class="math inline">\(i^{th}\)</span> countrh in the <span class="math inline">\(j^{th}\)</span> month be defined as <span class="math inline">\(x_{ij} = (1, t_{ij}, t^2_{ij}, GHS, AgeGEQ65, UrbanPop)\)</span>.</p>
