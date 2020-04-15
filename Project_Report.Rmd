@@ -135,11 +135,12 @@ x <- seq(-10, 10, by = 0.1)
 
 colors <- c("blue", "red", "purple")
 
-labels <- c("Total Cases (Logistic Growth Curve)","Derivative of Total Cases (Logistic Curve)", "Gaussian Curve")
+#labels <- c("Total Cases (Logistic Growth Curve)","Derivative of Total Cases (Logistic Curve)", "Gaussian Curve")
+labels <- c("Total Cases","New Cases", "Gaussian Curve")
 
 #Plot Logistic Growth Curve
 plot( L(x), type="l", lty=1, xlab="time (in days)",
-  ylab="Number of Cases", main="Comparison of functionS", col="blue")
+  ylab="Number of Cases", main="Comparison of Functions", col="blue")
 # Plot Logistic Density
 lines( DL(x), col="red")
 # Plot Gaussian Density
@@ -148,6 +149,8 @@ lines( N(x), col="purple")
 
 legend("topleft", inset=0, title="Distributions",
   labels, lwd=2, lty=c(1, 1), col=colors)
+
+
 ```
 
 
