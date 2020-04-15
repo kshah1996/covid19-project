@@ -18,7 +18,7 @@ covid_dat
 ```
 
 
-Fit a nonlinear regression with a logistic growth function (nlme). Note, the parameters in this model represent total number of cases, rate of growth, and 
+Fit a nonlinear regression with a logistic growth function (nlme). Helpful link: https://web.stanford.edu/~rag/stat222/logiststart.pdf 
 
 
 Looking at a few countries to see if logistic growth makes sense:

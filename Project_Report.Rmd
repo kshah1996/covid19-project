@@ -1,0 +1,163 @@
+---
+title: ""
+author: "Emily Damone, Taylor Krajewski, Alex Quinter, Kushal Shah, Euphy Wu, Jonathan Zhang"
+date: "4/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<p align="center">
+<img width="250" src="mask.png">
+</p>
+
+
+# Introduction
+
+COVID-19 (Novel Coronavirus) is an infectious disease that was first identified in December 2019 in Wuhan, the capital city of Hubei province in the People's Republic of China. Since its discovery, it has currently spread to over 90% of countries in the world and has infected nearly 2,000,000 people.
+
+Despite movement restrictions put in place by most countries, the disease continues to spread, and new cases are documented daily. However, the lack of symptoms for many infected with coronavirus along with lack of widespread testing has made it nearly impossible to determine how many new cases of Coronavirus there actually are each day. This makes modeling the pandemic extremely difficult. 
+
+Many experts have made excellent models and predictions that inspired us to create our own. We have seen some excellent country-specific, or even US state-specific models that attempt to predict the number of new or total cases. In the model we will describe below, we attempted to predict the number of new cases for a country based on that country's previous number of documented cases, global health security index, percentage of population over 65 years old, and percentage of the population living in an urban setting. 
+
+
+# Project Goal
+
+To predict the number of new cases of Covid-19 a country can expect on a chosen day given that country's previous number of recorded cases and a few measurable variables specific to that country that may affect the spread of the virus.
+
+
+# Data
+
+## *Raw Data*
+
+### Hopkins COVID-19 Data
+
+Our initial dataset comes from the Johns Hopkins CSSE, a team which has been refreshing the dataset daily during the ongoing COVID-19 crisis. The dataset includes coronavirus total cases, recoveries, active cases, and deaths per day by country, with information for certain regions given in more detail (e.g. US states). 
+
+For this project, the focus was confirmed cases. Dates from the original dataset wre standardized by relabeling the date at which a country passes 50 total cases as "Day 0", with every day past that used for modeling purposes. A variable for new cases was created by lagging over total cases. 
+
+### World Bank Data
+According to the CDC, "older adults and people who have severe underlying medical conditions like heart or lung disease or diabetes seem to be at higher risk for developing more serious complications from COVID-19 illness." 
+As of mid-March, in the United States, more than 30% of COVID-19 cases were patients 65 years of age or older. 
+
+Due to the apparent prevalence of the disease in the 65+ population, we decided to include the percentage of a country's population over the age of 65 in our model. 
+
+We found these percentages from a World Bank dataset, last updated in 2019, that provides the percent of the population 65 years of age or older in each country.
+
+### Global Health Security Index Data
+
+The Global Health Security (GHS) Index is a comprehensive assessment of a country's health security capabilities. Countries receive an ovreall score as well as individual scores for each of the 6 categories:
+
+<p align="center">
+<img width="600" src="ghs image.png">
+</p>
+
+
+* *Prevention*: Prevention of the emergence or release of pathogens
+
+* *Detection and Reporting*: Early detection and reporting for epidemics of potential international concern
+
+* *Rapid Response*: Rapid response to and mitigation of the spread of an epidemic
+
+* *Health System*: Sufficient and robust health system to treat the sick and protect health workers
+
+* *Compliance with International Norms*: Commitments to improving national capacity, financing plans to address gaps, and adhering to global norms
+
+* *Risk Environment*: Overall risk environment and country vulnerability to biological threats
+*GHSIndex.org*
+
+As the GHS Index was created in response to the 2014 West Africa Ebola epidemic in order to help global leaders better understand and measure a country's ability to prevent, detect, and respond to infectious disease threats, we found it an appropriate measure to include in modeling the current Coronavirus pandemic.
+
+For this project, we have included a country's overall GHS Index as a covariate in our model. 
+
+
+## *Data Processing*
+(Data processing summary - should discuss joining Covid data with country data from the other sources mentioned above)
+
+## *Finalized Data*
+(give a peek at our final data - maybe pick a country or two and show the data we will use from that country in our model?)
+
+# Packaging
+(description of our R package - functions and datasets it holds)
+
+# Methods
+
+## *Poisson GLMM*
+
+***Add in paragraph on why we fit a model with tij^2 and how the logistic growth of cumulative counts leads to the normal curve for new cases***
+
+
+Let $y_{ij}$ be the number of new cases country $i$ has on day $j$. 
+
+We assume that each $y_{ij} \sim Poisson(\lambda_{ij})$, where the mean and variance of $y_{ij}$ is assumed to be some $\lambda_{ij}$
+
+Let the covariate vector pertaining to the $i^{th}$ countrh in the $j^{th}$ month be defined as $x_{ij} = (1, t_{ij}, t^2_{ij}, GHS, AgeGEQ65, UrbanPop)$.
+
+We assume an intercept, $\beta_0$, in our model, and thus we have $\beta = (\beta_0, \beta_1, \beta_2, \beta_3, \beta_4, \beta_5, \beta_6)^T$.
+
+We assumed counts can be modeled with a Poisson GLMM such that $log(\lambda_{ij})=x_{ij}\beta+\gamma_{i1}+\gamma_{i2}t_{ij} = x_{ij}\beta+z_{ij}\gamma_i$, where $b_i$ is a vector of unobserved country-level random effects. We assume that
+
+$$\left(\begin{array}{cc}\gamma_{i1} \\\gamma_{i2}\end{array}\right) \sim N_2\bigg(\left(\begin{array}{cc}0 \\0\end{array}\right),\left(\begin{array}{cc}g_{11} & g_{12} \\g_{21} & g_{22}\end{array}\right)\bigg)$$
+
+So, in our model, $\gamma_{i1}$ is the deviation of the $i^{th}$ country from the baseline number of new cases, which we have set to 50, and $\gamma_{i2}$ is the deviation of the $i^{th}$ country from the average effect of the covariates in our model on number of new cases.
+
+
+As in all GLMMs, the random effects are unobservable. Therefore, in order to obtain the likelihood, we must integrate them out.
+
+Thus, we must perform separate integrals for each $\left(\begin{array}{cc}\gamma_{i1} \\\gamma_{i2}\end{array}\right)$, which share the common distribution dtermined by $G=\left(\begin{array}{cc}g_{11} & g_{12} \\g_{21} & g_{22}\end{array}\right)$.
+
+Thus, we write the likelihood:
+
+$$L(\beta, G | y, \gamma)=\prod^{n}_{i=1}\bigg(\prod^{n_i}_{j=1}f(y_{ij}|\lambda_{ij})\bigg)\phi(\gamma_i | 0, G) = \prod^{n}_{i=1}\int\bigg[\bigg(\prod^{n_i}_{j=1}f(y_{ij}|\lambda_{ij})\bigg)\phi(\gamma_i|0,G)\bigg]d\gamma_i$$
+
+and the log-likelihood:
+
+$$l(\beta, G | y, \gamma)=\sum^{n}_{i=1}log\bigg[\int\bigg[\bigg(\prod^{n_i}_{j=1}f(y_{ij}|\lambda_{ij})\bigg)\phi(\gamma_i|0,G)\bigg]d\gamma_i\bigg]$$
+
+where $f(y_{ij}|\lambda_{ij})$ is the Poisson PMF with mean $\lambda_{ij}$, as defined above, and $\phi(\gamma_i|0,G)$ is the bivariate Normal PDF with mean 0 and covariance matrix $G=\left(\begin{array}{cc}g_{11} & g_{12} \\g_{21} & g_{22}\end{array}\right)$.
+
+
+We maximized this log-likelihood to obtain estimates for $\beta$ and $G$.
+***Need to explain how we did this here!***
+
+
+## *Machine Learning Method*
+(describe machine learning method used)
+
+## *Model Evaluation*
+(describe how we evaluated our model prediction and include comparison of Module 2/Module 3 methods)
+
+
+# Results
+
+## *Poisson GLMM*
+
+## *Machine Learning*
+
+## *Comparison on Methods*
+
+# Discussion
+(give brief summary of what was shown in the results section and add in any subjective thoughts.Interpretation or possible future directions)
+
+
+## *Limitations*
+(This could go on for pages - will try to focus on a brief description. Discussed including one or two plots, such as South Korea, to show some limitations)
+
+- not able to gather data on movement restrictions and when they were put into place for each country
+
+- countries not accurately reporting data or lag time between cases confirmed and reported
+
+- lack of widespread testing and possibility of infected individuals lacking symptoms
+
+
+# References
+
+“Coronavirus.” World Health Organization, World Health Organization, www.who.int/health-topics/coronavirus#tab=tab_1.
+
+Google Cloud Platform, Google, console.cloud.google.com/marketplace/details/johnshopkins/covid19_jhu_global_cases.
+
+“The Global Health Security Index.” GHS Index, www.ghsindex.org/. 
+
+“World Bank Open Data.” Data, 7 Apr. 2020, data.worldbank.org/.
