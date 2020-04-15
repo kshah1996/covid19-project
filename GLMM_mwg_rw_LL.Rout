@@ -327,3 +327,10 @@ Warning messages:
 +         , file = "/nas/longleaf/home/euphyw/Desktop/covid19-project/GLMM_mwg_rw_LL.txt", append = TRUE)
 +     
 + }
+Warning message:
+Iteration limit reached without convergence 
+> 
+> 
+> proc.time()
+    user   system  elapsed 
+5793.071 3305.039 9121.676 
