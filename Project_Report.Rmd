@@ -125,7 +125,7 @@ DL = function(x){
 }
 
 N=function(x){
-  dnorm(x,0,1)
+  dnorm(x,0,1.6)
 }
 
 
