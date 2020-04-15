@@ -13,21 +13,88 @@ library(prophet)
 ```
 
 ```{r}
-dat <- readRDS("dat2.rds")
-dat <- dat[dat$Country.Region == "US", ]
-prophet_dat <- as.data.frame(dat$date)
-prophet_dat$y <- as.numeric(dat$total_cases)
-#prophet needs a capacity when forecasting logistic, currently total population - we would need this for all countries
-prophet_dat$cap <- rep(328200000, length(prophet_dat$y))
+ dat <- readRDS("dat3.rds")
+# dat_US <- dat[dat$Country.Region == "US", ]
+# prophet_dat_US <- as.data.frame(dat_US$date)
+# prophet_dat_US$y <- as.numeric(dat_US$total_cases)
+# #prophet needs a capacity when forecasting logistic, currently total population - we would need this for all countries
+# #prophet_dat$cap <- rep(328200000, length(prophet_dat$y))
+# prophet_dat_US$cap <- as.numeric(dat_US$TotalPop)
+# 
+# 
+# colnames(prophet_dat_US) <- c("ds", "y", "cap")
+# 
+# now_US <- prophet(prophet_dat_US, growth = "logistic")
+# 
+# future_US <- make_future_dataframe(now_US, periods = 10)
+# future_US$cap <- rep(prophet_dat_US[1, 3], length(future$ds))
+# 
+# forecast_US <- predict(now_US, future_US, )
+# plot(now_US, forecast_US, plot_cap=FALSE, uncertainty = TRUE)
 
-colnames(prophet_dat) <- c("ds", "y", "cap")
+```
 
-now <- prophet(prophet_dat, growth = "logistic")
+```{r}
+# dat_china <- dat[dat$Country.Region == "China", ]
+# prophet_dat_china <- as.data.frame(dat_china$date)
+# prophet_dat_china$y <- as.numeric(dat_china$total_cases)
+# prophet_dat_china$cap <- as.numeric(dat_china$TotalPop)
+# 
+# 
+# colnames(prophet_dat_china) <- c("ds", "y", "cap")
+# 
+# now_china <- prophet(prophet_dat_china, growth = "logistic")
+# 
+# future_china <- make_future_dataframe(now_china, periods = 10)
+# future_china$cap <- rep(prophet_dat_china[1, 3], length(future_china$ds))
+# 
+# forecast_china <- predict(now_china, future_china, )
+# plot(now_china, forecast_china, plot_cap=FALSE, uncertainty = TRUE)
 
-future <- make_future_dataframe(now, periods = 10)
-future$cap <- rep(328200000, length(future$ds))
+forecast <- function(country, data, numPred){
+  dat <- data[data$Country.Region == country, ]
+  prophet_dat <- as.data.frame(dat$date)
+  prophet_dat$y <- as.numeric(dat$total_cases)
+  prophet_dat$cap <- as.numeric(dat$TotalPop)
+  
+  colnames(prophet_dat) <- c("ds", "y", "cap")
+  
+  now <- prophet(prophet_dat, growth= "logistic")
+  future <- make_future_dataframe(now, periods=numPred)
+  future$cap <- rep(prophet_dat[1,3], length(future$ds))
+  
+  forecast <- predict(now, future, )
+  print(plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = country) +  add_changepoints_to_plot(now))
+  return(list(now,forecast))
+}
 
-forecast <- predict(now, future, )
+US_forecast <- forecast("US", dat, 10)
+Korea_forecast <- forecast("Korea, South", dat, 10)
+Italy <- forecast("Italy", dat, 5)
+China <- forecast("China", dat, 10)
+```
 
-plot(now, forecast, plot_cap=FALSE, uncertainty = TRUE)
+The logistic model is pretty bad when there is actual flattening of the curve, it wants to estimate higher (even when just fitting not predicting) - I think this is mainly due to the cap being MUCH higher than where the cases actually levelled off.
+
+So here it is with linear: 
+```{r}
+forecast_linear <- function(country, data, numPred){
+  dat <- data[data$Country.Region == country, ]
+  prophet_dat <- as.data.frame(dat$date)
+  prophet_dat$y <- as.numeric(dat$total_cases)
+  
+  colnames(prophet_dat) <- c("ds", "y")
+  
+  now <- prophet(prophet_dat, growth= "linear")
+  future <- make_future_dataframe(now, periods=numPred)
+  
+  forecast <- predict(now, future, )
+  print(plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = country) +  add_changepoints_to_plot(now))
+  return(list(now,forecast))
+}
+
+linear_US <- forecast_linear("US", dat, 10)
+linear_Korea <- forecast_linear("Korea, South", dat, 10)
+linear_Italy <- forecast_linear("Italy", dat, 10)
+linear_China <- forecast_linear("China", dat, 10)
 ```
