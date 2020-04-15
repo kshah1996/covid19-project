@@ -1,0 +1,255 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+f = function(x,yi, Xi, betat, Sigma_gammat){
+
+  # here we assume random effect matrix Zi for subject i same as Xi
+  Zi = cbind(Xi$day, Xi$day2)
+  
+  # calculate lambdai
+  lambdai = exp(Xi%*%betat + Zi%*%matrix(x, ncol = 1))
+  
+  # sum across repeated observations for poisson portion
+  lli = sum(dpois(yi, lambdai, log = T)) 
+  
+  # dont forget to include the MVN log likelihood
+  lli = lli  + dmvnorm(x,sigma = Sigma_gammat, log = T)
+  
+  return(lli)
+}
+
+g = function(x, Sigma_gammat){
+  dmvnorm(x, sigma = Sigma_gammat, log = T)
+}
+
+### proposal function, MVN(0, Sigma)
+g.sim = function(Sigma_gammat){
+  rmvnorm(1, sigma = Sigma_gammat)
+}
+
+R = function(xt,x, f, g, yi, Xi, betat, Sigma_gammat){
+  # log numerator - log denominator
+  logR = (f(x, yi, Xi, betat, Sigma_gammat) + g(xt, Sigma_gammat)) - (f(xt,yi, Xi, betat, Sigma_gammat) + g(x , Sigma_gammat))
+  R = exp(logR)
+  return(R)
+}
+
+mh.independence.sampler = function(yi, Xi, betat, Sigma_gammat, M, prev.gamma.i = NULL){
+
+  # get dimension of gammai
+  q = ncol(Sigma_gammat)
+  
+  # initialize the chain vector
+  x.indep.chain = matrix(0, M, q)
+  
+  if(is.null(prev.gamma.i)){
+    # Simulate initial draw from proposal density g
+    x.indep.chain[1,] = g.sim(Sigma_gammat)
+  }else{
+    # if last value from previous chain avail, start there
+    x.indep.chain[1,] = prev.gamma.i    
+  }
+  
+  
+  # now start chain
+  accept = 0
+  for(i in 1:(M-1)){
+    
+    # set the value at current iteration of the chain to variable xt
+    xt = x.indep.chain[i,]
+    
+    # draw a proposal from the proposal density
+    x = g.sim(Sigma_gammat)
+    
+    # calculate MH ratio 
+    r = min(
+            R(xt, x, f, g, yi, Xi, betat, Sigma_gammat),
+            1
+          )
+    
+    # Generate draw from bernoulli(p).
+    # Alternatively, can directly compare ratio to 
+    # a U(0,1) draw as we did with Rejection Sampling
+    keep = rbinom(1, 1, r)
+    
+    if(keep == 1){
+      # if keep = 1, then set next iteration equal to then proposal
+      x.indep.chain[i+1,] = x
+      #  update number of acceptacnes
+      accept = accept + 1
+    }else{
+      # otherwise, carry over value from the current iteration
+      x.indep.chain[i+1,] = xt
+    }
+  }
+  
+  return(list(gammai = x.indep.chain, ar = accept/M))
+}
+
+e.step= function(y, X, ID, betat, Sigma_gammat, M, n, ni, sampler, burn.in = 200,prev.gamma = NULL){
+  
+  # initialize Q-function
+  Qfunction = 0
+  
+  # matrix to hold chains from each subject
+  gamma = matrix(0, n*M, ncol(Sigma_gammat))
+  
+  # vector to hold subject acceptance rates
+  ar = matrix(0, n, q)
+  
+  # vector to hold offset values Zi %*% gammai, yaug, Xaug in M step
+  N = ni*n
+  offset = yaug = rep(0, N*M)
+  Xaug = matrix(0, nrow = N*M, ncol = ncol(X))
+  
+  # loop over observations
+  for(i in 1:n){
+      
+      # subject i indices
+      subjecti = which(ID == i)
+      
+      # grab subject i data
+      yi = y[subjecti]
+      Xi = X[subjecti,]
+      
+      # create chain of length M per observation 
+      if(is.null(prev.gamma)){
+        # if no previous chain available
+        # start from scratch and remove burn.in
+        chain = sampler(
+                    yi = yi, 
+                    Xi = Xi,
+                    betat = betat, 
+                    Sigma_gammat = Sigma_gammat,
+                    M = M + burn.in)
+        gammai = chain$gammai[-c(1:burn.in),]
+      }else{
+        # if chain available from previous EM
+        # restart this chain from last draw in previous chain
+        chain = sampler(
+                      yi = yi, 
+                      Xi = Xi,
+                      betat = betat, 
+                      Sigma_gammat = Sigma_gammat,
+                      M = M, # no burn in
+                      prev.gamma = prev.gamma[i,]
+                ) 
+        gammai = chain$gammai
+      }
+
+      ar[i,] = chain$ar
+      
+      # create augmented versions for Q function calculation
+      # total length is (n*ni*M) rows
+      aug = rep(1:ni, M)
+      yi_aug = yi[aug]
+      Xi_aug = Xi[aug,]
+      Zi_aug = Xi_aug[Z]
+      
+      # create augmented version of gammai to aid vectorization
+      # repeated ni times per replicated subject 
+      # total length is (n*ni*M) rows
+      augg = rep(1:M, each = ni[i])
+      gammai_aug = gammai[augg,]
+      
+      # calculate Q function for subject i:  poisson portion (n*ni*M)
+      XBaug = Xi_aug%*%betat
+      Zgammaaug = rowSums(Zi_aug * gammai_aug)
+      lambdai_aug = exp(XBaug + Zgammaaug)
+      Qi = sum(dpois(yi_aug, lambda = lambdai_aug, log = T))
+      
+      # calculate Q function for subject i:  MVN portion (n*M)
+      Qi = Qi + sum(dmvnorm(gammai_aug, sigma = Sigma_gammat, log = T))
+      
+      # divide by M
+      Qi = Qi/M
+      
+      # add to overall Q estimate
+      Qfunction = Qfunction + Qi
+      
+      # save offset, yaug, xaug for later
+      a = (i-1)*M*ni + 1
+      b = i*M*ni
+      offset[a:b] = Zgammaaug
+      yaug[a:b] = yi_aug
+      Xaug[a:b,] = Xi_aug
+      
+      # save gammai for later
+      a = (i-1)*M + 1
+      b = i*M
+      gamma[a:b,] = gammai
+    }
+      
+    return(list(Qfunction = Qfunction, gamma = gamma, ar = ar, offset = offset, yaug = yaug, Xaug = Xaug))
+}
+
+
+
+## set initial parameters
+  tol = 10^-5
+  maxit = 10
+  iter = 0
+  eps = Inf
+  qfunction = -10000 # using Qfunction for convergence
+  prev.gamma = NULL
+  
+## starting values
+  beta = as.vector(glm(y ~ X-1, family = poisson())$coef)
+  Sigma_gamma =  diag(rep(1, 2))
+
+## fix chain length at 1000 in E-step
+M = 1000
+
+start = Sys.time()
+while(eps > tol & iter < maxit){
+  
+  ## save old qfunction
+  qfunction0 = qfunction
+  
+  ## obtain last chain value (Mth value) for each obs if iter > 0
+  if(iter > 0){
+    prev.gamma = gamma[seq(M,nrow(gamma), by = M),]
+  }
+  
+  ## E-step
+  estep = e.step(y = y, X = X, ID = ID, betat = beta, Sigma_gammat = Sigma_gamma, M = M, n = n, ni = ni, sampler = mh.independence.sampler, prev.gamma = prev.gamma)
+  gamma = estep$gamma
+  qfunction = estep$Qfunction
+  offset = estep$offset
+  yaug = estep$yaug
+  Xaug = estep$Xaug
+  
+  ## Calculate relative change in qfunction from prior iteration
+  eps  = abs(qfunction-qfunction0)/abs(qfunction0)
+    
+  ## Start M-step
+    
+  # s2gamma, MLE for sigma^2 from normal with mean 0, averaged over M
+  # closed form derived from Q function approximation
+  Sigma_gamma = t(gamma) %*% gamma/(n*M)
+
+  aug = rep(1:n,each = M)
+  fit = glm(yaug ~ Xaug -1, 
+              family = poisson(), 
+              weights = rep(1/M, nrow(Xaug)), 
+              offset = offset,
+              # use starting value from previous step
+              start = beta
+  )
+  beta = as.vector(fit$coefficients)
+    
+  ## update iterator
+  iter = iter + 1
+  if(iter == maxit) warning("Iteration limit reached without convergence")
+    
+  ## print out info to keep track
+  cat(sprintf("Iter: %d Qf: %.3f sigma_gamma1: %f beta0: %.3f beta1:%.3f eps:%f\n",iter, qfunction,diag(Sigma_gamma)[1], beta[1],beta[2], eps))
+}
+```
