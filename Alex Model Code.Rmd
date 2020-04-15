@@ -223,7 +223,7 @@ for(i in 1:length(order)){
   prev.gamma = NULL
   
 ## starting values
-  beta = as.vector(fixef(glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region) + (day2 | Country.Region), data = dat, family = poisson)))
+  beta = as.vector(fixef(glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day + day2 | Country.Region), data = dat, family = poisson)))
   Sigma_gamma =  diag(rep(1, 3))
 
 ## fix chain length at 1000 in E-step
