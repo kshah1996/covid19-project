@@ -9,6 +9,8 @@ US forecast of total cases using logistic growth - need to add
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(prophet)
+library(caret)
+library(randomForest)
 
 ```
 
@@ -70,7 +72,7 @@ forecast <- function(country, data, numPred){
 
 US_forecast <- forecast("US", dat, 10)
 Korea_forecast <- forecast("Korea, South", dat, 10)
-Italy <- forecast("Italy", dat, 5)
+Italy <- forecast("Italy", dat, 10)
 China <- forecast("China", dat, 10)
 ```
 
@@ -97,4 +99,45 @@ linear_US <- forecast_linear("US", dat, 10)
 linear_Korea <- forecast_linear("Korea, South", dat, 10)
 linear_Italy <- forecast_linear("Italy", dat, 10)
 linear_China <- forecast_linear("China", dat, 10)
+```
+
+Attempting a Random Forest Approach: 
+
+```{r}
+dat_US <- dat[dat$Country.Region == "US",]
+trCtl <- trainControl(method="cv", number=5, savePredictions=TRUE)
+tg <- data.frame(mtry=1)
+rf_fit <- train(dat_US["date"], dat_US$new_cases, method="rf", trControl=trCtl, tuneGrid=tg) 
+
+pred <- rf_fit$pred[order(rf_fit$pred$rowIndex),]
+
+with(dat_US, plot(dat_US["date"], dat_US$new_cases))
+points(dat_US$date, pred$pred, col="red")
+```
+
+I don't know how well we can do prediction with this? It's not like we get parameter estimates? 
+
+But I wrote a function here to get the graphs & predictions for a given country:
+```{r}
+randomForest_country <- function(country, data){
+  trCtl <- trainControl(method="cv", number=5, savePredictions=TRUE)
+  tg <- data.frame(mtry=1)
+  
+  
+  dat <- data[data$Country.Region == country, ]
+  rf_fit <- train(dat["date"], dat$new_cases, method="rf", trControl=trCtl, tuneGrid=tg) 
+  pred <- rf_fit$pred[order(rf_fit$pred$rowIndex),]
+  
+  with(dat, plot(dat["date"], dat$new_cases))
+  points(dat$date, pred$pred, col="red")
+  
+  return(pred)
+}
+```
+
+```{r}
+US_rf <- randomForest_country("US", dat)
+# China_rf <- randomForest_country("China", dat)
+SKorea_rf <- randomForest_country("Korea, South", dat)
+Italy_rf <- randomForest_country("Italy", dat)
 ```
