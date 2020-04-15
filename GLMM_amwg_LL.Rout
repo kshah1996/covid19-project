@@ -316,7 +316,7 @@ Warning messages:
 > n <- max(dat$ID)
 > 
 > ## fix chain length at 1000 in E-step
-> M = 10
+> M = 1000
 > # M=10
 > start = Sys.time()
 > while(eps > tol & iter < maxit){
@@ -367,10 +367,3 @@ Warning messages:
 +     , file = "/nas/longleaf/home/euphyw/Desktop/covid19-project/GLMM_amwg_LL.txt", append = TRUE)
 +     
 + }
-Warning message:
-Iteration limit reached without convergence 
-> 
-> 
-> proc.time()
-   user  system elapsed 
-155.472   8.712 164.705 
