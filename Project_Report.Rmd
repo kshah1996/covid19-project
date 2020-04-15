@@ -15,7 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 # Introduction
-(Background on Covid and a short description of difficulties in making real-time predictions as well as why we wanted to do this project/what we hypothesized)
 
 COVID-19 (Novel Coronavirus) is an infectious disease that was first identified in December 2019 in Wuhan, the capital city of Hubei province in the People's Republic of China. Since its discovery, it has currently spread to over 90% of countries in the world and has infected nearly 2,000,000 people.
 
@@ -42,8 +41,27 @@ For this project, the focus was confirmed cases. Dates from the original dataset
 ### World Bank Data
 (give brief discussion and talk about decision to add this data as covariates in model)
 
-### Global Health Index Data
-(give brief discussion and talk about decision to add this data as covariates in model)
+### Global Health Security Index Data
+
+The Global Health Security (GHS) Index is a comprehensive assessment of a country's health security capabilities. Countries receive an ovreall score as well as individual scores for each of the 6 categories:
+
+<p align="center">
+<img width="250" src="ghs image.png">
+</p>
+
+
++Prevention: Prevention of the emergence or release of pathogens
++Detection and Reporting: Early detection and reporting for epidemics of potential international concern
++Rapid Response: Rapid response to and mitigation of the spread of an epidemic
++Health System: Sufficient and robust health system to treat the sick and protect health workers
++Compliance with International Norms: Commitments to improving national capacity, financing plans to address gaps, and adhering to global norms
++Risk Environment: Overall risk environment and country vulnerability to biological threats
+*GHSIndex.org*
+
+As the GHS Index was created in response to the 2014 West Africa Ebola epidemic in order to help global leaders better understand and measure a country's ability to prevent, detect, and respond to infectious disease threats, we found it an appropriate measure to include in modeling the current Coronavirus pandemic.
+
+For this project, we have included a country's overall GHS Index as a covariate in our model. 
+
 
 ## *Data Processing*
 (Data processing summary - should discuss joining Covid data with country data from the other sources mentioned above)
@@ -113,8 +131,16 @@ We maximized this log-likelihood to obtain estimates for $\beta$ and $G$.
 # Discussion
 (give brief summary of what was shown in the results section and add in any subjective thoughts.Interpretation or possible future directions)
 
+
 ## *Limitations*
 (This could go on for pages - will try to focus on a brief description. Discussed including one or two plots, such as South Korea, to show some limitations)
+
+- not able to gather data on movement restrictions and when they were put into place for each country
+
+- countries not accurately reporting data or lag time between cases confirmed and reported
+
+- lack of widespread testing and possibility of infected individuals lacking symptoms
+
 
 # References
 
