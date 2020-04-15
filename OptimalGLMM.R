@@ -2,6 +2,7 @@ library(tidyverse)
 library(stats)
 library(lme4)
 library(mvtnorm)
+setwd("/nas/longleaf/home/euphyw/Desktop/covid19-project")
 dat <- readRDS("dat2.rds")
 dat <- dat %>% mutate(day2 = day^2) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)  %>% drop_na(GHS_Score)
 dat$ID <- dat %>% group_indices(Country.Region)
@@ -194,8 +195,8 @@ X <- cbind(1,dat$day,dat$day2,dat$GHS_Score,dat$AgeGEQ65,dat$UrbanPop)
 n <- max(dat$ID)
 
 ## fix chain length at 1000 in E-step
-# M = 1000
-M=10
+M = 1000
+# M=10
 start = Sys.time()
 while(eps > tol & iter < maxit){
     
