@@ -46,16 +46,21 @@ For this project, the focus was confirmed cases. Dates from the original dataset
 The Global Health Security (GHS) Index is a comprehensive assessment of a country's health security capabilities. Countries receive an ovreall score as well as individual scores for each of the 6 categories:
 
 <p align="center">
-<img width="250" src="ghs image.png">
+<img width="600" src="ghs image.png">
 </p>
 
 
-+Prevention: Prevention of the emergence or release of pathogens
-+Detection and Reporting: Early detection and reporting for epidemics of potential international concern
-+Rapid Response: Rapid response to and mitigation of the spread of an epidemic
-+Health System: Sufficient and robust health system to treat the sick and protect health workers
-+Compliance with International Norms: Commitments to improving national capacity, financing plans to address gaps, and adhering to global norms
-+Risk Environment: Overall risk environment and country vulnerability to biological threats
+* *Prevention*: Prevention of the emergence or release of pathogens
+
+* *Detection and Reporting*: Early detection and reporting for epidemics of potential international concern
+
+* *Rapid Response*: Rapid response to and mitigation of the spread of an epidemic
+
+* *Health System*: Sufficient and robust health system to treat the sick and protect health workers
+
+* *Compliance with International Norms*: Commitments to improving national capacity, financing plans to address gaps, and adhering to global norms
+
+* *Risk Environment*: Overall risk environment and country vulnerability to biological threats
 *GHSIndex.org*
 
 As the GHS Index was created in response to the 2014 West Africa Ebola epidemic in order to help global leaders better understand and measure a country's ability to prevent, detect, and respond to infectious disease threats, we found it an appropriate measure to include in modeling the current Coronavirus pandemic.
