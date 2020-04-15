@@ -3,7 +3,7 @@ library(stats)
 library(lme4)
 library(mvtnorm)
 dat <- readRDS("dat2.rds")
-dat <- dat %>% mutate(day2 = day^2) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
+dat <- dat %>% mutate(day2 = day^2) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)  %>% drop_na(GHS_Score)
 dat$ID <- dat %>% group_indices(Country.Region)
 
 for (i in 1:max(dat$ID)) {
@@ -13,6 +13,8 @@ for (i in 1:max(dat$ID)) {
 }
 
 dat$ID <- dat %>% group_indices(Country.Region)
+dat[dat$Country.Region=="China",][1,5] = 548
+
 ## Function for the log likelihood for ith subject
 f = function(x, yi,Xi,betat,Sigma_gammat) {
     Zi = Xi[,1:2]
@@ -85,14 +87,14 @@ e.step = function(y, X, betat, Sigma_gammat, M , n, sampler, burn.in=200, prev.g
     gamma = matrix(0, n*M, ncol(Sigma_gammat))
     ar = matrix(0, n, 2)
     
-    
+    nc = sum(as.vector(table(dat$Country.Region)))
     # offset Zi %*% gammai
-    N = nrow(dat)
+    N = n*nc
     offset=yaug = rep(0,N*M)
     Xaug = matrix(0 , nrow=N*M, ncol=ncol(X))
     
     # loop over observations
-    for(i in 1:20){
+    for(i in 1:n){
         
         
         # subject i indices
@@ -206,7 +208,7 @@ while(eps > tol & iter < maxit){
     }
     
     ## E-step
-    estep = e.step(y = dat$new_cases, X = X, betat = beta, Sigma_gammat = Sigma_gamma, M = M, n = n, sampler = mh.independence.sampler, prev.gamma = prev.gamma)
+    estep = e.step(y = dat$new_cases, X = X, betat = beta, Sigma_gammat = Sigma_gamma, M = M, n = n,sampler = mh.independence.sampler, prev.gamma = prev.gamma)
     gamma = estep$gamma
     qfunction = estep$Qfunction
     offset = estep$offset
