@@ -66,7 +66,8 @@ The Global Health Security (GHS) Index is a comprehensive assessment of a countr
 * *Compliance with International Norms*: Commitments to improving national capacity, financing plans to address gaps, and adhering to global norms
 
 * *Risk Environment*: Overall risk environment and country vulnerability to biological threats
-*GHSIndex.org*
+
+(*GHSIndex.org*)
 
 As the GHS Index was created in response to the 2014 West Africa Ebola epidemic in order to help global leaders better understand and measure a country's ability to prevent, detect, and respond to infectious disease threats, we found it an appropriate measure to include in modeling the current Coronavirus pandemic.
 
@@ -77,16 +78,43 @@ For this project, we have included a country's overall GHS Index as a covariate 
 (Data processing summary - should discuss joining Covid data with country data from the other sources mentioned above)
 
 ## *Finalized Data*
-(give a peek at our final data - maybe pick a country or two and show the data we will use from that country in our model?)
+
+Below is a preview of what our final data set looks like. Each country has a row for each day of recorded cases from baseline (day of 50 cases) until April 12, 2020.
+
+```{r include=FALSE}
+library(data.table)
+library(htmlTable)
+
+datDisplay = readRDS("dat2.rds")
+
+us <- subset(datDisplay, Country.Region == "US", select = c(day, total_cases, new_cases, GHS_Score, AgeGEQ65, UrbanPop))
+
+  
+colnames(us) <- c("Day", "Total Cases", "New Cases", "GHS Index", "% 65+", "% Urban Setting")
+
+
+
+```
+
+```{r, echo=FALSE}
+
+htmlTable(us, rnames = FALSE,
+          caption="United States Data")
+
+```
+
 
 # Packaging
 (description of our R package - functions and datasets it holds)
 
+
 # Methods
 
-## *Poisson GLMM*
-
 ***Add in paragraph on why we fit a model with tij^2 and how the logistic growth of cumulative counts leads to the normal curve for new cases***
+
+
+
+## *Poisson GLMM*
 
 
 Let $y_{ij}$ be the number of new cases country $i$ has on day $j$. 
