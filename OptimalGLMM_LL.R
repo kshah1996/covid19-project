@@ -195,8 +195,8 @@ X <- cbind(1,dat$day,dat$day2,dat$GHS_Score,dat$AgeGEQ65,dat$UrbanPop)
 n <- max(dat$ID)
 
 ## fix chain length at 1000 in E-step
-# M = 1000
-M=10
+M = 1000
+# M=10
 start = Sys.time()
 while(eps > tol & iter < maxit){
     
@@ -243,7 +243,7 @@ while(eps > tol & iter < maxit){
     cat(sprintf("Iter: %d Qf: %.3f g11: %f g12: %f g22: %f beta0: %.3f beta1:%.3f beta2:%.3f beta3:%.3f beta4 :%.3f
                     beta5:%.3f eps:%f\n",iter, qfunction,diag(Sigma_gamma)[1],Sigma_gamma[1,2],  diag(Sigma_gamma)[2], 
                     beta[1],beta[2], beta[3], beta[4], beta[5], beta[6], eps)
-        , file = "OptimalGLMM.txt", append = TRUE)
+        , file = "/nas/longleaf/home/euphyw/Desktop/covid19-project/OptimalGLMM_LL.txt", append = TRUE)
     
 }
 
