@@ -39,7 +39,12 @@ Our initial dataset comes from the Johns Hopkins CSSE, a team which has been ref
 For this project, the focus was confirmed cases. Dates from the original dataset wre standardized by relabeling the date at which a country passes 50 total cases as "Day 0", with every day past that used for modeling purposes. A variable for new cases was created by lagging over total cases. 
 
 ### World Bank Data
-(give brief discussion and talk about decision to add this data as covariates in model)
+According to the CDC, "older adults and people who have severe underlying medical conditions like heart or lung disease or diabetes seem to be at higher risk for developing more serious complications from COVID-19 illness." 
+As of mid-March, in the United States, more than 30% of COVID-19 cases were patients 65 years of age or older. 
+
+Due to the apparent prevalence of the disease in the 65+ population, we decided to include the percentage of a country's population over the age of 65 in our model. 
+
+We found these percentages from a World Bank dataset, last updated in 2019, that provides the percent of the population 65 years of age or older in each country.
 
 ### Global Health Security Index Data
 
