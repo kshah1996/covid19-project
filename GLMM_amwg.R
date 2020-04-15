@@ -238,7 +238,7 @@ e.step = function(y, X, betat, Sigma_gammat, M , n, sampler, burn.in=200, prev.g
 
 ## EM
 ## set initial parameters
-tol = 10^-5
+tol = 10^-3
 maxit = 10
 iter = 0
 eps = Inf
@@ -267,7 +267,7 @@ X <- cbind(1,dat$day,dat$day2,dat$GHS_Score,dat$AgeGEQ65,dat$UrbanPop)
 n <- max(dat$ID)
 
 ## fix chain length at 1000 in E-step
-M = 10
+M = 100
 # M=10
 start = Sys.time()
 while(eps > tol & iter < maxit){
