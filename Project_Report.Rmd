@@ -120,12 +120,14 @@ L = function(x){
   plogis(x)
 }
 
+#Logistic Density (PDF)
 DL = function(x){
-    dlogis(x)
+    2*dlogis(x)
 }
 
+#Normal Density
 N=function(x){
-  dnorm(x,0,1.6)
+  2*dnorm(x,0,1.6)
 }
 
 
@@ -133,14 +135,14 @@ x <- seq(-10, 10, by = 0.1)
 
 colors <- c("blue", "darkgreen", "purple")
 
-labels <- c("Total Cases","Derivative of Total Cases", "Gaussian Curve")
+labels <- c("Total Cases (Logistic Growth Curve)","Derivative of Total Cases (Logistic Curve)", "Gaussian Curve")
 
-#plot envelope
-plot( L(x), type="l", lty=1, xlab="x value",
-  ylab="Density", main="Comparison of functionS", col="blue")
-#add plot for q
-lines( DL(x), col="darkgreen")
-#add plot for q
+#Plot Logistic Growth Curve
+plot( L(x), type="l", lty=1, xlab="time (in days)",
+  ylab="Number of Cases", main="Comparison of functionS", col="blue")
+# Plot Logistic Density
+lines( DL(x), col="red")
+# Plot Gaussian Density
 lines( N(x), col="purple")
 
 
