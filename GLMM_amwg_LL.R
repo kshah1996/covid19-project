@@ -267,7 +267,7 @@ X <- cbind(1,dat$day,dat$day2,dat$GHS_Score,dat$AgeGEQ65,dat$UrbanPop)
 n <- max(dat$ID)
 
 ## fix chain length at 1000 in E-step
-M = 10
+M = 1000
 # M=10
 start = Sys.time()
 while(eps > tol & iter < maxit){
