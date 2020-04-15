@@ -17,6 +17,13 @@ knitr::opts_chunk$set(echo = TRUE)
 # Introduction
 (Background on Covid and a short description of difficulties in making real-time predictions as well as why we wanted to do this project/what we hypothesized)
 
+COVID-19 (Novel Coronavirus) is an infectious disease that was first identified in December 2019 in Wuhan, the capital city of Hubei province in the People's Republic of China. Since its discovery, it has currently spread to over 90% of countries in the world and has infected nearly 2,000,000 people.
+
+Despite movement restrictions put in place by most countries, the disease continues to spread, and new cases are documented daily. However, the lack of symptoms for many infected with coronavirus along with lack of widespread testing has made it nearly impossible to determine how many new cases of Coronavirus there actually are each day. This makes modeling the pandemic extremely difficult. 
+
+Many experts have made excellent models and predictions that inspired us to create our own. We have seen some excellent country-specific, or even US state-specific models that attempt to predict the number of new or total cases. In the model we will describe below, we attempted to predict the number of new cases for a country based on that country's previous number of documented cases, global health security index, percentage of population over 65 years old, and percentage of the population living in an urban setting. 
+
+
 # Project Goal
 
 To predict the number of new cases of Covid-19 a country can expect on a chosen day given that country's previous number of recorded cases and a few measurable variables specific to that country that may affect the spread of the virus.
@@ -111,8 +118,9 @@ We maximized this log-likelihood to obtain estimates for $\beta$ and $G$.
 
 # References
 
-Google Cloud Platform, Google, console.cloud.google.com/marketplace/details/johnshopkins/covid19_jhu_global_cases.
+“Coronavirus.” World Health Organization, World Health Organization, www.who.int/health-topics/coronavirus#tab=tab_1.
 
+Google Cloud Platform, Google, console.cloud.google.com/marketplace/details/johnshopkins/covid19_jhu_global_cases.
 
 “The Global Health Security Index.” GHS Index, www.ghsindex.org/. 
 
