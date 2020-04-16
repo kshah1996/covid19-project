@@ -3,6 +3,10 @@ title: ""
 author: "Emily Damone, Taylor Krajewski, Alex Quinter, Kushal Shah, Euphy Wu, Jonathan Zhang"
 date: "4/22/2020"
 output: html_document
+header_includes:
+- \usepackage{amsmath}
+- \usepackage{amssymb}
+- \usepackage{amsthm}
 ---
 
 ```{r setup, include=FALSE}
@@ -188,9 +192,21 @@ $$l(\beta, G | y, \gamma)=\sum^{n}_{i=1}log\bigg[\int\bigg[\bigg(\prod^{n_i}_{j=
 where $f(y_{ij}|\lambda_{ij})$ is the Poisson PMF with mean $\lambda_{ij}$, as defined above, and $\phi(\gamma_i|0,G)$ is the bivariate Normal PDF with mean 0 and covariance matrix $G=\left(\begin{array}{cc}g_{11} & g_{12} \\g_{21} & g_{22}\end{array}\right)$.
 
 
-We maximized this log-likelihood to obtain estimates for $\beta$ and $G$.
-***Need to explain how we did this here!***
+We maximized this log-likelihood to obtain estimates for $\beta$ and $G$. We go about this approach using an MCEM algorithmn. We first define the complete data log-likelihood if the random effects were known.
 
+\begin{align}
+l_c(\beta, G | y, \gamma)&=\sum^{n}_{i=1}log\bigg[\bigg(\prod^{n_i}_{j=1}f(y_{ij}|\lambda_{ij})\bigg)\phi(\gamma_i|0,G)\bigg]\\
+
+&=\sum^{n}_{i=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ij}))+log(\phi(\gamma_i|0,G))\bigg]
+\end{align}
+
+In the E-step we need to evaluate the expectation of the complete data log-likelihood, the Q function.
+
+\begin{align}
+Q(\theta|\theta^{(t)})&=E[l_c(\theta)|\theta^{(t)}]\\
+
+&=E\bigg[\sum^{n}_{i=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ij}))+log(\phi(\gamma_i|0,G))\bigg]\bigg]
+\end{align}
 
 ## *Machine Learning Method*
 (describe machine learning method used)
