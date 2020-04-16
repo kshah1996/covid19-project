@@ -8,10 +8,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+library(tidyr)
 f = function(x,yi, Xi, betat, Sigma_gammat){
 
   # here we assume random effect matrix Zi for subject i same as Xi
-  Zi = cbind(Xi$day, Xi$day2)
+  Zi = Xi[,1:2]
   
   # calculate lambdai
   lambdai = exp(Xi%*%betat + Zi%*%matrix(x, ncol = 1))
