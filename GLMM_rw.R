@@ -3,18 +3,6 @@ library(stats)
 library(lme4)
 library(mvtnorm)
 set.seed(1)
-dat <- readRDS("dat2.rds")
-dat <- dat %>% mutate(day2 = day^2) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)  %>% drop_na(GHS_Score)
-dat$ID <- dat %>% group_indices(Country.Region)
-
-for (i in 1:max(dat$ID)) {
-    if (sum(dat$ID==i) < 5) {
-        dat<- dat[!(dat$ID==i),]
-    }
-}
-
-dat$ID <- dat %>% group_indices(Country.Region)
-dat[dat$Country.Region=="China",][1,5] = 548
 
 ## Function for the log likelihood for ith subject
 f = function(x, yi,Xi,betat,Sigma_gammat) {
@@ -186,6 +174,19 @@ iter = 0
 eps = Inf
 qfunction = -10000 # using Qfunction for convergence
 prev.gamma = NULL
+
+dat <- readRDS("dat2.rds")
+dat <- dat %>% mutate(day2 = day^2) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)  %>% drop_na(GHS_Score)
+dat$ID <- dat %>% group_indices(Country.Region)
+
+for (i in 1:max(dat$ID)) {
+    if (sum(dat$ID==i) < 5) {
+        dat<- dat[!(dat$ID==i),]
+    }
+}
+
+dat$ID <- dat %>% group_indices(Country.Region)
+dat[dat$Country.Region=="China",][1,5] = 548
 
 ## starting values
 fit.glmm <- summary(glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 
