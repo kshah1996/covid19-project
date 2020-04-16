@@ -41,6 +41,11 @@ g.sim = function(Sigma_gammat){
     rmvnorm(1, sigma = Sigma_gammat)
 }
 
+# rw density
+h.sim = function(){
+    rnorm(1,0,0.1)
+}
+
 # new MH ratio function (proposal density cancels out due to symmetr\boldsymbol{y})
 R = function(xt,x, f, yi, Xi, betat, Sigma_gammat){
     # log numerator - log denominator
@@ -49,12 +54,8 @@ R = function(xt,x, f, yi, Xi, betat, Sigma_gammat){
     return(R)
 }
 
-# rw density
-h.sim = function(var = 1){
-    rnorm(1, mean = 0, sd = sqrt(var))
-}
 
-adaptive.mwg.rw.sampler = function(yi, Xi, betat, Sigma_gammat, M, prev.gamma.i = NULL, b = 50){
+mwg.rw.sampler = function(yi, Xi, betat, Sigma_gammat, M, prev.gamma.i = NULL){
     
     # get dimension of gammai
     q = ncol(Sigma_gammat)
@@ -62,26 +63,16 @@ adaptive.mwg.rw.sampler = function(yi, Xi, betat, Sigma_gammat, M, prev.gamma.i 
     # initialize the chain vector
     x.indep.chain = matrix(0, M, q)
     
-    
-    # initialize proposal variance
-    prop.var = rep(1, q)
-    
     if(is.null(prev.gamma.i)){
         # Simulate initial draw from original proposal density g
         x.indep.chain[1,] = g.sim(Sigma_gammat)
     }else{
         # if last value from previous chain avail, start there
-        x.indep.chain[1,] = prev.gamma.i  
-        
+        x.indep.chain[1,] = prev.gamma.i    
     }
     
-    #intialize batch index
-    batch = 0
-    
     # now start chain
-    accept = b.accept = rep(0,q)
-    
-    
+    accept = rep(0,q)
     for(i in 1:(M-1)){
         
         # set the value at current iteration of the chain to variable xt
@@ -95,8 +86,7 @@ adaptive.mwg.rw.sampler = function(yi, Xi, betat, Sigma_gammat, M, prev.gamma.i 
             x = xt 
             
             # only update the jth component
-            # proposal variance is based on vector
-            x[j] = x[j] + h.sim(var = prop.var[j])
+            x[j] = x[j] + h.sim()
             
             # calculate MH ratio
             r = min(
@@ -116,46 +106,18 @@ adaptive.mwg.rw.sampler = function(yi, Xi, betat, Sigma_gammat, M, prev.gamma.i 
                 # reset xt
                 xt = x
                 
-                #  update number of acceptances
+                #  update number of acceptacnes
                 accept[j] = accept[j] + 1
-                b.accept[j] = b.accept[j] + 1 
             }else{
                 # otherwise, carry over value from the current iteration
                 x.indep.chain[i+1,] = xt
             }
         }
         # end of a single gibbs cycle
-        
-        # if at end of batch
-        if(floor(i/b) == ceiling(i/b)){
-            
-            # increment for proposal variance
-            delta.b = min(0.01, 1/sqrt(i))
-            
-            # loop over proposal density variance vector
-            for(j in 1:q){
-                if(b.accept[j]/b > 0.44){
-                    # if greater, add to variance
-                    prop.var[j] = log(sqrt(prop.var[j])) + delta.b        
-                }else{
-                    # otherwise, subtract
-                    prop.var[j] = log(sqrt(prop.var[j])) - delta.b
-                }
-            }
-            
-            # tranform back from log sqrt scale
-            prop.var = exp(prop.var)^2
-            # reset batch counter
-            b.accept = rep(0, q)
-            
-            # increment batch index
-            batch = batch + 1
-        } 
-        
     }
     # end chain 
     
-    return(list(gammai = x.indep.chain, ar = accept/M, prop.var = prop.var))
+    return(list(gammai = x.indep.chain, ar = accept/M))
 }
 e.step= function(y, X, ID, betat, Sigma_gammat, M, n, ni, sampler, burn.in = 200,prev.gamma = NULL){
     
@@ -288,23 +250,13 @@ dat = readRDS("dat2.rds")
 dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
 # modify china new_cases day 0 since it was NA previously
 dat[402,5]=548
-dat$ID <- dat %>% group_indices(Country.Region)
-
-for (i in 1:max(dat$ID)) {
-    if (sum(dat$ID==i) < 5) {
-        dat<- dat[!(dat$ID==i),]
-    }
-}
-
-dat$ID <- dat %>% group_indices(Country.Region)
-
 # unique country list
 order = unique(dat$Country.Region)
 # number of unique countries
 n = length(order)
 # assign IDs to each county and generate ni vector
-ID = as.numeric()
-ni = as.numeric()
+ID = numeric(nrow(dat))
+ni = numeric(length(order))
 index = 1
 for(i in 1:length(order)){
     #generate ID
@@ -315,7 +267,7 @@ for(i in 1:length(order)){
     ni[i] = count
 }
 # add intercept
-dat = dat %>% add_column(int = 1)
+dat = dat %>% add_column(ID = ID, int = 1)
 # generate the design and response matricies
 X = unname(as.matrix(dat %>% select(int, day, day2, GHS_Score, AgeGEQ65, UrbanPop)))
 y = unname(as.matrix(dat %>% select(new_cases)))
@@ -326,15 +278,13 @@ Z = c(1,2)
 #beta = as.vector(fixef(glmm1))
 #Sigma_gamma =  diag(rep(1, 2))
 # start values
-fit.glmm <- summary(glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 
-                                   + UrbanPop + (day | Country.Region), data = dat, family = poisson))
-beta = as.vector(fit.glmm$coefficients[,1])
+beta = c(-0.5,0.4,0,0,0,0)
 Sigma_gamma = diag(c(12,0.1))
 
 
 ## set initial parameters
-tol = 10^-5
-maxit = 100
+tol = 10^-3
+maxit = 10
 iter = 0
 eps = Inf
 qfunction = -10000 # using Qfunction for convergence
@@ -359,7 +309,7 @@ while(eps > tol & iter < maxit){
     }
     
     ## E-step
-    estep = e.step(y = y, X = X, ID = ID, betat = beta, Sigma_gammat = Sigma_gamma, M = M, n = n, ni = ni, sampler = adaptive.mwg.rw.sampler, prev.gamma = prev.gamma)
+    estep = e.step(y = y, X = X, ID = ID, betat = beta, Sigma_gammat = Sigma_gamma, M = M, n = n, ni = ni, sampler = mwg.rw.sampler, prev.gamma = prev.gamma)
     gamma = estep$gamma
     qfunction = estep$Qfunction
     offset = estep$offset
@@ -390,10 +340,10 @@ while(eps > tol & iter < maxit){
     if(iter == maxit) warning("Iteration limit reached without convergence")
     
     ## print out info to keep track
-    ccat(sprintf("Iter: %d Qf: %.3f g11: %f g12: %f g22: %f beta0: %.3f beta1:%.3f beta2:%.3f beta3:%.3f beta4 :%.3f
+    cat(sprintf("Iter: %d Qf: %.3f g11: %f g12: %f g22: %f beta0: %.3f beta1:%.3f beta2:%.3f beta3:%.3f beta4 :%.3f
                     beta5:%.3f eps:%f\n",iter, qfunction,diag(Sigma_gamma)[1],Sigma_gamma[1,2],  diag(Sigma_gamma)[2], 
-                 beta[1],beta[2], beta[3], beta[4], beta[5], beta[6], eps)
-         , file = "/nas/longleaf/home/euphyw/Desktop/covid19-project/longleaf/glmm_amwg_glmer.txt", append = TRUE)
+                beta[1],beta[2], beta[3], beta[4], beta[5], beta[6], eps)
+        , file = "/nas/longleaf/home/euphyw/Desktop/covid19-project/longleaf/glmm_mwg_rw_nglmer.txt", append = TRUE)
 }
 end = Sys.time()
 print(end - start)
