@@ -205,8 +205,23 @@ In the E-step we need to evaluate the expectation of the complete data log-likel
 \begin{align}
 Q(\theta|\theta^{(t)})&=E[l_c(\theta)|\theta^{(t)}]\\
 
-&=E\bigg[\sum^{n}_{i=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ij}))+log(\phi(\gamma_i|0,G))\bigg]\bigg]
+&=E\bigg[\sum^{n}_{i=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ij}))+log(\phi(\gamma_i|0,G))\bigg]\bigg]\\
+
+&=\sum^{n}_{i=1}\bigg[\int\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ij}))+log(\phi(\gamma_i|0,G))\bigg]f(\gamma_i|\theta^{(t)})d\gamma_i\bigg]
 \end{align}
+
+If we could sample from the posterior distribution of $\gamma_i$ we could approximate this intergral through a MC approach.
+
+\begin{align}
+Q(\theta|\theta^{(t)})&=\frac{1}{M}\sum^{n}_{i=1}\bigg[\sum^{M}_{k=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ijk}))+log(\phi(\Gamma_{ik}|0,G))\bigg]\bigg]\\
+\end{align}
+
+where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country, and $\lambda_{ijk}=e^{x_{ij}\beta^{(t)}+z_{ij}\Gamma_{ik}}$. To sample from this multivariate posterior, we use an adaptive Metropolis-within-Gibbs random walk.
+
+***MC description***
+
+Now for the M-step, once we have the Q-function, we need to maximize it with respect to $\beta$ and $G$.
+
 
 ## *Machine Learning Method*
 (describe machine learning method used)

@@ -1102,8 +1102,17 @@ l_c(\beta, G | y, \gamma)&amp;=\sum^{n}_{i=1}log\bigg[\bigg(\prod^{n_i}_{j=1}f(y
 <span class="math display">\[\begin{align}
 Q(\theta|\theta^{(t)})&amp;=E[l_c(\theta)|\theta^{(t)}]\\
 
-&amp;=E\bigg[\sum^{n}_{i=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ij}))+log(\phi(\gamma_i|0,G))\bigg]\bigg]
+&amp;=E\bigg[\sum^{n}_{i=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ij}))+log(\phi(\gamma_i|0,G))\bigg]\bigg]\\
+
+&amp;=\sum^{n}_{i=1}\bigg[\int\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ij}))+log(\phi(\gamma_i|0,G))\bigg]f(\gamma_i|\theta^{(t)})d\gamma_i\bigg]
 \end{align}\]</span>
+<p>If we could sample from the posterior distribution of <span class="math inline">\(\gamma_i\)</span> we could approximate this intergral through a MC approach.</p>
+<span class="math display">\[\begin{align}
+Q(\theta|\theta^{(t)})&amp;=\frac{1}{M}\sum^{n}_{i=1}\bigg[\sum^{M}_{k=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ijk}))+log(\phi(\Gamma_{ik}|0,G))\bigg]\bigg]\\
+\end{align}\]</span>
+<p>where <span class="math inline">\(\Gamma_{ik}\)</span> is one of the <span class="math inline">\(M\)</span> samples from the <span class="math inline">\(i\)</span>-th country, and <span class="math inline">\(\lambda_{ijk}=e^{x_{ij}\beta^{(t)}+z_{ij}\Gamma_{ik}}\)</span>. To sample from this multivariate posterior, we use an adaptive Metropolis-within-Gibbs random walk.</p>
+<p><strong><em>MC description</em></strong></p>
+<p>Now for the M-step, once we have the Q-function, we need to maximize it with respect to <span class="math inline">\(\beta\)</span> and <span class="math inline">\(G\)</span>.</p>
 </div>
 <div id="machine-learning-method" class="section level2">
 <h2><em>Machine Learning Method</em></h2>
