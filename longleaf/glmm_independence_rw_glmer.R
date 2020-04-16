@@ -278,7 +278,7 @@ Sigma_gamma = diag(c(12,0.1))
 
 ## set initial parameters
 tol = 10^-5
-maxit = 100
+maxit = 1000
 iter = 0
 eps = Inf
 qfunction = -10000 # using Qfunction for convergence

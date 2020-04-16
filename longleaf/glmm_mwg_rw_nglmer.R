@@ -244,19 +244,29 @@ e.step= function(y, X, ID, betat, Sigma_gammat, M, n, ni, sampler, burn.in = 200
     return(list(Qfunction = Qfunction, gamma = gamma, ar = ar, offset = offset, yaug = yaug, Xaug = Xaug))
 }
 
-# more data processing
+## more data processing
 dat = readRDS("dat2.rds")
 # remove na data
 dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
 # modify china new_cases day 0 since it was NA previously
 dat[402,5]=548
+dat$ID <- dat %>% group_indices(Country.Region)
+
+for (i in 1:max(dat$ID)) {
+    if (sum(dat$ID==i) < 5) {
+        dat<- dat[!(dat$ID==i),]
+    }
+}
+
+dat$ID <- dat %>% group_indices(Country.Region)
+
 # unique country list
 order = unique(dat$Country.Region)
 # number of unique countries
 n = length(order)
 # assign IDs to each county and generate ni vector
-ID = numeric(nrow(dat))
-ni = numeric(length(order))
+ID = as.numeric()
+ni = as.numeric()
 index = 1
 for(i in 1:length(order)){
     #generate ID
@@ -267,7 +277,7 @@ for(i in 1:length(order)){
     ni[i] = count
 }
 # add intercept
-dat = dat %>% add_column(ID = ID, int = 1)
+dat = dat %>% add_column(int = 1)
 # generate the design and response matricies
 X = unname(as.matrix(dat %>% select(int, day, day2, GHS_Score, AgeGEQ65, UrbanPop)))
 y = unname(as.matrix(dat %>% select(new_cases)))
@@ -283,8 +293,8 @@ Sigma_gamma = diag(c(12,0.1))
 
 
 ## set initial parameters
-tol = 10^-3
-maxit = 10
+tol = 10^-5
+maxit = 1000
 iter = 0
 eps = Inf
 qfunction = -10000 # using Qfunction for convergence
