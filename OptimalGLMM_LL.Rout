@@ -295,3 +295,16 @@ Warning messages:
 +         , file = "/nas/longleaf/home/euphyw/Desktop/covid19-project/OptimalGLMM_LL.txt", append = TRUE)
 +     
 + }
+Warning messages:
+1: glm.fit: algorithm did not converge 
+2: glm.fit: fitted rates numerically 0 occurred 
+3: glm.fit: algorithm did not converge 
+4: glm.fit: fitted rates numerically 0 occurred 
+5: glm.fit: fitted rates numerically 0 occurred 
+6: glm.fit: fitted rates numerically 0 occurred 
+7: glm.fit: fitted rates numerically 0 occurred 
+> 
+> 
+> proc.time()
+     user    system   elapsed 
+15402.000  8797.446 24202.866 
