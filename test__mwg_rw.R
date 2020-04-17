@@ -1,7 +1,9 @@
-library(mvtnorm)
-library(lme4)
 library(tidyverse)
+library(stats)
+library(lme4)
+library(mvtnorm)
 set.seed(1)
+setwd("~/Desktop/Spring 2020/BIOS 735/covid19-project")
 
 ### function for the log likelihood for ith subject 
 f = function(x,yi, Xi, betat, Sigma_gammat){
@@ -242,13 +244,12 @@ e.step= function(y, X, ID, betat, Sigma_gammat, M, n, ni, sampler, burn.in = 200
     return(list(Qfunction = Qfunction, gamma = gamma, ar = ar, offset = offset, yaug = yaug, Xaug = Xaug))
 }
 
-# more data processing
+## more data processing
 dat = readRDS("dat2.rds")
 # remove na data
 dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
 # modify china new_cases day 0 since it was NA previously
 dat[402,5]=548
-
 dat$ID <- dat %>% group_indices(Country.Region)
 
 for (i in 1:max(dat$ID)) {
@@ -290,14 +291,12 @@ Z = c(1,2)
 fit.glmm <- summary(glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 
                                    + UrbanPop + (day | Country.Region), data = dat, family = poisson))
 beta = as.vector(fit.glmm$coefficients[,1])
-
-# beta = c(-0.5,0.4,0,0,0,0)
 Sigma_gamma = diag(c(12,0.1))
 
 
 ## set initial parameters
-tol = 10^-3
-maxit = 10
+tol = 10^-5
+maxit = 1000
 iter = 0
 eps = Inf
 qfunction = -10000 # using Qfunction for convergence
@@ -308,7 +307,7 @@ prev.gamma = NULL
 #Sigma_gamma =  diag(rep(1, 5))
 
 ## fix chain length at 1000 in E-step
-M = 1000
+M = 10
 
 start = Sys.time()
 while(eps > tol & iter < maxit){
@@ -347,14 +346,16 @@ while(eps > tol & iter < maxit){
               start = beta
     )
     beta = as.vector(fit$coefficients)
-    
+    write.table(gamma,file="test_mwg_rw_gamma.txt",append = FALSE)
     ## update iterator
     iter = iter + 1
     if(iter == maxit) warning("Iteration limit reached without convergence")
     
     ## print out info to keep track
-    cat(sprintf("Iter: %d Qf: %.3f sigma_gamma1: %f sigma_gamma2: %f beta0: %.3f beta1:%.3f beta2: %.3f beta3:%.3f beta4: %.3f beta5:%.3f eps:%f\n",
-                iter, qfunction,diag(Sigma_gamma)[1], diag(Sigma_gamma)[2], beta[1],beta[2], beta[3],beta[4],beta[5],beta[6],eps))
+    cat(sprintf("Iter: %d Qf: %.3f g11: %f g12: %f g22: %f beta0: %.3f beta1:%.3f beta2:%.3f beta3:%.3f beta4 :%.3f
+                    beta5:%.3f eps:%f\n",iter, qfunction,diag(Sigma_gamma)[1],Sigma_gamma[1,2],  diag(Sigma_gamma)[2], 
+                beta[1],beta[2], beta[3], beta[4], beta[5], beta[6], eps)
+        , file = "~/Desktop/Spring 2020/BIOS 735/covid19-project/test_mwg_rw_glmer_iter.txt", append = TRUE)
 }
 end = Sys.time()
 print(end - start)
