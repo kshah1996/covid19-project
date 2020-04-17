@@ -289,7 +289,9 @@ In this setting, a random forest modeling approach (and the majority of availabl
 
 * Countries with similar GHS scores and population structures still had vastly different disease curves and trajectories with respect to new COVID cases per day. It is nearly impossible to gather a collection of covariates that accounts for the differences in curve structure between every country. Whether such a set of covariates even exists is unlikely, let alone actually finding it. Therefore, without being able to predict for an individual country based off of its previous time points (as was the case with the longitudinal GLMM modeling approach), making country-specific predictions through a random forest model was unlikely to be fruitful.
 
-* Although random forest's nonparametric modeling structure may seem promising here, we noticed that generally, the number of new cases for the majority of countries follows a bell-shaped curve with time, although with vastly different parameters that specify the curve. This situation is indeed well-suited for parametric statistical methods that limit each country's model to a specified distribution, while still allowing the parameters of that distribution to vary wildly. 
+* Although random forest's nonparametric modeling structure may seem promising here, we noticed that generally, the number of new cases for the majority of countries follows a bell-shaped curve with time, although with vastly different parameters that specify the curve. This situation is indeed well-suited for parametric statistical methods that limit each country's model to a specified distribution, while still allowing the parameters of that distribution to vary wildly.
+
+In one sense, the GLMM approach allows for flexibility where it is needed (in variation amongst the country-specific parameters), while also remaining rigid in a way that leads to reasonable predictions (giving every country the same bell-curve shape, which is a valid assumption based on disease literature and is reflected in the COVID data so far).
 
 ### Prophet Time-Series Modeling
 
