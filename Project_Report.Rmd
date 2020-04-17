@@ -270,8 +270,14 @@ Now for the M-step, once we have the Q-function, we need to maximize it with res
 
 “Coronavirus.” World Health Organization, World Health Organization, www.who.int/health-topics/coronavirus#tab=tab_1.
 
+De Angelis, Daniela et al. “Four key challenges in infectious disease modelling using data from multiple sources.” Epidemics vol. 10 (2015): 83-7. doi:10.1016/j.epidem.2014.09.004
+
 Google Cloud Platform, Google, console.cloud.google.com/marketplace/details/johnshopkins/covid19_jhu_global_cases.
+
+Junling Ma, "Estimating epidemic exponential growth rate and basic reproduction number." Infectious Disease Modelling, Volume 5 (2020): 129-141. doi: 10.1016/j.idm.2019.12.009. eCollection 2020.
 
 “The Global Health Security Index.” GHS Index, www.ghsindex.org/. 
 
 “World Bank Open Data.” Data, 7 Apr. 2020, data.worldbank.org/.
+
+
