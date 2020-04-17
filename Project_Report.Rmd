@@ -259,7 +259,16 @@ Now for the M-step, once we have the Q-function, we need to maximize it with res
 ## *Limitations*
 (This could go on for pages - will try to focus on a brief description. Discussed including one or two plots, such as South Korea, to show some limitations)
 
-- not able to gather data on movement restrictions and when they were put into place for each country
+"It is useful at this point to reflect that modelling infectious diseases, particularly emerging pandemics, is different to modelling environmental or physical phenomena (such as climate change or fluid dynamics). This is because the underpinning knowledge or empirical data are often rare or highly uncertain and the timescales for intervention relatively fast." - Walters et. al. (2018)
+
+Often when creating a model we look at models previously used for similar phenomena. COVID-19 could be considered to spread in a similar way to influenza. However, While there have been influenza outbreaks in recent history (1918, 1957, 1968, 2009), socio-cultural changes between each previously modeled pandemic, including movement patterns, advances in medicine, new forms of data collection, etc. make it very difficult, if not useless to use a model that was created for a previous pandemic. Since pandemics are fairly rare, there are not a lot of previously identified models that are sure to work. (Walters et al 2018)
+
+
+De Angelis et. al. (2015) describe how Markov chain Monte Carlo (MCMC) approaches have become somewhat of a 'gold standard' in the world of modeling infectious diseases. However, they note several complications that we can fully understand after working through this project. These include: writing a likelihood in closed form, data augmentation that invlolves imputation of more unkowns than feasible to handle, and difficulty implementing the model in real time due to high level of computational effort.
+
+
+We were not able to gather data on movement restrictions and when they were put into place for each country, as this data is not readily available. Including travel and contact patterns in a pandemic model is extremely important. However, this data is not readily available to the public. There are datasets that describe travel patterns, but according to Walters et. al. (2018), access to these data are often restricted, and even those who have access may see a delay in updates. This often leads to models being uninformative for a period of time.
+
 
 - countries not accurately reporting data or lag time between cases confirmed and reported
 
@@ -277,6 +286,8 @@ Google Cloud Platform, Google, console.cloud.google.com/marketplace/details/john
 Junling Ma, "Estimating epidemic exponential growth rate and basic reproduction number." Infectious Disease Modelling, Volume 5 (2020): 129-141. doi: 10.1016/j.idm.2019.12.009. eCollection 2020.
 
 “The Global Health Security Index.” GHS Index, www.ghsindex.org/. 
+
+Walters, Caroline E et al. “Modelling the global spread of diseases: A review of current practice and capability.” Epidemics vol. 25 (2018): 1-8. doi:10.1016/j.epidem.2018.05.007
 
 “World Bank Open Data.” Data, 7 Apr. 2020, data.worldbank.org/.
 
