@@ -386,3 +386,10 @@ Warning messages:
 +                 beta[1],beta[2], beta[3], beta[4], beta[5], beta[6], eps)
 +         , file = "/nas/longleaf/home/euphyw/Desktop/covid19-project/longleaf/glmm_independence_rw_glmer.txt", append = TRUE)
 + }
+> end = Sys.time()
+> print(end - start)
+Time difference of 1.507807 hours
+> 
+> proc.time()
+    user   system  elapsed 
+5373.525   62.145 5437.576 

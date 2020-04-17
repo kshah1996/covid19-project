@@ -395,3 +395,10 @@ The following object is masked from ‘package:tidyr’:
 +                 beta[1],beta[2], beta[3], beta[4], beta[5], beta[6], eps)
 +         , file = "/nas/longleaf/home/euphyw/Desktop/covid19-project/longleaf/glmm_mwg_rw_nglmer.txt", append = TRUE)
 + }
+> end = Sys.time()
+> print(end - start)
+Time difference of 1.315915 hours
+> 
+> proc.time()
+    user   system  elapsed 
+4683.608   56.295 4741.359 
