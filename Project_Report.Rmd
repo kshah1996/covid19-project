@@ -225,13 +225,13 @@ Q(\theta|\theta^{(t)})&=E[l_c(\theta)|\theta^{(t)}]\\
 &=\sum^{n}_{i=1}\bigg[\int\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ij}^{(t)}))+log(\phi(\gamma_i|0,G^{(t)}))\bigg]f(\gamma_i|\beta^{(t)},G^{(t)})d\gamma_i\bigg]
 \end{align}
 
-If we could sample from the posterior distribution of $\gamma_i$ we could approximate this intergral through a MC approach.
+where $\lambda_{ij}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\gamma_{i}}$. If we could sample from the posterior distribution of $\gamma_i$ we could approximate this intergral through a MC approach.
 
 \begin{align}
 Q(\theta|\theta^{(t)})&=\frac{1}{M}\sum^{n}_{i=1}\bigg[\sum^{M}_{k=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ijk}^{(t)}))+log(\phi(\Gamma_{ik}|0,G^{(t)}))\bigg]\bigg]\\
 \end{align}
 
-where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country, and $\lambda_{ijk}=e^{x_{ij}\beta^{(t)}+z_{ij}\Gamma_{ik}}$. To sample from this multivariate posterior, we use an adaptive Metropolis-within-Gibbs random walk.
+where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country, and $\lambda_{ijk}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\Gamma_{ik}}$. To sample from this multivariate posterior, we use an adaptive Metropolis-within-Gibbs random walk.
 
 ***MC description***
 
