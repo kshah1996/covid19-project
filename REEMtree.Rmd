@@ -15,8 +15,9 @@ library(randomForest)
 library(glmertree)
 library(MixRF)
 
-dat <- readRDS("dat.rds")
+dat <- readRDS("dat.rds") %>% drop_na()
 dat_old <- readRDS("dat_old.rds")
+dat2 <- readRDS("dat2.rds")
 
 dat <- dat %>%
   filter(!(Country.Region == "China" & day == 0))
@@ -44,6 +45,35 @@ df_model_X <- dat %>%
   select(Country.Region, day)
 df_model_X <- as.data.frame(df_model_X)
 
-fit <- MixRF(Y = dat$new_cases, X = as.data.frame(dat$day), random = "(day|Country.Region)", data = dat)
+fit <- MixRF(Y = dat_over_10$new_cases, X = as.data.frame(dat_over_10$day), random = "(day|Country.Region)", data = dat_over_10)
+```
+
+### Random Forest
+
+```{r}
+dat2_rf <- dat2 %>% select(Country.Region, day, GHS_Score, AgeGEQ65, UrbanPop, new_cases) %>%
+  drop_na()
+
+dat2_rf_X <- dat2_rf %>% select(day, GHS_Score, AgeGEQ65, UrbanPop)
+dat2_rf_Y <- dat2_rf %>% select(new_cases)
+
+rf1 <- randomForest(x = dat2_rf_X, y = dat2_rf$new_cases)
+
+dat2_rf_preds <- dat2_rf %>% mutate(pred = predict(rf1))
+
+dat2_rf_preds_usa <- dat2_rf_preds %>% filter(Country.Region == "US")
+plot(x = dat2_rf_preds_usa$day, y = dat2_rf_preds_usa$new_cases)
+lines(dat2_rf_preds_usa$day, dat2_rf_preds_usa$pred)
+sum(dat2_rf_preds_usa$pred)
+sum(dat2_rf_preds_usa$new_cases)
+
+imp <- importance(rf1)
+lattice::dotplot(tail(sort(imp[,1]),10), xlab="Mean Decrease Gini")
+```
+
+### MERF
+
+```{r}
+MEml::MErf(form = new_cases ~ day, dat = as.data.frame(dat), groups = "Country.Region", rand.vars = "day", family = "gaussian")
 ```
 

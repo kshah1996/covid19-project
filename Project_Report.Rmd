@@ -11,6 +11,7 @@ header_includes:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 ```
 
 <p align="center">
@@ -237,8 +238,60 @@ where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country, and $\lam
 Now for the M-step, once we have the Q-function, we need to maximize it with respect to $\beta$ and $G$.
 
 
-## *Machine Learning Method*
-(describe machine learning method used)
+## *Machine Learning Methods*
+
+Two modeling techniques were considered for the machine learning section: Random Forest and Prophet (time-series modeling). 
+
+There is some existing literature for machine learning methods for longitudinal data, however, the extent is limited and recent method developments lack direct applications in R. For example, Ngufor et al. (2018) develop a "Mixed Effect Random Forest", but its implementation in R is still limited and produces vague error messages. Therefore, a regular random forest technique was applied to this dataset instead, as it is still a nonparametric technique and may be able to uncover the temporal structure of the dataset.
+
+Additionally, we decided to consider a time-series modeling method called Prophet, originally developed by Facebook Research. **[feel free to add a brief description here]**
+
+### Random Forest
+
+Since country-specific random effects could not be incorporated, a random forest model was applied to the dataset as a whole, using `day`, `GHS_Score`, `AgeGEQ65`, and `UrbanPop` to predict new cases, with the hope that the country-specific variables may result in more country-specific predictions.
+
+#### Model Evaluation
+
+However, after running the random forest model, we observed that fits to the data and predictions were very inaccurate, especially for countries whose curves differed considerably from other countries.
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+library(randomForest)
+
+dat2_rf <- datDisplay %>% select(Country.Region, day, GHS_Score, AgeGEQ65, UrbanPop, new_cases) %>%
+  drop_na()
+dat2_rf_X <- dat2_rf %>% select(day, GHS_Score, AgeGEQ65, UrbanPop)
+dat2_rf_Y <- dat2_rf %>% select(new_cases)
+
+rf1 <- randomForest(x = dat2_rf_X, y = dat2_rf$new_cases)
+
+dat2_rf_preds <- dat2_rf %>% mutate(pred = predict(rf1))
+
+dat2_rf_preds_usa <- dat2_rf_preds %>% filter(Country.Region == "US")
+
+ggplot(dat2_rf_preds_usa, aes(x = day)) +
+  geom_point(aes(y = new_cases)) +
+  geom_line(aes(y = pred)) +
+  labs(x = "Day", y = "New Cases") + 
+  ggtitle("USA Predictions with Random Forest")
+
+#sum(dat2_rf_preds_usa$pred)
+#sum(dat2_rf_preds_usa$new_cases)
+
+#imp <- importance(rf1)
+#lattice::dotplot(tail(sort(imp[,1]),10), xlab="Mean Decrease Gini")
+```
+
+For example, for the United States, as plotted above, the random forest model highly overpredicts early on and underpredicts as the situation worsens. Whereas the GLMM fit for the US was quite accurate (even with the US being quite an outlier in terms of number of daily new cases) because it was prespecified to be a bell curve, random forest struggles because its estimates for the United States are biased towards the outcome of all countries with a similar `GHS_Score`, `AgeGEQ65`, and `UrbanPop`. 
+
+#### Limitations of Random Forest
+
+In this setting, a random forest modeling approach (and the majority of available machine learning approaches) is limited by its inability to handle correlated, longitudinal data. The key limitations of random forest for this dataset are as follows:
+
+* Countries with similar GHS scores and population structures still had vastly different disease curves and trajectories with respect to new COVID cases per day. It is nearly impossible to gather a collection of covariates that accounts for the differences in curve structure between every country. Whether such a set of covariates even exists is unlikely, let alone actually finding it. Therefore, without being able to predict for an individual country based off of its previous time points (as was the case with the longitudinal GLMM modeling approach), making country-specific predictions through a random forest model was unlikely to be fruitful.
+
+* Although random forest's nonparametric modeling structure may seem promising here, we noticed that generally, the number of new cases for the majority of countries follows a bell-shaped curve with time, although with vastly different parameters that specify the curve. This situation is indeed well-suited for parametric statistical methods that limit each country's model to a specified distribution, while still allowing the parameters of that distribution to vary wildly. 
+
+### Prophet Time-Series Modeling
 
 ## *Model Evaluation*
 (describe how we evaluated our model prediction and include comparison of Module 2/Module 3 methods)
@@ -284,6 +337,10 @@ De Angelis, Daniela et al. “Four key challenges in infectious disease modellin
 Google Cloud Platform, Google, console.cloud.google.com/marketplace/details/johnshopkins/covid19_jhu_global_cases.
 
 Junling Ma, "Estimating epidemic exponential growth rate and basic reproduction number." Infectious Disease Modelling, Volume 5 (2020): 129-141. doi: 10.1016/j.idm.2019.12.009. eCollection 2020.
+
+Ngufor, C., Van Houten, H., Caffo, B. S., Shah, N. D., & McCoy, R. G. (2019). Mixed Effect Machine Learning: a framework for predicting longitudinal change in hemoglobin A1c. Journal of biomedical informatics, 89, 56-67.
+
+Taylor, S. J., & Letham, B. (2018). Forecasting at scale. The American Statistician, 72(1), 37-45.
 
 “The Global Health Security Index.” GHS Index, www.ghsindex.org/. 
 
