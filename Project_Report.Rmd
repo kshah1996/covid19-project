@@ -114,7 +114,19 @@ htmlTable(us, rnames = FALSE,
 
 # Methods
 
-***Add in paragraph on why we fit a model with tij^2 and how the logistic growth of cumulative counts leads to the normal curve for new cases***
+During the initial growth phase of a pandemic, the number of cases shows exponential growth. As time progresses, the number of new cases each day starts to decrease, and eventually we reach a final number of cases. Thus, the cumulative number of cases form an approximately linear relationship with time in the log-linear scale in the initial phases, but then plateaus after a certain timepoint.
+It is common in Epidemiology to model this initial exponential growth and subsequent slow-down using a logistic growth model. The cumulative incidences $C(t)$ (the total number of cases by time $t$) can be approximated by
+
+$$
+C(t)=\frac{KC_0}{C_0+(K-C_0)e^{-rt}}
+$$
+
+where $r$ is the exponential growth rate, $K=\displaystyle \lim_{t \to \infty} C(t)$ and $C_0=C(0)$.
+
+By taking the derivative of $C(t)$, we can estimate the change in number of total cases with respect to time. Hence, when looking between two subsequent time points, we can find the number of new cases.
+
+The derivative of $C(t)$, the density of the logistic function, is $\frac{d}{dt}=\frac{rKC_0e^{rt}(K-C_0)}{((K-C_0)+C_0e^{rt})^2}$, which looks a lot like a normal distribution! Hence, we can use a normal distribution to approximate the logistic function. 
+
 
 ```{r, echo=FALSE}
 # Graphing Logistic Growth, Derivative, and Gaussian Curve
@@ -157,6 +169,8 @@ legend("topleft", inset=0, title="Distributions",
 
 ```
 
+This led us to attempt to model number of new cases using a Gaussian curve.
+We found this fit the number of new cases quite well for many countries, with some limitations of course. Since this density fit the number of new cases quite well in initial modeling, we decided to create a model that incorporates an $exp(time^2)$ term, and hence we included covariates for $time$ as well as $time^2$.
 
 
 ## *Poisson GLMM*
