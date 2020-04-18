@@ -12,6 +12,7 @@ header_includes:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(prophet)
 ```
 
 <p align="center">
@@ -90,12 +91,12 @@ Below is a preview of what our final data set looks like. Each country has a row
 library(data.table)
 library(knitr)
 
-datDisplay = readRDS("dat2.rds")
+datDisplay = readRDS("dat3.rds")
 
-us <- subset(datDisplay, Country.Region == "US", select = c(day, total_cases, new_cases, GHS_Score, AgeGEQ65, UrbanPop))
+us <- subset(datDisplay, Country.Region == "US", select = c(day, total_cases, new_cases, GHS_Score, AgeGEQ65, UrbanPop, TotalPop))
 
   
-colnames(us) <- c("Day", "Total Cases", "New Cases", "GHS Index", "% 65+", "% Urban Setting")
+colnames(us) <- c("Day", "Total Cases", "New Cases", "GHS Index", "% 65+", "% Urban Setting", "Total Population (2018)")
 
 
 
@@ -231,7 +232,7 @@ where $\lambda_{ij}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\gamma_{i}}$. If we could s
 Q(\theta|\theta^{(t)})&=\frac{1}{M}\sum^{n}_{i=1}\bigg[\sum^{M}_{k=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ijk}^{(t)}))+log(\phi(\Gamma_{ik}|0,G^{(t)}))\bigg]\bigg]\\
 \end{align}
 
-where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country, and $\lambda_{ijk}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\Gamma_{ik}}$. To sample from this multivariate posterior, we use an adaptive Metropolis-within-Gibbs random walk.
+where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country, and $\lambda_{ijk}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\Gamma_{ik}}$. To sample from this multivariate posterior, we tried 3 different approaches: an independence random walk, a Metropolis-within-Gibbs random walk, and an adaptive Metropolis-within-Gibbs random walk. Of these 3 methods, we decided that the adaptive Metropolis-within-Gibbs approach was the most suitable.
 
 ***MC description***
 
@@ -302,7 +303,18 @@ Two modeling techniques were considered for the machine learning section: Random
 
 There is some existing literature for machine learning methods for longitudinal data, however, the extent is limited and recent method developments lack direct applications in R. For example, Ngufor et al. (2018) develop a "Mixed Effect Random Forest", but its implementation in R is still limited and produces vague error messages. Therefore, a regular random forest technique was applied to this dataset instead, as it is still a nonparametric technique and may be able to uncover the temporal structure of the dataset.
 
-Additionally, we decided to consider a time-series modeling method called Prophet, originally developed by Facebook Research. **[feel free to add a brief description here]**
+Additionally, we decided to consider a time-series modeling method called Prophet to further answer our scientific question of predicting new cases in future days. Prophet was originally developed by Facebook Research and is available in packages for both R and Python. The method was built for building time-series predictions for business forecasting problems, but we believe it may be used to predict future cases of Covid-19. Note, this method can only be used to model cases for one country at a time.
+
+Prophet is based in a decomposable time series model as follows: 
+$$y(t) = g(t) + s(t) + h(t) +\epsilon_t$$
+$y(t)$ ~ total cases, $g(t)$ ~ non-periodic changes, $s(t)$~periodic changes (such as weekly or yearly), $h(t)$~holiday effects, $\epsilon_t$~$N(0,\sigma^2)$
+
+While the method allows for seasonal and holiday effects, we do not include such in our model as we do not believe it applies to Covid-19 cases. 
+
+We utilized a logistic growth model, which has the following form: 
+$$g(t) = \frac{C(t)}{1 + \exp(-k(t-m))}$$ Where $C(t)$ is a function for the carrying capacity, $k(t)$ is the growth rate, and $m$ is an offset parameter. In typical time series models, C and k are constants, but an advantage of Prophet is allowing these to vary with time.
+
+Prophet utilizes *L-BFGS* to determine parameter estimates. 
 
 ### Random Forest
 
@@ -347,14 +359,13 @@ In this setting, a random forest modeling approach (and the majority of availabl
 
 * Countries with similar GHS scores and population structures still had vastly different disease curves and trajectories with respect to new COVID cases per day. It is nearly impossible to gather a collection of covariates that accounts for the differences in curve structure between every country. Whether such a set of covariates even exists is unlikely, let alone actually finding it. Therefore, without being able to predict for an individual country based off of its previous time points (as was the case with the longitudinal GLMM modeling approach), making country-specific predictions through a random forest model was unlikely to be fruitful.
 
-* Although random forest's nonparametric modeling structure may seem promising here, we noticed that generally, the number of new cases for the majority of countries follows a bell-shaped curve with time, although with vastly different parameters that specify the curve. This situation is indeed well-suited for parametric statistical methods that limit each country's model to a specified distribution, while still allowing the parameters of that distribution to vary wildly. Extra assumptions that were needed for GLMM, in this case, were helpful, because they ensured, for example, that the predicted new cases for any single day is nonnegative. This rigidity resulted in extrapolations (future time points) at least being reasonable. 
+* Although random forest's nonparametric modeling structure may seem promising here, we noticed that generally, the number of new cases for the majority of countries follows a bell-shaped curve with time, although with vastly different parameters that specify the curve. This situation is indeed well-suited for parametric statistical methods that limit each country's model to a specified distribution, while still allowing the parameters of that distribution to vary wildly.
 
-In one sense, the GLMM approach allows for flexibility where it is needed (in variation amongst the country-specific parameters), while also remaining rigid in a way that leads to reasonable predictions (giving every country the same bell-curve shape, which is a valid assumption based on disease literature and is reflected in the COVID data so far). To make future predictions for time points outside the current dataset, fixing a bellcurve-type structure helps.
+In one sense, the GLMM approach allows for flexibility where it is needed (in variation amongst the country-specific parameters), while also remaining rigid in a way that leads to reasonable predictions (giving every country the same bell-curve shape, which is a valid assumption based on disease literature and is reflected in the COVID data so far).
 
-### Prophet Time-Series Modeling
 
-## *Model Evaluation*
-(describe how we evaluated our model prediction and include comparison of Module 2/Module 3 methods)
+
+
 
 
 # Results
@@ -362,6 +373,49 @@ In one sense, the GLMM approach allows for flexibility where it is needed (in va
 ## *Poisson GLMM*
 
 ## *Machine Learning*
+
+### *Prophet Time-Series Modeling*
+
+To build individual models for each country, we wrote a function to determine both model and forecast. 
+
+```{r}
+forecast <- function(country, data, numPred){
+  dat <- data[data$Country.Region == country, ]
+  prophet_dat <- as.data.frame(dat$date)
+  prophet_dat$y <- as.numeric(dat$total_cases)
+  prophet_dat$cap <- as.numeric(dat$TotalPop*.01)
+  
+  colnames(prophet_dat) <- c("ds", "y", "cap")
+  
+  now <- prophet(prophet_dat, growth= "logistic")
+  future <- make_future_dataframe(now, periods=numPred)
+  future$cap <- rep(prophet_dat[1,3], length(future$ds))
+  
+  forecast <- predict(now, future, )
+  print(plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = paste(country, "total cases")))
+  return(list(now,forecast))
+}
+```
+This function has three inputs:
+
+Country: a character value written exactly as the country is listed in the dataset
+Data: Any dataframe that includes country name, total cases, and the country's total population. 
+numPred: The number of days you want to predict in the future
+
+The function returns a graph of the model and forecast as well as a dataframe that includes all previous data and forecasted predictions for the length of numPred. 
+
+We now look at the results for a few countries. 
+```{r, warning= FALSE}
+dat <- readRDS("dat3.rds")
+par(mfrow = c(2,2))
+US <- forecast("US", dat, 10)
+SouthKorea <- forecast("Korea, South", dat, 10)
+Italy <- forecast("Italy", dat, 10)
+China <- forecast("China", dat, 10)
+```
+
+We see in general, the model fits fairly well if the country has not reached its inflection point. You can see this from the graphs for the US and Italy. However, if the country has been effective at flattening the curve, such as China and South Korea, the method can not properly capture the inflection point nor make accurate forecasts for future cases.  
+
 
 ## *Comparison on Methods*
 
