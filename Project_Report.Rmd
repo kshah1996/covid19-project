@@ -91,6 +91,7 @@ Below is a preview of what our final data set looks like. Each country has a row
 library(data.table)
 library(knitr)
 
+dat2 <- readRDS("dat2.rds")
 datDisplay = readRDS("dat3.rds")
 
 us <- subset(datDisplay, Country.Region == "US", select = c(day, total_cases, new_cases, GHS_Score, AgeGEQ65, UrbanPop, TotalPop))
@@ -345,7 +346,7 @@ However, after running the random forest model, we observed that fits to the dat
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
 library(randomForest)
 
-dat2_rf <- datDisplay %>% select(Country.Region, day, GHS_Score, AgeGEQ65, UrbanPop, new_cases) %>%
+dat2_rf <- dat2 %>% select(Country.Region, day, GHS_Score, AgeGEQ65, UrbanPop, new_cases) %>%
   drop_na()
 dat2_rf_X <- dat2_rf %>% select(day, GHS_Score, AgeGEQ65, UrbanPop)
 dat2_rf_Y <- dat2_rf %>% select(new_cases)
@@ -404,14 +405,9 @@ In this setting, a random forest modeling approach (and the majority of availabl
 
 * Countries with similar GHS scores and population structures still had vastly different disease curves and trajectories with respect to new COVID cases per day. It is nearly impossible to gather a collection of covariates that accounts for the differences in curve structure between every country. Whether such a set of covariates even exists is unlikely, let alone actually finding it. Therefore, without being able to predict for an individual country based off of its previous time points (as was the case with the longitudinal GLMM modeling approach), making country-specific predictions through a random forest model was unlikely to be fruitful.
 
-* Although random forest's nonparametric modeling structure may seem promising here, we noticed that generally, the number of new cases for the majority of countries follows a bell-shaped curve with time, although with vastly different parameters that specify the curve. This situation is indeed well-suited for parametric statistical methods that limit each country's model to a specified distribution, while still allowing the parameters of that distribution to vary wildly.
+* Although random forest's nonparametric modeling structure may seem promising here, we noticed that generally, the number of new cases for the majority of countries follows a bell-shaped curve with time, although with vastly different parameters that specify the curve. This situation is indeed well-suited for parametric statistical methods that limit each country's model to a specified distribution, while still allowing the parameters of that distribution to vary wildly. Extra assumptions that were needed for GLMM, in this case, were helpful, because they ensured, for example, that the predicted new cases for any single day is nonnegative. This rigidity resulted in extrapolations (future time points) at least being reasonable. 
 
-In one sense, the GLMM approach allows for flexibility where it is needed (in variation amongst the country-specific parameters), while also remaining rigid in a way that leads to reasonable predictions (giving every country the same bell-curve shape, which is a valid assumption based on disease literature and is reflected in the COVID data so far).
-
-
-
-
-
+In one sense, the GLMM approach allows for flexibility where it is needed (in variation amongst the country-specific parameters), while also remaining rigid in a way that leads to reasonable predictions (giving every country the same bell-curve shape, which is a valid assumption based on disease literature and is reflected in the COVID data so far). To make future predictions for time points outside the current dataset, fixing a bellcurve-type structure helps.
 
 # Results
 
