@@ -85,7 +85,7 @@ For this project, we have included a country's overall GHS Index as a covariate 
 
 ## *Finalized Data*
 
-Below is a preview of what our final data set looks like. Each country has a row for each day of recorded cases from baseline (day of 50 cases) until April 11, 2020.
+Below is a preview of what our final data set looks like. Each country has a row for each day of recorded cases from baseline (day of 50 cases) until April 3, 2020.
 
 ```{r include=FALSE}
 library(data.table)
