@@ -88,7 +88,6 @@ Below is a preview of what our final data set looks like. Each country has a row
 
 ```{r include=FALSE}
 library(data.table)
-library(htmlTable)
 library(knitr)
 
 datDisplay = readRDS("dat2.rds")
