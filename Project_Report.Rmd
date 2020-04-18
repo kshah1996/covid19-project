@@ -291,7 +291,7 @@ In this setting, a random forest modeling approach (and the majority of availabl
 
 * Although random forest's nonparametric modeling structure may seem promising here, we noticed that generally, the number of new cases for the majority of countries follows a bell-shaped curve with time, although with vastly different parameters that specify the curve. This situation is indeed well-suited for parametric statistical methods that limit each country's model to a specified distribution, while still allowing the parameters of that distribution to vary wildly. Extra assumptions that were needed for GLMM, in this case, were helpful, because they ensured, for example, that the predicted new cases for any single day is nonnegative. This rigidity resulted in extrapolations (future time points) at least being reasonable. 
 
-In one sense, the GLMM approach allows for flexibility where it is needed (in variation amongst the country-specific parameters), while also remaining rigid in a way that leads to reasonable predictions (giving every country the same bell-curve shape, which is a valid assumption based on disease literature and is reflected in the COVID data so far).
+In one sense, the GLMM approach allows for flexibility where it is needed (in variation amongst the country-specific parameters), while also remaining rigid in a way that leads to reasonable predictions (giving every country the same bell-curve shape, which is a valid assumption based on disease literature and is reflected in the COVID data so far). To make future predictions for time points outside the current dataset, fixing a bellcurve-type structure helps.
 
 ### Prophet Time-Series Modeling
 
