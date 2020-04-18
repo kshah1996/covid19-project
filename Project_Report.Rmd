@@ -237,6 +237,26 @@ where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country, and $\lam
 Now for the M-step, once we have the Q-function, we need to maximize it with respect to $\beta$ and $G$.
 
 ### Model Evaluation
+
+To evaluate our model, we compare the predictions that our models made to the data from future days which were not used in the generation of our model. To facilitate this we need to be able to generate a prediction of the random effects given a country, or more specifically be able to estimate $\gamma_i|y_i,\beta,G$. We can use the following expectation as a good estimate.
+
+\begin{align}
+\hat{\gamma_i}&=E[\gamma_i|y_i,\hat{\beta},\hat{G}]\\
+&=\int\gamma_if(\gamma_i|y_i,\hat{\beta},\hat{G})d\gamma_i
+\end{align}
+As in the E-step we can use a MC approach to estimate this mean as follows.
+\begin{align}
+E[\gamma_i|y_i,\hat{\beta},\hat{G}]&=\frac{1}{M}\sum^{M}_{k=1}\Gamma_{ik}
+\end{align}
+
+where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country. Since we have already generated $\Gamma_{ik}$ from the E-step iterations above, we can take the mean of those Markov chains to estimate country specific random effects. The predicted number of new cases for country $i$ at day $j$ is
+
+\begin{align}
+E[y_{ij}|\gamma_i]&=\frac{1}{1+e^{-(x_{ij}\hat{\beta}+z_{ij}\hat{\gamma_i})}}
+\end{align}
+
+Below is the predictions of our GLMM model for the United States. The model was built on the first 40 days, and then we use the predictions to project the next 8 days. Since the original data is from the past, we also know the true observed number of new cases in the United States as well. The dashed lines indicated time points that were not included in the generation of our model.
+
 ```{r echo = FALSE}
 ## more data processing
 dat = readRDS("dat2.rds")
