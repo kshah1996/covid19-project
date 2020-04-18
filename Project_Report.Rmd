@@ -232,9 +232,7 @@ where $\lambda_{ij}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\gamma_{i}}$. If we could s
 Q(\theta|\theta^{(t)})&=\frac{1}{M}\sum^{n}_{i=1}\bigg[\sum^{M}_{k=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ijk}^{(t)}))+log(\phi(\Gamma_{ik}|0,G^{(t)}))\bigg]\bigg]\\
 \end{align}
 
-where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country, and $\lambda_{ijk}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\Gamma_{ik}}$. To sample from this multivariate posterior, we tried 3 different approaches: an independence random walk, a Metropolis-within-Gibbs random walk, and an adaptive Metropolis-within-Gibbs random walk. Of these 3 methods, we decided that the adaptive Metropolis-within-Gibbs approach was the most suitable.
-
-***MC description***
+where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country, and $\lambda_{ijk}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\Gamma_{ik}}$. To sample from this multivariate posterior, we tried 3 different approaches: an independence random walk, a Metropolis-within-Gibbs random walk, and an adaptive Metropolis-within-Gibbs random walk. Of these 3 methods, we decided that the Metropolis-within-Gibbs random walk approach was the most suitable. We consider a new $X^*=x^{(t)}+\epsilon$ at each Gibbs step, where $\epsilon\sim N(0,0.01)$. Then we using the Metropolis Hastings ratio to determine if it is accepted or rejected into the Markov Chain.
 
 Now for the M-step, once we have the Q-function, we need to maximize it with respect to $\beta$ and $G$.
 
