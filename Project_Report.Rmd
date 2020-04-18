@@ -231,11 +231,9 @@ where $\lambda_{ij}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\gamma_{i}}$. If we could s
 Q(\theta|\theta^{(t)})&=\frac{1}{M}\sum^{n}_{i=1}\bigg[\sum^{M}_{k=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ijk}^{(t)}))+log(\phi(\Gamma_{ik}|0,G^{(t)}))\bigg]\bigg]\\
 \end{align}
 
-where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country, and $\lambda_{ijk}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\Gamma_{ik}}$. To sample from this multivariate posterior, we use an adaptive Metropolis-within-Gibbs random walk.
+where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country, and $\lambda_{ijk}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\Gamma_{ik}}$. To sample from this multivariate posterior, we use an Metropolis-within-Gibbs random walk. We draw from a univariate random walk at each Gibbs step. We consider a new $X^*=x^{(t)}+\epsilon$ at each Gibbs step, where $\epsilon\sim N(0,0.01)$. Then we using the Metropolis Hastings ratio to determine if it is accepted or rejected into the Markov Chain.
 
-***MC description***
-
-Now for the M-step, once we have the Q-function, we need to maximize it with respect to $\beta$ and $G$.
+Now for the M-step, once we have the Q-function, we need to maximize it with respect to $\beta$ and $G$. From the 
 
 ### Model Evaluation
 ```{r echo = FALSE}
