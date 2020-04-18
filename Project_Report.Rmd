@@ -13,6 +13,7 @@ header_includes:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(prophet)
+library(lme4)
 ```
 
 <p align="center">
@@ -256,66 +257,6 @@ where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country. Since we 
 E[y_{ij}|\gamma_i]&=\frac{1}{1+e^{-(x_{ij}\hat{\beta}+z_{ij}\hat{\gamma_i})}}
 \end{align}
 
-Below is the predictions of our GLMM model for the United States. The model was built on the first 40 days, and then we use the predictions to project the next 8 days. Since the original data is from the past, we also know the true observed number of new cases in the United States as well. The dashed lines indicated time points that were not included in the generation of our model.
-
-```{r echo = FALSE}
-## more data processing
-dat = readRDS("dat2.rds")
-# remove na data
-dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
-# modify china new_cases day 0 since it was NA previously
-dat[402,5]=548
-dat$ID <- dat %>% group_indices(Country.Region)
-
-for (i in 1:max(dat$ID)) {
-  if (sum(dat$ID==i) < 5) {
-    dat<- dat[!(dat$ID==i),]
-  }
-}
-
-dat$ID <- dat %>% group_indices(Country.Region)
-
-# unique country list
-order = unique(dat$Country.Region)
-
-gamma <- read.table("longleaf/glmm_mwg_rw_gamma_1.txt", header = F, skip = 1)
-gamma2 <- as.matrix(gamma[,2:3])
-M <- 1000
-
-fix_mwg <- c(0.844,0.202,-0.005,0.028,0.010,-0.001)
-##US
-country = 97
-country_name = 'US'
-
-ran_mwg <- c(mean(gamma2[((country-1)*M+1):(country*M),1]),mean(gamma2[((country-1)*M+1):(country*M),2]),0,0,0,0)
-coef_mwg <- fix_mwg + ran_mwg
-
-tday = 48
-GHS_Score <- ((dat %>% filter(Country.Region==country_name))[1,])$GHS_Score
-AgeGEQ65 <- ((dat %>% filter(Country.Region==country_name))[1,])$AgeGEQ65
-UrbanPop <- ((dat %>% filter(Country.Region==country_name))[1,])$UrbanPop
-pred <- tibble(int=rep(1,tday)) %>% 
-  add_column(day=(1:tday)) %>% 
-  add_column(day2=(1:tday)^2)%>% 
-  add_column(GHS_Score=rep(GHS_Score,tday))%>% 
-  add_column(AgeGEQ65=rep(AgeGEQ65,tday))%>% 
-  add_column(UrbanPop=rep(UrbanPop,tday))
-pred <- pred %>% 
-  mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
-newdat = readRDS("dat.rds")
-newdat = newdat %>% filter(Country.Region==country_name)
-
-ggplot()+
-  geom_line(data=pred[1:40,],aes(x=day,y=model_mwg), col= "red") +
-  geom_line(data=pred[40:tday,],aes(x=day,y=model_mwg), col= "red", linetype="dashed") +
-  geom_line(data=newdat[1:40,], aes(x=day,y=new_cases))+
-  geom_line(data=newdat[40:48,], aes(x=day,y=new_cases), linetype="dashed") +
-  labs(x = "Day", y = "New Cases") + 
-  ggtitle("USA Predictions with GLMM")
-
-```
-
-
 ## *Machine Learning Methods*
 
 Two modeling techniques were considered for the machine learning section: Random Forest and Prophet (time-series modeling). 
@@ -412,6 +353,209 @@ In one sense, the GLMM approach allows for flexibility where it is needed (in va
 # Results
 
 ## *Poisson GLMM*
+
+## *Poisson GLMM*
+
+Running the model we have on the dataset lead to parameter estimates as follows (code not explicity ran here, it was ran on the cluster)
+
+```
+Iter: 65 Qf: -86681.995 g11: 1.896946 g12: -0.067057 g22: 0.010074 beta0: 0.846 beta1:0.202 beta2:-0.005 beta3:0.028 beta4 :0.010 beta5:-0.001 eps:0.000104
+Iter: 66 Qf: -86700.912 g11: 1.928345 g12: -0.068573 g22: 0.010125 beta0: 0.846 beta1:0.202 beta2:-0.005 beta3:0.028 beta4 :0.010 beta5:-0.001 eps:0.000218
+Iter: 67 Qf: -86700.985 g11: 1.922342 g12: -0.067895 g22: 0.010088 beta0: 0.844 beta1:0.202 beta2:-0.005 beta3:0.028 beta4 :0.010 beta5:-0.001 eps:0.000001
+```
+
+with final parameter estimates of $\hat{\beta}=(0.844,0.202,-0.005,0.028,0.010,-0.001)$ and $\hat{G}=\left(\begin{array}{cc}1.922 & -0.068 \\-0.068 & 0.010\end{array}\right)$.
+
+We can compare this to estimates from the glmer package in R.
+
+```{r echo=FALSE}
+## more data processing
+dat = readRDS("dat2.rds")
+# remove na data
+dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
+# modify china new_cases day 0 since it was NA previously
+dat[402,5]=548
+dat$ID <- dat %>% group_indices(Country.Region)
+
+for (i in 1:max(dat$ID)) {
+  if (sum(dat$ID==i) < 5) {
+    dat<- dat[!(dat$ID==i),]
+  }
+}
+
+dat$ID <- dat %>% group_indices(Country.Region)
+```
+```{r}
+glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dat, family = poisson)
+summary(glmm1)
+```
+
+We see that the estimates are very close to what glmer reports. The difference could be attributed to the Laplace approximation that the glmer package uses.
+
+Below is the predictions of our GLMM model for the United States. The model was built on the first 40 days, and then we use the predictions to project the next 8 days. Since the original data is from the past, we also know the true observed number of new cases in the United States as well. The dashed lines indicated time points that were not included in the generation of our model.
+
+```{r echo = FALSE, warning=FALSE, message=FALSE}
+## more data processing
+dat = readRDS("dat2.rds")
+# remove na data
+dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
+# modify china new_cases day 0 since it was NA previously
+dat[402,5]=548
+dat$ID <- dat %>% group_indices(Country.Region)
+
+for (i in 1:max(dat$ID)) {
+  if (sum(dat$ID==i) < 5) {
+    dat<- dat[!(dat$ID==i),]
+  }
+}
+
+dat$ID <- dat %>% group_indices(Country.Region)
+
+# unique country list
+order = unique(dat$Country.Region)
+
+gamma <- read.table("longleaf/glmm_mwg_rw_gamma_1.txt", header = F, skip = 1)
+gamma2 <- as.matrix(gamma[,2:3])
+M <- 1000
+
+fix_mwg <- c(0.844,0.202,-0.005,0.028,0.010,-0.001)
+##US
+country = 97
+country_name = 'US'
+
+ran_mwg <- c(mean(gamma2[((country-1)*M+1):(country*M),1]),mean(gamma2[((country-1)*M+1):(country*M),2]),0,0,0,0)
+coef_mwg <- fix_mwg + ran_mwg
+
+tday = 48
+GHS_Score <- ((dat %>% filter(Country.Region==country_name))[1,])$GHS_Score
+AgeGEQ65 <- ((dat %>% filter(Country.Region==country_name))[1,])$AgeGEQ65
+UrbanPop <- ((dat %>% filter(Country.Region==country_name))[1,])$UrbanPop
+pred <- tibble(int=rep(1,tday)) %>% 
+  add_column(day=(1:tday)) %>% 
+  add_column(day2=(1:tday)^2)%>% 
+  add_column(GHS_Score=rep(GHS_Score,tday))%>% 
+  add_column(AgeGEQ65=rep(AgeGEQ65,tday))%>% 
+  add_column(UrbanPop=rep(UrbanPop,tday))
+pred <- pred %>% 
+  mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
+newdat = readRDS("dat.rds")
+newdat = newdat %>% filter(Country.Region==country_name)
+
+ggplot()+
+  geom_line(data=pred[1:40,],aes(x=day,y=model_mwg), col= "red") +
+  geom_line(data=pred[40:tday,],aes(x=day,y=model_mwg), col= "red", linetype="dashed") +
+  geom_line(data=newdat[1:40,], aes(x=day,y=new_cases))+
+  geom_line(data=newdat[40:48,], aes(x=day,y=new_cases), linetype="dashed") +
+  labs(x = "Day", y = "New Cases") + 
+  ggtitle("USA Predictions with GLMM")
+
+```
+
+To assess how well our model performed in prediction compared to the glmer package, we can calculate the MSE over all countries for our implementation of the model and the glmer package. We get
+```{r echo=FALSE , warning=FALSE, message=FALSE}
+## more data processing
+dat = readRDS("dat2.rds")
+# remove na data
+dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
+# modify china new_cases day 0 since it was NA previously
+dat[402,5]=548
+dat$ID <- dat %>% group_indices(Country.Region)
+
+for (i in 1:max(dat$ID)) {
+  if (sum(dat$ID==i) < 5) {
+    dat<- dat[!(dat$ID==i),]
+  }
+}
+
+dat$ID <- dat %>% group_indices(Country.Region)
+
+# unique country list
+order = unique(dat$Country.Region)
+
+glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dat, family = poisson)
+fix_glmer <- fixef(glmm1)
+
+gamma <- read.table("longleaf/glmm_mwg_rw_gamma_1.txt", header = F, skip = 1)
+gamma2 <- as.matrix(gamma[,2:3])
+M <- 1000
+fix_mwg <- c(0.844,0.202,-0.005,0.028,0.010,-0.001)
+
+MSE <- 0
+
+for(i in 1:99){
+  country = i
+  country_name = order[i]
+  
+  ran_glmer <- c((ranef(glmm1)$Country.Region[country,])[[1]],(ranef(glmm1)$Country.Region[country,])[[2]],0,0,0,0)
+  ran_mwg <- c(mean(gamma2[((country-1)*M+1):(country*M),1]),mean(gamma2[((country-1)*M+1):(country*M),2]),0,0,0,0)
+  coef_glmer <- fix_glmer + ran_glmer
+  coef_mwg <- fix_mwg + ran_mwg
+  
+  dat2 <- dat %>% filter(Country.Region==country_name)
+  
+  tday = dim(dat2)[1]+8
+  tdayp = tday-7
+  GHS_Score <- ((dat %>% filter(Country.Region==country_name))[1,])$GHS_Score
+  AgeGEQ65 <- ((dat %>% filter(Country.Region==country_name))[1,])$AgeGEQ65
+  UrbanPop <- ((dat %>% filter(Country.Region==country_name))[1,])$UrbanPop
+  pred <- tibble(int=rep(1,tday)) %>% 
+    add_column(day=(1:tday)) %>% 
+    add_column(day2=(1:tday)^2)%>% 
+    add_column(GHS_Score=rep(GHS_Score,tday))%>% 
+    add_column(AgeGEQ65=rep(AgeGEQ65,tday))%>% 
+    add_column(UrbanPop=rep(UrbanPop,tday))
+  pred <- pred %>%
+    mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop)) %>% 
+    mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
+  newdat = readRDS("dat.rds")
+  newdat = newdat %>% filter(Country.Region==country_name)
+  
+  MSE <- MSE + sum((pred[tdayp:tday,]$model_glmer-newdat[tdayp:tday,]$new_cases)^2)
+}
+MSE <- MSE/(99*8)
+
+MSE2 <- 0
+
+for(i in 1:99){
+  country = i
+  country_name = order[i]
+  
+  ran_glmer <- c((ranef(glmm1)$Country.Region[country,])[[1]],(ranef(glmm1)$Country.Region[country,])[[2]],0,0,0,0)
+  ran_mwg <- c(mean(gamma2[((country-1)*M+1):(country*M),1]),mean(gamma2[((country-1)*M+1):(country*M),2]),0,0,0,0)
+  coef_glmer <- fix_glmer + ran_glmer
+  coef_mwg <- fix_mwg + ran_mwg
+  
+  dat2 <- dat %>% filter(Country.Region==country_name)
+  
+  tday = dim(dat2)[1]+8
+  tdayp = tday-7
+  GHS_Score <- ((dat %>% filter(Country.Region==country_name))[1,])$GHS_Score
+  AgeGEQ65 <- ((dat %>% filter(Country.Region==country_name))[1,])$AgeGEQ65
+  UrbanPop <- ((dat %>% filter(Country.Region==country_name))[1,])$UrbanPop
+  pred <- tibble(int=rep(1,tday)) %>% 
+    add_column(day=(1:tday)) %>% 
+    add_column(day2=(1:tday)^2)%>% 
+    add_column(GHS_Score=rep(GHS_Score,tday))%>% 
+    add_column(AgeGEQ65=rep(AgeGEQ65,tday))%>% 
+    add_column(UrbanPop=rep(UrbanPop,tday))
+  pred <- pred %>%
+    mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop)) %>% 
+    mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
+  newdat = readRDS("dat.rds")
+  newdat = newdat %>% filter(Country.Region==country_name)
+  
+  MSE2 <- MSE2 + sum((pred[tdayp:tday,]$model_mwg-newdat[tdayp:tday,]$new_cases)^2)
+}
+MSE2 <- MSE2/(99*8)
+```
+
+```{r}
+## glmer MSE
+MSE
+## Our model MSE
+MSE2
+```
+
 
 ## *Machine Learning*
 
