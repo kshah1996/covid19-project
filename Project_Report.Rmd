@@ -575,7 +575,7 @@ forecast <- function(country, data, numPred){
   future$cap <- rep(prophet_dat[1,3], length(future$ds))
   
   forecast <- predict(now, future, )
-  print(plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = paste(country, "total cases")))
+  print(plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = paste(country, "total cases"), xlabel="Date"))
   return(list(now,forecast))
 }
 ```
@@ -590,11 +590,13 @@ The function returns a graph of the model and forecast as well as a dataframe th
 We now look at the results for a few countries. 
 ```{r, warning= FALSE}
 dat <- readRDS("dat3.rds")
-par(mfrow = c(2,2))
-US <- forecast("US", dat, 10)
-SouthKorea <- forecast("Korea, South", dat, 10)
-Italy <- forecast("Italy", dat, 10)
-China <- forecast("China", dat, 10)
+dat_limit <- dat[dat$date <= "2020-04-03",]
+dat_current <- dat[dat$date > "2020-04-03",]
+
+US <- forecast("US", dat_limit, 10)
+SouthKorea <- forecast("Korea, South", dat_limit, 10)
+Italy <- forecast("Italy", dat_limit, 10)
+China <- forecast("China", dat_limit, 10)
 ```
 
 We see in general, the model fits fairly well if the country has not reached its inflection point. You can see this from the graphs for the US and Italy. However, if the country has been effective at flattening the curve, such as China and South Korea, the method can not properly capture the inflection point nor make accurate forecasts for future cases.  
