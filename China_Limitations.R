@@ -46,4 +46,4 @@ dat2 <- dat %>%
     mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop)) %>% 
     mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
 ggplot(data=dat2)+
-    geom_line(aes(x=day,y=new_cases))
+    geom_line(aes(x=day,y=new_cases))+ labs(title = "China")
