@@ -1,3 +1,7 @@
+library(tidyverse)
+library(stats)
+library(lme4)
+library(mvtnorm)
 ## more data processing
 dat = readRDS("dat2.rds")
 # remove na data
@@ -89,8 +93,6 @@ ggplot()+
   geom_line(data=pred[40:tday,],aes(x=day,y=model_mwg), col= "red", linetype="dashed") +
   geom_line(data=newdat[1:40,], aes(x=day,y=new_cases))+
   geom_line(data=newdat[40:48,], aes(x=day,y=new_cases), linetype="dashed")
-
-
 
 
 
