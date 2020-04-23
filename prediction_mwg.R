@@ -1,3 +1,7 @@
+library(tidyverse)
+library(stats)
+library(lme4)
+library(mvtnorm)
 ## more data processing
 dat = readRDS("dat2.rds")
 # remove na data
@@ -133,8 +137,6 @@ for(i in 1:99){
   #  geom_line(data=newdat[tdayp:tday,], aes(x=day,y=new_cases), linetype="dashed")
 }
 MSE <- MSE/(99*8)
-
-
 
 
 
