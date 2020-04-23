@@ -160,16 +160,18 @@ labels <- c("Total Cases","New Cases", "Gaussian Curve")
 
 #Plot Logistic Growth Curve
 plot( L(x), yaxt='n', type="l", lty=1, xlab="Time (in days)",
-  ylab=" ", main="Comparison of Functions", col="purple", lwd=3)
+  ylab=" ", main=paste("Graphical Representation of Relationship between" ,
+     "\n Logistic Growth (Total Cases), Logistic Density (New Cases)", "\nand Normal Denisty"), col="purple", lwd=3)
 # Plot Logistic Density
 lines( DL(x), yaxt='n', col="orange", lwd=3)
 # Plot Gaussian Density
 lines( N(x), yaxt='n', col="blue", lwd=3, lty=2)
-
-
+#Add legend
 legend("topleft", inset=0, title="Distributions",
   labels, lwd=2, lty=c(1, 1, 2), col=colors)
-
+#Add title
+# title("Graphical Representation of Relationship between" ,
+#      "\n Logistic Growth, Logistic Density, and Normal Denisty")
 
 ```
 
@@ -602,14 +604,16 @@ China <- forecast("China", dat_limit, 10)
 We see in general, the model fits fairly well if the country has not reached its inflection point. You can see this from the graphs for the US and Italy. However, if the country has been effective at flattening the curve, such as China and South Korea, the method can not properly capture the inflection point nor make accurate forecasts for future cases.  
 
 
-## *Comparison on Methods*
 
 # Discussion
 (give brief summary of what was shown in the results section and add in any subjective thoughts.Interpretation or possible future directions)
 
+## *Comparison of Methods*
+
 
 ## *Limitations*
-(This could go on for pages - will try to focus on a brief description. Discussed including one or two plots, such as South Korea, to show some limitations)
+
+### Situational Limitations
 
 "It is useful at this point to reflect that modelling infectious diseases, particularly emerging pandemics, is different to modelling environmental or physical phenomena (such as climate change or fluid dynamics). This is because the underpinning knowledge or empirical data are often rare or highly uncertain and the timescales for intervention relatively fast." - Walters et. al. (2018)
 
@@ -625,6 +629,9 @@ We were not able to gather data on movement restrictions and when they were put 
 - countries not accurately reporting data or lag time between cases confirmed and reported
 
 - lack of widespread testing and possibility of infected individuals lacking symptoms
+
+
+### Statistical Limitations
 
 
 # References
