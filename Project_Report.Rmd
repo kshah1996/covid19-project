@@ -617,21 +617,77 @@ We see in general, the model fits fairly well if the country has not reached its
 
 "It is useful at this point to reflect that modelling infectious diseases, particularly emerging pandemics, is different to modelling environmental or physical phenomena (such as climate change or fluid dynamics). This is because the underpinning knowledge or empirical data are often rare or highly uncertain and the timescales for intervention relatively fast." - Walters et. al. (2018)
 
+
 Often when creating a model we look at models previously used for similar phenomena. COVID-19 could be considered to spread in a similar way to influenza. However, While there have been influenza outbreaks in recent history (1918, 1957, 1968, 2009), socio-cultural changes between each previously modeled pandemic, including movement patterns, advances in medicine, new forms of data collection, etc. make it very difficult, if not useless to use a model that was created for a previous pandemic. Since pandemics are fairly rare, there are not a lot of previously identified models that are sure to work. (Walters et al 2018)
 
 
-De Angelis et. al. (2015) describe how Markov chain Monte Carlo (MCMC) approaches have become somewhat of a 'gold standard' in the world of modeling infectious diseases. However, they note several complications that we can fully understand after working through this project. These include: writing a likelihood in closed form, data augmentation that invlolves imputation of more unkowns than feasible to handle, and difficulty implementing the model in real time due to high level of computational effort.
+Another limitation we faced was inability to gather data on movement restrictions and when they were put into place for each country, as this data is not readily available. Including travel and contact patterns in a pandemic model is extremely important. However, this data is not readily available to the public. There are datasets that describe travel patterns, but according to Walters et. al. (2018), access to these data are often restricted, and even those who have access may see a delay in updates. This often leads to models being uninformative for a period of time.
 
 
-We were not able to gather data on movement restrictions and when they were put into place for each country, as this data is not readily available. Including travel and contact patterns in a pandemic model is extremely important. However, this data is not readily available to the public. There are datasets that describe travel patterns, but according to Walters et. al. (2018), access to these data are often restricted, and even those who have access may see a delay in updates. This often leads to models being uninformative for a period of time.
+Additionally, lack of widespread testing and the possibility of infected individuals lacking symptoms make it impossible to know how many cases of COVID-19 there truly are, and hence we face limitations in evaluating the true accuracy of our model.
 
 
-- countries not accurately reporting data or lag time between cases confirmed and reported
+Finally, countries not accurately reporting data on cases of COVID-19, lag time between cases confirmed and cases reported, or major changes in diagnoses criteria can make model fitting quite difficult. For example, on February 6th, officials in China’s Hubei province revealed that new cases of COVID-19 had surged nearly nearly 10x more than the day before—reversing days of declines that experts had thought were a positive sign in terms of containment of the virus. The number of deaths on this day also increased drastically. The jump in new cases was nearly 15,000 and was due to a change in the criteria for counting diagnoses of the virus - China added a new category of ‘clinical cases’ to its reporting so that patients who exhibit all the symptoms of COVID-19 - including fever, cough, and shortness of breath - but have either not been tested or tested negative for the virus itself, would still be considered cases. As can be seen in the graph of China's new cases over time, this spike in number of new cases on February 6th due to a new classification of cases can make any model fit seem inaccurate. 
 
-- lack of widespread testing and possibility of infected individuals lacking symptoms
+```{r, echo=FALSE}
+## more data processing
+dat = readRDS("dat2.rds")
+# remove na data
+dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
+# modify china new_cases day 0 since it was NA previously
+dat[402,5]=548
+dat$ID <- dat %>% group_indices(Country.Region)
+
+for (i in 1:max(dat$ID)) {
+    if (sum(dat$ID==i) < 5) {
+        dat<- dat[!(dat$ID==i),]
+    }
+}
+
+dat$ID <- dat %>% group_indices(Country.Region)
+
+# unique country list
+order = unique(dat$Country.Region)
+
+glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dat, family = poisson)
+fix_glmer <- fixef(glmm1)
+
+gamma <- read.table("longleaf/glmm_mwg_rw_gamma_1.txt", header = F, skip = 1)
+gamma2 <- as.matrix(gamma[,2:3])
+M <- 1000
+mean(gamma2[(49*M+1):(50*M),1])
+mean(gamma2[(49*M+1):(50*M),2])
+
+fix_mwg <- c(0.844,0.202,-0.005,0.028,0.010,-0.001)
+
+
+
+
+
+##### China
+country = 21
+country_name = 'China'
+
+ran_glmer <- c((ranef(glmm1)$Country.Region[country,])[[1]],(ranef(glmm1)$Country.Region[country,])[[2]],0,0,0,0)
+ran_mwg <- c(mean(gamma2[((country-1)*M+1):(country*M),1]),mean(gamma2[((country-1)*M+1):(country*M),2]),0,0,0,0)
+coef_glmer <- fix_glmer + ran_glmer
+coef_mwg <- fix_mwg + ran_mwg
+
+dat2 <- dat %>% 
+    filter(Country.Region==country_name) %>% 
+    mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop)) %>% 
+    mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
+ggplot(data=dat2)+
+    geom_line(aes(x=day,y=new_cases))+ labs(title = "China")
+
+```
+
 
 
 ### Statistical Limitations
+
+De Angelis et. al. (2015) describe how Markov chain Monte Carlo (MCMC) approaches have become somewhat of a 'gold standard' in the world of modeling infectious diseases. However, they note several complications that we can fully understand after working through this project. These include: writing a likelihood in closed form, data augmentation that invlolves imputation of more unkowns than feasible to handle, and difficulty implementing the model in real time due to high level of computational effort.
+(Emily - I had written this paragraph before when we had just a general limitations section - feel free to use or delete!)
 
 
 # References
