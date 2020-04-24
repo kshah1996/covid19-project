@@ -57,7 +57,8 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL){
   # Read in GLMM model results
   gamma <- read.table("longleaf/glmm_mwg_rw_gamma_1.txt", header = F, skip = 1)
   gamma2 <- as.matrix(gamma[,2:3])
-  
+  glmm1 <- suppressWarnings(glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dat, family = poisson))
+  fix_glmer <- fixef(glmm1)
   
   # Find Country ID based on user specified Country Name
   country_info <- dat %>% 
@@ -69,11 +70,14 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL){
   fix_mwg <- c(0.844,0.202,-0.005,0.028,0.010,-0.001)
   
   # Get random effects for GLMM
+  M <- 1000
   ran_mwg <- c(mean(gamma2[((country_ID-1)*M+1):(country_ID*M),1]),mean(gamma2[((country_ID-1)*M+1):(country_ID*M),2]),0,0,0,0)
+  ran_glmer <- c((ranef(glmm1)$Country.Region[country_ID,])[[1]],(ranef(glmm1)$Country.Region[country_ID,])[[2]],0,0,0,0)
+  
   
   #Combine fixed and random effects for GLMM
   coef_mwg <- fix_mwg + ran_mwg
-  
+  coef_glmer <- fix_glmer + ran_glmer
   #Create graph for specified country
   dat2 <- dat %>% 
     filter(Country.Region==Country_Name) %>% 
