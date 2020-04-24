@@ -1,5 +1,5 @@
 ---
-title: ""
+title: " "
 author: "Emily Damone, Taylor Krajewski, Alex Quinter, Kushal Shah, Euphy Wu, Jonathan Zhang"
 date: "4/22/2020"
 output: html_document
