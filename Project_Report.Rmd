@@ -82,7 +82,8 @@ For this project, we have included a country's overall GHS Index as a covariate 
 
 
 ## *Data Processing*
-(Data processing summary - should discuss joining Covid data with country data from the other sources mentioned above)
+
+The Hopkins and GHS Index data were combined so that along with each country's case counts, we could use GHS Score, urban population percentage, and percentage of population older than 65. For project, the aforementioend variables were used along with country, day and number of new cases. 
 
 ## *Finalized Data*
 
