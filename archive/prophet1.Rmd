@@ -16,6 +16,12 @@ library(randomForest)
 
 ```{r}
  dat <- readRDS("dat3.rds")
+
+dat_prev <- as.data.frame(dat[dat$date <= "2020-04-03",])
+dat_new <- as.data.frame(dat[dat$date > "2020-04-03", ])
+
+US_forecast <- forecast("US", dat_prev, 8)
+
 # dat_US <- dat[dat$Country.Region == "US", ]
 # prophet_dat_US <- as.data.frame(dat_US$date)
 # prophet_dat_US$y <- as.numeric(dat_US$total_cases)
