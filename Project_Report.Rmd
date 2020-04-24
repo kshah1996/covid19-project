@@ -392,6 +392,10 @@ summary(glmm1)
 
 We see that the estimates are very close to what glmer reports. The difference could be attributed to the Laplace approximation that the glmer package uses.
 
+As can be seen in the glmer summary above, both $day$ and $day^{2}$ are highly significant in our model. Looking at the fixed covariates we added for Global Health Security Index (GHS_Score), percentage of population over the age of 65 (AgeGEQ65), and percentage of population living in an urban setting (UrbanPop), we see that, of these three, only a country's Global Health Security Index was significant in our model. Despite our assumption based on current literature that a large proportion of a population being over 65 years old or living in an urban setting could impact number of cases of COVID-19, we find that these predictors are not actually significant in our model.
+
+
+
 Below is the predictions of our GLMM model for the United States. The model was built on the first 40 days, and then we use the predictions to project the next 8 days. Since the original data is from the past, we also know the true observed number of new cases in the United States as well. The dashed lines indicated time points that were not included in the generation of our model.
 
 ```{r echo = FALSE, warning=FALSE, message=FALSE}
@@ -678,7 +682,7 @@ dat2 <- dat %>%
     mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop)) %>% 
     mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
 ggplot(data=dat2)+
-    geom_line(aes(x=day,y=new_cases))+ labs(title = "China")
+    geom_line(aes(x=day,y=new_cases))+ labs(title = "China", x="Days since baseline 50 cases", y="New Cases")
 
 ```
 
@@ -698,7 +702,7 @@ De Angelis, Daniela et al. “Four key challenges in infectious disease modellin
 
 Google Cloud Platform, Google, console.cloud.google.com/marketplace/details/johnshopkins/covid19_jhu_global_cases.
 
-Junling Ma, "Estimating epidemic exponential growth rate and basic reproduction number." Infectious Disease Modelling, Volume 5 (2020): 129-141. doi: 10.1016/j.idm.2019.12.009. eCollection 2020.
+Ma, J. "Estimating epidemic exponential growth rate and basic reproduction number." Infectious Disease Modelling, Volume 5 (2020): 129-141. doi: 10.1016/j.idm.2019.12.009. eCollection 2020.
 
 Ngufor, C., Van Houten, H., Caffo, B. S., Shah, N. D., & McCoy, R. G. (2019). Mixed Effect Machine Learning: a framework for predicting longitudinal change in hemoglobin A1c. Journal of biomedical informatics, 89, 56-67.
 
