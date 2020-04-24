@@ -120,12 +120,15 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL){
       geom_line(data=newdat[tdayp:tday,], aes(x=day,y=new_cases), linetype="dashed")+
       labs(title=Country_Name, y="New Cases", x="Days since baseline 50 cases")
     if (!is_empty(Pred_Day)) {
-      pred <- tibble(int=rep(1,Pred_Day)) %>% 
-        add_column(day=(1:Pred_Day)) %>% 
-        add_column(day2=(1:Pred_Day)^2)%>% 
-        add_column(GHS_Score=rep(GHS_Score,Pred_Day))%>% 
-        add_column(AgeGEQ65=rep(AgeGEQ65,Pred_Day))%>% 
-        add_column(UrbanPop=rep(UrbanPop,Pred_Day))
+      tday = dim(dat2)[1]+Pred_Day
+      tdayp = tday-(Pred_Day-1)
+      
+      pred <- tibble(int=rep(1,tday)) %>% 
+        add_column(day=(1:tday)) %>% 
+        add_column(day2=(1:tday)^2)%>% 
+        add_column(GHS_Score=rep(GHS_Score,tday))%>% 
+        add_column(AgeGEQ65=rep(AgeGEQ65,tday))%>% 
+        add_column(UrbanPop=rep(UrbanPop,tday))
       pred <- pred %>%
         mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop)) %>% 
         mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
@@ -133,10 +136,10 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL){
       graph_newcases <- ggplot()+
         geom_line(data=pred[1:tdayp,],aes(x=day,y=model_mwg), col= "red") +
         # Predictions
-        geom_line(data=pred[tdayp:Pred_Day,],aes(x=day,y=model_mwg), col= "red", linetype="dashed") +
+        geom_line(data=pred[tdayp:tday,],aes(x=day,y=model_mwg), col= "red", linetype="dashed") +
         geom_line(data=newdat[1:tdayp,], aes(x=day,y=new_cases))+
         # Predictions
-        geom_line(data=newdat[tdayp:tday,], aes(x=day,y=new_cases), linetype="dashed")+
+        geom_line(data=newdat[tdayp:min(tday,dim(dat2)[1]+8),], aes(x=day,y=new_cases), linetype="dashed")+
         labs(title=Country_Name, y="New Cases", x="Days since baseline 50 cases")
     }
   }
