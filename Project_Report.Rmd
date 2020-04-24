@@ -263,7 +263,9 @@ E[y_{ij}|\gamma_i]&=\frac{1}{1+e^{-(x_{ij}\hat{\beta}+z_{ij}\hat{\gamma_i})}}
 
 Two modeling techniques were considered for the machine learning section: Random Forest and Prophet (time-series modeling). 
 
-There is some existing literature for machine learning methods for longitudinal data, however, the extent is limited and recent method developments lack direct applications in R. For example, Ngufor et al. (2018) develop a "Mixed Effect Random Forest", but its implementation in R is still limited and produces vague error messages. Therefore, a regular random forest technique was applied to this dataset instead, as it is still a nonparametric technique and may be able to uncover the temporal structure of the dataset.
+There is some existing literature for machine learning methods for longitudinal data, however, the extent is limited and recent method developments lack direct applications in R. For example, Ngufor et al. (2018) develop a "Mixed Effect Random Forest", but its implementation in R is still limited and produces vague error messages. 
+
+Therefore, although country-specific random effects could not be incorporated, a regular random forest technique was applied to this dataset instead, as it is still a nonparametric technique and may be able to uncover the temporal structure of the dataset. We used `day`, `GHS_Score`, `AgeGEQ65`, and `UrbanPop` to predict new cases, with the hope that the country-specific variables may result in more country-specific predictions.
 
 Additionally, we decided to consider a time-series modeling method called Prophet to further answer our scientific question of predicting new cases in future days. Prophet was originally developed by Facebook Research and is available in packages for both R and Python. The method was built for building time-series predictions for business forecasting problems, but we believe it may be used to predict future cases of Covid-19. Note, this method can only be used to model cases for one country at a time.
 
@@ -277,80 +279,6 @@ We utilized a logistic growth model, which has the following form:
 $$g(t) = \frac{C(t)}{1 + \exp(-k(t-m))}$$ Where $C(t)$ is a function for the carrying capacity, $k(t)$ is the growth rate, and $m$ is an offset parameter. In typical time series models, C and k are constants, but an advantage of Prophet is allowing these to vary with time.
 
 Prophet utilizes *L-BFGS* to determine parameter estimates. 
-
-### Random Forest
-
-Since country-specific random effects could not be incorporated, a random forest model was applied to the dataset as a whole, using `day`, `GHS_Score`, `AgeGEQ65`, and `UrbanPop` to predict new cases, with the hope that the country-specific variables may result in more country-specific predictions.
-
-#### Model Evaluation
-
-However, after running the random forest model, we observed that fits to the data and predictions were very inaccurate, especially for countries whose curves differed considerably from other countries.
-
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
-library(randomForest)
-
-dat2_rf <- dat2 %>% select(Country.Region, day, GHS_Score, AgeGEQ65, UrbanPop, new_cases) %>%
-  drop_na()
-dat2_rf_X <- dat2_rf %>% select(day, GHS_Score, AgeGEQ65, UrbanPop)
-dat2_rf_Y <- dat2_rf %>% select(new_cases)
-
-rf1 <- randomForest(x = dat2_rf_X, y = dat2_rf$new_cases)
-
-dat2_rf_preds <- dat2_rf %>% mutate(pred = predict(rf1))
-
-### USA
-dat2_rf_preds_usa <- dat2_rf_preds %>% filter(Country.Region == "US")
-
-day <- 0:70
-GHS_Score <- 83.5
-AgeGEQ65 <- 15.80765
-UrbanPop <- 82.256
-dat2_rf_usa <- data.frame(day, GHS_Score, AgeGEQ65, UrbanPop)
-dat2_rf_usa$pred <- predict(rf1, dat2_rf_usa)
-dat2_rf_usa$new_cases <- c(dat2_rf_preds_usa$new_cases, rep(NA, 31))
-
-ggplot(dat2_rf_usa, aes(x = day)) +
-  geom_point(aes(y = new_cases)) +
-  geom_line(aes(y = pred)) +
-  labs(x = "Day", y = "New Cases") + 
-  ggtitle("USA Predictions with Random Forest")
-
-#sum(dat2_rf_preds_usa$pred)
-#sum(dat2_rf_preds_usa$new_cases)
-
-#imp <- importance(rf1)
-#lattice::dotplot(tail(sort(imp[,1]),10), xlab="Mean Decrease Gini")
-
-### Austria
-
-dat2_rf_austria <- dat2_rf %>% filter(Country.Region == "Austria")
-dat2_rf_austria_futurepreds <- dat2_rf_austria
-dat2_rf_austria_futurepreds$day <- 29:57
-dat2_rf_austria_futurepreds$pred <- predict(rf1, dat2_rf_austria_futurepreds)
-dat2_rf_austria_futurepreds$new_cases <- NA
-
-dat2_rf_austria_currentpreds <- dat2_rf_austria
-dat2_rf_austria_currentpreds$pred <- predict(rf1, dat2_rf_austria_currentpreds)
-
-austria <- rbind(dat2_rf_austria_currentpreds, dat2_rf_austria_futurepreds)
-ggplot(austria, aes(x = day)) +
-  geom_point(aes(y = new_cases)) +
-  geom_line(aes(y = pred)) +
-  labs(x = "Day", y = "New Cases") + 
-  ggtitle("Austria Predictions with Random Forest")
-```
-
-For example, for the United States, as plotted above, the random forest model highly overpredicts early on and underpredicts as the situation worsens. Whereas the GLMM fit for the US was quite accurate (even with the US being quite an outlier in terms of number of daily new cases) because it was prespecified to be a bell curve, random forest struggles because its estimates for the United States are biased towards the outcome of all countries with a similar `GHS_Score`, `AgeGEQ65`, and `UrbanPop`. 
-
-#### Limitations of Random Forest
-
-In this setting, a random forest modeling approach (and the majority of available machine learning approaches) is limited by its inability to handle correlated, longitudinal data. The key limitations of random forest for this dataset are as follows:
-
-* Countries with similar GHS scores and population structures still had vastly different disease curves and trajectories with respect to new COVID cases per day. It is nearly impossible to gather a collection of covariates that accounts for the differences in curve structure between every country. Whether such a set of covariates even exists is unlikely, let alone actually finding it. Therefore, without being able to predict for an individual country based off of its previous time points (as was the case with the longitudinal GLMM modeling approach), making country-specific predictions through a random forest model was unlikely to be fruitful.
-
-* Although random forest's nonparametric modeling structure may seem promising here, we noticed that generally, the number of new cases for the majority of countries follows a bell-shaped curve with time, although with vastly different parameters that specify the curve. This situation is indeed well-suited for parametric statistical methods that limit each country's model to a specified distribution, while still allowing the parameters of that distribution to vary wildly. Extra assumptions that were needed for GLMM, in this case, were helpful, because they ensured, for example, that the predicted new cases for any single day is nonnegative. This rigidity resulted in extrapolations (future time points) at least being reasonable. 
-
-In one sense, the GLMM approach allows for flexibility where it is needed (in variation amongst the country-specific parameters), while also remaining rigid in a way that leads to reasonable predictions (giving every country the same bell-curve shape, which is a valid assumption based on disease literature and is reflected in the COVID data so far). To make future predictions for time points outside the current dataset, fixing a bellcurve-type structure helps.
 
 # Results
 
@@ -393,8 +321,6 @@ summary(glmm1)
 We see that the estimates are very close to what glmer reports. The difference could be attributed to the Laplace approximation that the glmer package uses.
 
 As can be seen in the glmer summary above, both $day$ and $day^{2}$ are highly significant in our model. Looking at the fixed covariates we added for Global Health Security Index (GHS_Score), percentage of population over the age of 65 (AgeGEQ65), and percentage of population living in an urban setting (UrbanPop), we see that, of these three, only a country's Global Health Security Index was significant in our model. Despite our assumption based on current literature that a large proportion of a population being over 65 years old or living in an urban setting could impact number of cases of COVID-19, we find that these predictors are not actually significant in our model.
-
-
 
 Below is the predictions of our GLMM model for the United States. The model was built on the first 40 days, and then we use the predictions to project the next 8 days. Since the original data is from the past, we also know the true observed number of new cases in the United States as well. The dashed lines indicated time points that were not included in the generation of our model.
 
@@ -563,6 +489,67 @@ MSE2
 
 ## *Machine Learning*
 
+### *Random Forest*
+
+After running the random forest model, we observed that fits to the data and predictions were very inaccurate, especially for countries whose curves differed considerably from other countries.
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+library(randomForest)
+
+dat2 <- readRDS("dat2.rds")
+dat2_rf <- dat2 %>% select(Country.Region, day, GHS_Score, AgeGEQ65, UrbanPop, new_cases) %>%
+  drop_na()
+dat2_rf_X <- dat2_rf %>% select(day, GHS_Score, AgeGEQ65, UrbanPop)
+dat2_rf_Y <- dat2_rf %>% select(new_cases)
+
+rf1 <- randomForest(x = dat2_rf_X, y = dat2_rf$new_cases)
+
+dat2_rf_preds <- dat2_rf %>% mutate(pred = predict(rf1))
+
+### USA
+dat2_rf_preds_usa <- dat2_rf_preds %>% filter(Country.Region == "US")
+
+day <- 0:70
+GHS_Score <- 83.5
+AgeGEQ65 <- 15.80765
+UrbanPop <- 82.256
+dat2_rf_usa <- data.frame(day, GHS_Score, AgeGEQ65, UrbanPop)
+dat2_rf_usa$pred <- predict(rf1, dat2_rf_usa)
+dat2_rf_usa$new_cases <- c(dat2_rf_preds_usa$new_cases, rep(NA, 31))
+
+ggplot(dat2_rf_usa, aes(x = day)) +
+  geom_point(aes(y = new_cases)) +
+  geom_line(aes(y = pred)) +
+  labs(x = "Day", y = "New Cases") + 
+  ggtitle("USA Predictions with Random Forest")
+
+#sum(dat2_rf_preds_usa$pred)
+#sum(dat2_rf_preds_usa$new_cases)
+
+#imp <- importance(rf1)
+#lattice::dotplot(tail(sort(imp[,1]),10), xlab="Mean Decrease Gini")
+
+### Austria
+
+dat2_rf_austria <- dat2_rf %>% filter(Country.Region == "Austria")
+dat2_rf_austria_futurepreds <- dat2_rf_austria
+dat2_rf_austria_futurepreds$day <- 29:57
+dat2_rf_austria_futurepreds$pred <- predict(rf1, dat2_rf_austria_futurepreds)
+dat2_rf_austria_futurepreds$new_cases <- NA
+
+dat2_rf_austria_currentpreds <- dat2_rf_austria
+dat2_rf_austria_currentpreds$pred <- predict(rf1, dat2_rf_austria_currentpreds)
+
+austria <- rbind(dat2_rf_austria_currentpreds, dat2_rf_austria_futurepreds)
+ggplot(austria, aes(x = day)) +
+  geom_point(aes(y = new_cases)) +
+  geom_line(aes(y = pred)) +
+  labs(x = "Day", y = "New Cases") + 
+  ggtitle("Austria Predictions with Random Forest")
+```
+
+For example, for the United States, as plotted above, the random forest model highly overpredicts early on and underpredicts as the situation worsens. Whereas the GLMM fit for the US was quite accurate (even with the US being quite an outlier in terms of number of daily new cases) because it was prespecified to be a bell curve, random forest struggles because its estimates for the United States are biased towards the outcome of all countries with a similar `GHS_Score`, `AgeGEQ65`, and `UrbanPop`. 
+
 ### *Prophet Time-Series Modeling*
 
 To build individual models for each country, we wrote a function to determine both model and forecast. 
@@ -610,10 +597,18 @@ We see in general, the model fits fairly well if the country has not reached its
 
 
 # Discussion
-(give brief summary of what was shown in the results section and add in any subjective thoughts.Interpretation or possible future directions)
 
 ## *Comparison of Methods*
 
+In this setting, a random forest modeling approach (and the majority of available machine learning approaches) is limited by its inability to handle correlated, longitudinal data.
+
+One key limitation of random forest for this dataset is the fact that countries with similar GHS scores and population structures still had vastly different disease curves and trajectories with respect to new COVID cases per day. It is nearly impossible to gather a collection of covariates that accounts for the differences in curve structure between every country. Whether such a set of covariates even exists is unlikely, let alone actually finding it. Therefore, without being able to predict for an individual country based off of its previous time points (as was the case with the longitudinal GLMM modeling approach), making country-specific predictions through a random forest model was unlikely to be fruitful.
+
+Additionally, although random forest's nonparametric modeling structure may seem promising here, we noticed that generally, the number of new cases for the majority of countries follows a bell-shaped curve with time, although with vastly different parameters that specify the curve. This situation is indeed well-suited for parametric statistical methods that limit each country's model to a specified distribution, while still allowing the parameters of that distribution to vary wildly. Extra assumptions that were needed for GLMM, in this case, were helpful, because they ensured, for example, that the predicted new cases for any single day is nonnegative. This rigidity resulted in extrapolations (future time points) at least being reasonable.
+
+On the other hand, our time-series modeling approach, Prophet, suffered from the opposite problem that random forest did. Unlike random forest struggling to incorporate a country's previous values into the modeling, Prophet could *only* use a country's previous time points to predict future time points, and was unable to incoroporate information from other countries' disease curves. Therefore, Prophet could only be used reliably on countries with a large amount of time points, making global predictions impossible.
+
+In one sense, the GLMM approach takes the best from both worlds: it allows for flexibility where it is needed (in variation amongst the country-specific parameters), while also remaining rigid in a way that leads to reasonable predictions (giving every country the same bell-curve shape, which is a valid assumption based on disease literature and is reflected in the COVID data so far). To make future predictions for time points outside the current dataset, fixing a bellcurve-type structure helps.
 
 ## *Limitations*
 
