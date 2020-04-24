@@ -1,15 +1,34 @@
 Package: covid
-Title: What the Package Does (One Line, Title Case)
+Title: COVID-19 Case Prediction
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Emily",
+           family = "Damone",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "edamone@live.unc.edu"),
+               person(given = "Taylor",
+           family = "Krajewski",
+           role = c("aut", "cre"),
+           email = "tjk@live.unc.edu"),
+               person(given = "Alex",
+           family = "Quinter",
+           role = c("aut", "cre"),
+           email = "alexq@live.unc.edu"),
+               person(given = "Kushal",
+           family = "Shah",
+           role = c("aut", "cre"),
+           email = "kushshah@live.unc.edu"),
+               person(given = "Euphy",
+           family = "Wu",
+           role = c("aut", "cre"),
+           email = "euphyw@live.unc.edu"),
+               person(given = "Jonathan",
+           family = "Zhang",
+           role = c("aut", "cre"),
+           email = "jzhang42@live.unc.edu")
 Description: What the package does (one paragraph).
 License: What license it uses
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
-Imports: dplyr, ggplot2
+Imports: dplyr, ggplot2, prophet, tidyverse, stats, lme4, mvtnorm, randomForest
