@@ -19,7 +19,7 @@
 #' countrygraph(Country_Name='China', prediction = TRUE)
 #' 
 #' @export
-countrygraph <- function(Country_Name, prediction = FALSE){
+countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL){
   
   #ERROR CHECK#
   
