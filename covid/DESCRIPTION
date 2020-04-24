@@ -26,7 +26,10 @@ Authors@R:
            family = "Zhang",
            role = c("aut", "cre"),
            email = "jzhang42@live.unc.edu")
-Description: What the package does (one paragraph).
+Description: This package allows users to model and graph cases of COVID-19 for a specified country from their 
+baseline day of 50 cases confirmed until April 3, 2020 using a Poisson GLMM. Users can also predict number
+of new cases for any country up until April 11, 2020. Modifications could be made to extend the data beyond April 11, 2020.
+Users can perform these same procedures using machine learning methods Random Forest or Prophet.
 License: What license it uses
 Encoding: UTF-8
 LazyData: true
