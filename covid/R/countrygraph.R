@@ -1,6 +1,3 @@
-library(dplyr)
-library(ggplot2)
-
 #' Generation of a graph for any country's number of new COVID-19 cases overlayed with Generalized Linear Mixed Model
 #' 
 #' This function creates a graph for user specified country that displays number of new cases
@@ -16,6 +13,11 @@ library(ggplot2)
 #' 
 #' countrygraph(Country_Name='US')
 #' countrygraph(Country_Name='China')
+#' 
+#' 
+#' @importFrom dplyr
+#' @importFrom ggplot2 
+#' 
 #' 
 #' @export
 countrygraph <- function(Country_Name){
