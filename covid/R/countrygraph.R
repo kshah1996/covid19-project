@@ -15,8 +15,6 @@
 #' countrygraph(Country_Name='China')
 #' 
 #' 
-#' @importFrom dplyr
-#' @importFrom ggplot2 
 #' 
 #' 
 #' @export
