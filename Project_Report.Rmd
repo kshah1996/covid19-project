@@ -119,6 +119,8 @@ kable(us, rnames = FALSE,
 
 # Methods
 
+## *Motivation*
+
 During the initial growth phase of a pandemic, the number of cases shows exponential growth. As time progresses, the number of new cases each day starts to decrease, and eventually we reach a final number of cases. Thus, the cumulative number of cases form an approximately linear relationship with time in the log-linear scale in the initial phases, but then plateaus after a certain timepoint.
 It is common in Epidemiology to model this initial exponential growth and subsequent slow-down using a logistic growth model. The cumulative incidences $C(t)$ (the total number of cases by time $t$) can be approximated by
 
@@ -182,7 +184,7 @@ We found this fit the number of new cases quite well for many countries, with so
 
 ## *Poisson GLMM*
 
-
+### Model Creation
 Let $y_{ij}$ be the number of new cases country $i$ has on day $j$. 
 
 We assume that each $y_{ij} \sim Poisson(\lambda_{ij})$, where the mean and variance of $y_{ij}$ is assumed to be some $\lambda_{ij}$
@@ -262,11 +264,16 @@ E[y_{ij}|\gamma_i]&=\frac{1}{1+e^{-(x_{ij}\hat{\beta}+z_{ij}\hat{\gamma_i})}}
 
 ## *Machine Learning Methods*
 
+
 Two modeling techniques were considered for the machine learning section: Random Forest and Prophet (time-series modeling). 
+
+### Random Forest
 
 There is some existing literature for machine learning methods for longitudinal data, however, the extent is limited and recent method developments lack direct applications in R. For example, Ngufor et al. (2018) develop a "Mixed Effect Random Forest", but its implementation in R is still limited and produces vague error messages. 
 
 Therefore, although country-specific random effects could not be incorporated, a regular random forest technique was applied to this dataset instead, as it is still a nonparametric technique and may be able to uncover the temporal structure of the dataset. We used `day`, `GHS_Score`, `AgeGEQ65`, and `UrbanPop` to predict new cases, with the hope that the country-specific variables may result in more country-specific predictions.
+
+### Prophet
 
 Additionally, we decided to consider a time-series modeling method called Prophet to further answer our scientific question of predicting new cases in future days. Prophet was originally developed by Facebook Research and is available in packages for both R and Python. The method was built for building time-series predictions for business forecasting problems, but we believe it may be used to predict future cases of Covid-19. Note, this method can only be used to model cases for one country at a time.
 
