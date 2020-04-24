@@ -315,7 +315,7 @@ for (i in 1:max(dat$ID)) {
 dat$ID <- dat %>% group_indices(Country.Region)
 ```
 ```{r}
-glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dat, family = poisson)
+suppressWarnings(glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dat, family = poisson))
 summary(glmm1)
 ```
 
