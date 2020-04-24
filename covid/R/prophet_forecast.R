@@ -1,5 +1,3 @@
-library(prophet)
-
 #' Application of Prophet methods for covid-19 total case prediction
 #' 
 #' This function creates a prophet model  and predicts future cases for individual countries in the
@@ -13,7 +11,7 @@ library(prophet)
 #' @param data A data.frame input with country name, total cases reported, date, and total population. 
 #' This can be the dataset for all countries or an individual country
 #' 
-#' @param numPred An integer input which indicates how many days in the futute predictions should be made.
+#' @param numPred A numeric input which indicates how many days in the futute predictions should be made.
 #'
 #' @return A graph displaying the model, previous cases, and predictions and a dataset which adds predicted 
 #' counts onto data input to the function
@@ -22,6 +20,11 @@ library(prophet)
 #' 
 #' forecast("US", dat3, 7)
 #' forecast("Korea, S", dat3, 7)
+#' 
+#' @importFrom prophet prophet
+#' @importFrom prophet make_future_dataframe
+#' @importFrom prophet predict
+#' @importFrom prophet plot
 #' 
 #' @export
 
@@ -33,9 +36,9 @@ forecast <- function(country, data, numPred){
   #Check data is a data.frame
   if(class(data)!="data.frame")
     stop("'data' must be a data frame input")
-  #Check numPred is an integer
-  if(class(numPred)!="integer")
-    stop("'numPred' must be an integer input")
+  #Check numPred is a numeric
+  if(class(numPred)!="numeric")
+    stop("'numPred' must be a numeric input")
   #Check if country listed is in the given dataset
   if ((country %in% unique(data$Country.Region))==FALSE)
     stop("'country' not listed in dataset")
@@ -48,12 +51,12 @@ forecast <- function(country, data, numPred){
   
   colnames(prophet_dat) <- c("ds", "y", "cap")
   
-  now <- prophet(prophet_dat, growth= "logistic")
-  future <- make_future_dataframe(now, periods=numPred)
+  now <- prophet::prophet(prophet_dat, growth= "logistic")
+  future <- prophet::make_future_dataframe(now, periods=numPred)
   future$cap <- rep(prophet_dat[1,3], length(future$ds))
   
-  forecast <- predict(now, future, )
-  print(plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = country) +  add_changepoints_to_plot(now))
+  forecast <- prophet::predict(now, future, )
+  print(prophet::plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = country) +  add_changepoints_to_plot(now))
   return(list(now,forecast))
 }
 
