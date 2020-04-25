@@ -21,10 +21,6 @@
 #' forecast("US", covid3, 7)
 #' forecast("Korea, S", covid3, 7)
 #' 
-#' @importFrom prophet prophet
-#' @importFrom prophet make_future_dataframe
-#' @importFrom prophet predict
-#' @importFrom prophet plot
 #' 
 #' @export
 
