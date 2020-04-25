@@ -5,12 +5,9 @@ export(forecast)
 export(getRF)
 export(mwgrw)
 export(mwgrwMSE)
-<<<<<<< HEAD
 import(prophet)
-=======
 import(dplyr)
 import(ggplot2)
 import(prophet)
 import(randomForest)
 import(tidyverse)
->>>>>>> 79b7e6ace3a86cec0d36372246efee1912d1e456
