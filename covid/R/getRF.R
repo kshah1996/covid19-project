@@ -11,12 +11,12 @@
 #' @return A graph displaying the number of new cases for specified country predicted through a random forest model.
 #' 
 #' @examples
+#' getRF("US", 20)
+#' getRF("Korea, South")
 #' 
 #' @import randomForest
 #' @import tidyverse
 #' 
-#' getRF("US", 20)
-#' getRF("Korea, South")
 #' 
 #' @export
 getRF <- function(Country_Name, Pred_Day = 8) {
