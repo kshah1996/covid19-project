@@ -17,9 +17,28 @@
 #' 
 #' @export
 getRF <- function(Country_Name, Pred_Day = 8) {
-  # Run RF model on full dataset
+  
   dat2 <- readRDS("dat2.rds") %>%
     mutate(new_cases = replace(new_cases, Country.Region == "China" & day==0, 0))
+  
+  #ERROR CHECK#
+  
+  #Check Country_Name is a character
+  if(class(Country_Name)!="character")
+    stop("'Country_Name' must be a character input")
+  
+  #Check Country_Name valid
+  if (!(Country_Name %in% dat2$Country.Region))
+    stop("'Country_Name' must be a valid country")
+  
+  #Check Pred_Day is an integer variable
+  if(!is_empty(Pred_Day) && (class(Pred_Day)!="numeric" || (class(Pred_Day)=="numeric" && Pred_Day != floor(Pred_Day))))
+    stop("'Pred_Day' must be an integer input")
+  
+  #________________________________________#
+  
+  # Run RF model on full dataset
+  
   dat2_rf <- dat2 %>% select(Country.Region, day, GHS_Score, AgeGEQ65, UrbanPop, new_cases) %>%
     drop_na()
   dat2_rf_X <- dat2_rf %>% select(day, GHS_Score, AgeGEQ65, UrbanPop)
