@@ -42,6 +42,7 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
   # Read in data
   # dat = readRDS("data/dat2.rds")
   dat = covid2
+  library(tidyverse)
   # Remove NA data
   dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
   
