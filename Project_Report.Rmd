@@ -785,8 +785,8 @@ fix_glmer <- fixef(glmm1)
 gamma <- read.table("longleaf/glmm_mwg_rw_gamma_1.txt", header = F, skip = 1)
 gamma2 <- as.matrix(gamma[,2:3])
 M <- 1000
-mean(gamma2[(49*M+1):(50*M),1])
-mean(gamma2[(49*M+1):(50*M),2])
+# mean(gamma2[(49*M+1):(50*M),1])
+# mean(gamma2[(49*M+1):(50*M),2])
 
 fix_mwg <- c(0.844,0.202,-0.005,0.028,0.010,-0.001)
 
