@@ -21,6 +21,9 @@
 #' countrygraph(Country_Name='China')
 #' countrygraph(Country_Name='China', prediction = TRUE)
 #' 
+#' @import tidyverse
+#' @import ggplot2
+#' @import dplyr
 #' 
 #' @export
 countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_results = FALSE){
@@ -40,7 +43,6 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
   
   #FUNCTION#
   # Read in data
-  # dat = readRDS("data/dat2.rds")
   dat = covid2
   # Remove NA data
   dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
