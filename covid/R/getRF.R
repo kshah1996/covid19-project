@@ -13,6 +13,7 @@
 #' @examples
 #' 
 #' @import randomForest
+#' @import tidyverse
 #' 
 #' getRF("US", 20)
 #' getRF("Korea, South")

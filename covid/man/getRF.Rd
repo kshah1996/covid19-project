@@ -22,7 +22,4 @@ with further predictions specified by the user.
 }
 \examples{
 
-getRF("US", 20)
-getRF("Korea, South")
-
 }
