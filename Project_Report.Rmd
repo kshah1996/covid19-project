@@ -127,6 +127,14 @@ kable(US, rnames = FALSE,
 # Packaging
 (description of our R package - functions and datasets it holds)
 
+## Metropolis Within Gibbs Random Walk
+
+## Graph a Country
+
+## Random Forest
+
+## Prophet
+
 
 # Methods
 
