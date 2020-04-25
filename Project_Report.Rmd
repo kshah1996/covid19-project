@@ -678,7 +678,9 @@ getRF <- function(Country_Name, Pred_Day = 8) {
     labs(x = "Day", y = "New Cases") + 
     ggtitle(paste0(Country_Name, " Predictions (RF)"))
 }
+```
 
+```{r, message=FALSE, warning=FALSE}
 p1 <- getRF("US", 8)
 p2 <- getRF("China", 8)
 p3 <- getRF("Korea, South", 8)
@@ -686,6 +688,7 @@ p4 <- getRF("Italy", 8)
 
 grid.arrange(p1, p2, p3, p4, ncol=2)
 ```
+
 
 For example, for the United States, as plotted above, the random forest model highly overpredicts early on and underpredicts as the situation worsens. Whereas the GLMM fit for the US was quite accurate (even with the US being quite an outlier in terms of number of daily new cases) because it was prespecified to be a bell curve, random forest struggles because its estimates for the United States are biased towards the outcome of all countries with a similar `GHS_Score`, `AgeGEQ65`, and `UrbanPop`. 
 
