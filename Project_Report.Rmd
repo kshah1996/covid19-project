@@ -345,7 +345,7 @@ We see that the estimates are very close to what glmer reports. The difference c
 
 As can be seen in the glmer summary above, both $day$ and $day^{2}$ are highly significant in our model. Looking at the fixed covariates we added for Global Health Security Index (GHS_Score), percentage of population over the age of 65 (AgeGEQ65), and percentage of population living in an urban setting (UrbanPop), we see that, of these three, only a country's Global Health Security Index was significant in our model. Despite our assumption based on current literature that a large proportion of a population being over 65 years old or living in an urban setting could impact number of cases of COVID-19, we find that these predictors are not actually significant in our model.
 
-Below is the predictions of our GLMM model for four countries, the United States, China, South Korea, and Italy. The model was built on data up until April, 03 202, and then we use the predictions to project the next 8 days. Since the original data is from the past, we also know the true observed number of new cases in these countries as well. The dashed lines indicated time points that were not included in the generation of our model.
+Below in red are the predictions of our GLMM model for four countries, the United States, China, South Korea, and Italy. The model was built on data up until April, 03 2020, and then we use the predictions to project the next 8 days. Since the original data is from the past, we also know the true observed number of new cases in these countries as well (displayed in black). The dashed lines indicated time points that were not included in the generation of our model, and the blue line indicates the predictions provided by the glmer function.
 
 ```{r echo = FALSE, warning=FALSE, message=FALSE}
 countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_results = FALSE){
@@ -525,7 +525,7 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
 }
 ```
 
-```{r}
+```{r warning=FALSE}
 US <- countrygraph("US", prediction = TRUE, Pred_Day = 8, glmer_results = TRUE)
 China <- countrygraph("China", prediction = TRUE, Pred_Day = 8, glmer_results = TRUE)
 SK <- countrygraph("Korea, South", prediction = TRUE, Pred_Day = 8, glmer_results = TRUE)
