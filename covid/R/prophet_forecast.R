@@ -44,12 +44,12 @@ forecast <- function(country, data, numPred){
   
   colnames(prophet_dat) <- c("ds", "y", "cap")
   
-  now <- prophet::prophet(prophet_dat, growth= "logistic")
-  future <- prophet::make_future_dataframe(now, periods=numPred)
+  now <- prophet(prophet_dat, growth= "logistic")
+  future <- make_future_dataframe(now, periods=numPred)
   future$cap <- rep(prophet_dat[1,3], length(future$ds))
   
-  forecast <- prophet::predict(now, future, )
-  print(prophet::plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = country) +  prophet::add_changepoints_to_plot(now))
+  forecast <- predict(now, future, )
+  print(plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = country) +  add_changepoints_to_plot(now))
   return(forecast)
 }
 
