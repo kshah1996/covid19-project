@@ -820,17 +820,16 @@ We have also seen a limitation on our normality assumption. As more data comes i
 
 ```{R, message=F, warning=F, echo=F}
 p1 <- dat[dat$Country.Region == "Korea, South", ] %>% ggplot(aes(x=day, y=new_cases)) + 
-                                                geom_line() + 
-                                                geom_smooth( se = F) +
-                                                labs(title = "South Korea - new cases")+ xlab("Day") + ylab("New cases")
+                                                geom_line(aes(color="True Cases")) + 
+                                                geom_smooth( se = F, aes(color="Smoothed Cases")) +
+                                                labs(title = "South Korea")+ xlab("Day") + ylab("New cases")+
+                                                scale_color_manual(name="legend", values=c("blue", "black"))
   
 p2 <- dat[dat$Country.Region == "Italy", ] %>% ggplot(aes(x=day, y=new_cases)) + 
                                                 geom_line() + 
                                                 geom_smooth( se = F) +
-                                                labs(title = "Italy - new cases")+ xlab("Day") + ylab("New cases")
-par(mfrow=c(1,2))
-p1
-p2
+                                                labs(title = "Italy")+ xlab("Day") + ylab("New cases")
+grid.arrange(p1,p2, nrow=2)
 ```
 
 As you can see above with the data from South Korea and Italy, the plots for new cases are right-skewed instead of following the assumed bell curve shape. This may lead to underpredictions of new case count data for countries that have reached their peak. Note that the black line represents true count data and the blue curve is simply a smoothing curve, not a distributional curve. 
