@@ -672,14 +672,14 @@ forecast <- function(country, data, numPred){
   
   forecast <- predict(now, future, )
   print(plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = paste(country, "total cases"), xlabel="Date"))
-  return(list(now,forecast))
+  return(forecast)
 }
 ```
 This function has three inputs:
-
-Country: a character value written exactly as the country is listed in the dataset
-Data: Any dataframe that includes country name, total cases, and the country's total population. 
-numPred: The number of days you want to predict in the future
+  
+  `country`: a character value written exactly as the country is listed in the dataset  
+`data`: Any dataframe that includes country name, total cases, and the country's total population    
+`numPred`: The number of days you want to predict in the future  
 
 The function returns a graph of the model and forecast as well as a dataframe that includes all previous data and forecasted predictions for the length of numPred. 
 
@@ -689,13 +689,41 @@ dat <- readRDS("dat3.rds")
 dat_limit <- dat[dat$date <= "2020-04-03",]
 dat_current <- dat[dat$date > "2020-04-03",]
 
-US <- forecast("US", dat_limit, 10)
-SouthKorea <- forecast("Korea, South", dat_limit, 10)
-Italy <- forecast("Italy", dat_limit, 10)
-China <- forecast("China", dat_limit, 10)
+US <- forecast("US", dat_limit, 8)
+SouthKorea <- forecast("Korea, South", dat_limit, 8)
+Italy <- forecast("Italy", dat_limit, 8)
+China <- forecast("China", dat_limit, 8)
 ```
 
 We see in general, the model fits fairly well if the country has not reached its inflection point. You can see this from the graphs for the US and Italy. However, if the country has been effective at flattening the curve, such as China and South Korea, the method can not properly capture the inflection point nor make accurate forecasts for future cases.  
+
+To use later on, the MSEs of prediction for each of the four models were calculated here as:
+
+```{R, warning=F, message=F, echo=F}
+prophet_MSE <- function(country, forecast){
+pred <- forecast$yhat[forecast$ds > "2020-04-03"]
+true <- dat_current$total_cases[dat_current$Country.Region == country]
+
+MSE <- mean((pred-true)^2)
+return(MSE)
+}
+
+US_mse_prophet <- prophet_MSE("US", US)
+SKorea_mse_prophet <- prophet_MSE("Korea, South", SouthKorea)
+Italy_mse_prophet <- prophet_MSE("Italy", Italy)
+China_mse_prophet <- prophet_MSE("China", China)
+```
+
+__I added this table here to better display all the MSEs. I figured we could move to later in the discussion if preferred. __
+
+
+Country   | Poisson GLMM |  Random Forest |  Prophet 
+--------- | ------------ | -------------- |  ------------------------
+US        |              |                | `r US_mse_prophet`
+S. Korea  |              |                |  `r SKorea_mse_prophet`
+Italy     |              |                |`r Italy_mse_prophet`
+China     |              |                | `r China_mse_prophet`
+
 
 
 
@@ -786,10 +814,31 @@ ggplot(data=dat2)+
 
 
 
+
 ### Statistical Limitations
 
-De Angelis et. al. (2015) describe how Markov chain Monte Carlo (MCMC) approaches have become somewhat of a 'gold standard' in the world of modeling infectious diseases. However, they note several complications that we can fully understand after working through this project. These include: writing a likelihood in closed form, data augmentation that invlolves imputation of more unkowns than feasible to handle, and difficulty implementing the model in real time due to high level of computational effort.
-(Emily - I had written this paragraph before when we had just a general limitations section - feel free to use or delete!)
+De Angelis et. al. (2015) describe how Markov chain Monte Carlo (MCMC) approaches have become a 'gold standard' in the world of modeling infectious diseases. However, they note several complications that we can fully understand after working through this project. These include: writing a likelihood in closed form, data augmentation that invlolves imputation of more unkowns than feasible to handle, and difficulty implementing the model in real time due to high level of computational effort.
+
+These computational limitations can be seen when running our Poisson GLMM code. We ran the modeling on longleaf and it took 3 hours to complete. With real-time data it is not out of the ordinary to run models at least once a day if not more frequently depending on the reliability of the data coming in. When one is attempting to capture the true nature of the outbreak in real time it is critical to have models which incorperate accurate, up-to-date information and receive results with a turnaround time that is still applicable in the situation. 
+
+We have also seen a limitation on our normality assumption. As more data comes in, countries who have reached their peak in case counts seem to be taking a more linear or right-skewed decrease in the number of new cases. 
+
+```{R, message=F, warning=F, echo=F}
+p1 <- dat[dat$Country.Region == "Korea, South", ] %>% ggplot(aes(x=day, y=new_cases)) + 
+                                                geom_line() + 
+                                                geom_smooth( se = F) +
+                                                labs(title = "South Korea - new cases")+ xlab("Day") + ylab("New cases")
+  
+p2 <- dat[dat$Country.Region == "Italy", ] %>% ggplot(aes(x=day, y=new_cases)) + 
+                                                geom_line() + 
+                                                geom_smooth( se = F) +
+                                                labs(title = "Italy - new cases")+ xlab("Day") + ylab("New cases")
+par(mfrow=c(1,2))
+p1
+p2
+```
+
+As you can see above with the data from South Korea and Italy, the plots for new cases are right-skewed instead of following the assumed bell curve shape. This may lead to underpredictions of new case count data for countries that have reached their peak. Note that the black line represents true count data and the blue curve is simply a smoothing curve, not a distributional curve. 
 
 
 # References
