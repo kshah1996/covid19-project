@@ -8,7 +8,7 @@
 #' 
 #' @param Country_Name A character input corresponding to the country being graphed
 #' @param prediction A boolean input to generate the predictions over the next 8 days
-#' @param Pred_Day A specified number of Days past from April 3rd the user wants to predict. Default is 8 days; only used with prediction is TRUE
+#' @param Pred_Day A specified number of Days past April 3rd the user wants to predict. Default is 8 days; only used with prediction is TRUE
 #' @param glmer_results A boolean input to display results from glmer in blue
 #' 
 #' @return A graph displaying the number of new cases for specified country in black and the GLMM model of new cases in red if prediction is specified as true, the dotted lines are the predictions.
@@ -30,17 +30,16 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
     stop("'Country_Name' must be a character input")
   
   #Check Pred_Day is an integer variable
-  if(clas(Pred_Day)!="double")
+  if(!is_empty(Pred_Day) && (class(Pred_Day)!="numeric" || (class(Pred_Day)=="numeric" && Pred_Day != floor(Pred_Day))))
     stop("'Pred_Day' must be an integer input")
   
   #________________________________________#
   
   
   #FUNCTION#
-  
   # Read in data
-  dat = readRDS("data/dat2.rds")
-  
+  # dat = readRDS("data/dat2.rds")
+  dat = covid2
   # Remove NA data
   dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
   
@@ -60,7 +59,7 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
   order = unique(dat$Country.Region)
   
   # Read in GLMM model results
-  gamma <- read.table("longleaf/glmm_mwg_rw_gamma_1.txt", header = F, skip = 1)
+  gamma <- gamma_ll#read.table("longleaf/glmm_mwg_rw_gamma_1.txt", header = F, skip = 1)
   gamma2 <- as.matrix(gamma[,2:3])
   glmm1 <- suppressWarnings(glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dat, family = poisson))
   fix_glmer <- fixef(glmm1)
@@ -89,7 +88,7 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
     mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop)) %>% 
     mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop))
   # New data with 8 new days
-  newdat = readRDS("dat.rds")
+  newdat = covid1#readRDS("dat.rds")
   newdat = newdat %>% filter(Country.Region==Country_Name)
   
   tday = dim(dat2)[1]+8

@@ -4,26 +4,37 @@
 \alias{countrygraph}
 \title{Generation of a graph for any country's number of new COVID-19 cases overlayed with Generalized Linear Mixed Model}
 \usage{
-countrygraph(Country_Name)
+countrygraph(
+  Country_Name,
+  prediction = FALSE,
+  Pred_Day = NULL,
+  glmer_results = FALSE
+)
 }
 \arguments{
 \item{Country_Name}{A character input corresponding to the country being graphed}
+
+\item{prediction}{A boolean input to generate the predictions over the next 8 days}
+
+\item{Pred_Day}{A specified number of Days past April 3rd the user wants to predict. Default is 8 days; only used with prediction is TRUE}
+
+\item{glmer_results}{A boolean input to display results from glmer in blue}
 }
 \value{
-A graph displaying the number of new cases for specified country in black and the GLMM model of new cases in red
+A graph displaying the number of new cases for specified country in black and the GLMM model of new cases in red if prediction is specified as true, the dotted lines are the predictions.
 }
 \description{
 This function creates a graph for user specified country that displays number of new cases
-of COVID-19 from their baseline day of 50 cases confirmed until April 3, 2020.
+of COVID-19 from their baseline day of 50 cases confirmed until April 3, 2020 in red.
+An option to generate the predictions for the next 8 days is present as well.
 Generalized Linear Mixed Model is graphed over the same period to show accuracy of 
 model in explaining number of new cases for that country.
 }
 \examples{
 
 countrygraph(Country_Name='US')
+countrygraph(Country_Name='US', prediction = TRUE)
 countrygraph(Country_Name='China')
-
-
-
+countrygraph(Country_Name='China', prediction = TRUE)
 
 }
