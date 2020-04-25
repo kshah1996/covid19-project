@@ -6,6 +6,9 @@
 #' model determined by prophet, and future predictions as well as a data.frame with predicted cases 
 #' included.
 #' 
+#' NOTE: The package Prophet is currently not available on CRAN, it was archived on 4/23/2020 as this package was developed. If prophet 
+#' is not already installed use this URL: 'https://cran.r-project.org/src/contrib/Archive/prophet/prophet_0.6.tar.gz'
+#' 
 #' @param country A character input corresponding to the country modeled
 #' 
 #' @param data A data.frame input with country name, total cases reported, date, and total population. 
@@ -13,7 +16,7 @@
 #' 
 #' @param numPred A numeric input which indicates how many days in the futute predictions should be made.
 #'
-#' @return A graph displaying the model, previous cases, and predictions and a dataset which adds predicted 
+#' @return A list object which includes: 1. a graph displaying the model, previous cases, and predictions and 2. a dataset which adds predicted 
 #' counts onto data input to the function
 #' 
 #' @examples 
@@ -21,6 +24,7 @@
 #' forecast("US", covid3, 7)
 #' forecast("Korea, S", covid3, 7)
 #' 
+#' @import prophet
 #' 
 #' @export
 
@@ -49,8 +53,8 @@ forecast <- function(country, data, numPred){
   future$cap <- rep(prophet_dat[1,3], length(future$ds))
   
   forecast <- predict(now, future, )
-  print(plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = country) +  add_changepoints_to_plot(now))
-  return(forecast)
+  plot <- plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = country) +  add_changepoints_to_plot(now)
+  return(list(plot, forecast))
 }
 
 

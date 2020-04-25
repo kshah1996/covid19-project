@@ -726,13 +726,13 @@ forecast <- function(country, data, numPred){
   
   colnames(prophet_dat) <- c("ds", "y", "cap")
   
-  now <- prophet(prophet_dat, growth= "logistic", daily.seasonality = F, yearly.seasonality = F)
+  now <- prophet(prophet_dat, growth= "logistic")
   future <- make_future_dataframe(now, periods=numPred)
   future$cap <- rep(prophet_dat[1,3], length(future$ds))
   
   forecast <- predict(now, future, )
-  print(plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = paste(country, "total cases"), xlabel="Date"))
-  return(forecast)
+  plot <- plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = country, xlabel = "date") +  add_changepoints_to_plot(now)
+  return(list(plot, forecast))
 }
 ```
 This function has three inputs:
@@ -744,7 +744,7 @@ This function has three inputs:
 The function returns a graph of the model and forecast as well as a dataframe that includes all previous data and forecasted predictions for the length of numPred. 
 
 We now look at the results for a few countries. 
-```{r, warning= FALSE}
+```{r, warning= FALSE, echo=F}
 dat <- readRDS("dat3.rds")
 dat_limit <- dat[dat$date <= "2020-04-03",]
 dat_current <- dat[dat$date > "2020-04-03",]
@@ -755,18 +755,23 @@ Italy <- forecast("Italy", dat_limit, 8)
 China <- forecast("China", dat_limit, 8)
 ```
 
+```{r}
+grid.arrange(US[[1]], SouthKorea[[1]], Italy[[1]], China[[1]], ncol=2)
+```
+
 We see in general, the model fits fairly well if the country has not reached its inflection point. You can see this from the graphs for the US and Italy. However, if the country has been effective at flattening the curve, such as China and South Korea, the method can not properly capture the inflection point nor make accurate forecasts for future cases.  
 
-To use later on, the MSEs of prediction for each of the four models were calculated here as:
+To use later on, the MSEs of prediction for each of the four models were calculated to compare with the two other methods used. 
 
 ```{R, warning=F, message=F, echo=F}
 prophet_MSE <- function(country, forecast){
-pred <- forecast$yhat[forecast$ds > "2020-04-03"]
+pred <- forecast[[2]]$yhat[forecast[[2]]$ds > "2020-04-03"]
 true <- dat_current$total_cases[dat_current$Country.Region == country]
 
 MSE <- mean((pred-true)^2)
 return(MSE)
 }
+
 
 US_mse_prophet <- prophet_MSE("US", US)
 SKorea_mse_prophet <- prophet_MSE("Korea, South", SouthKorea)
