@@ -8,7 +8,7 @@
 #' 
 #' @param Country_Name A character input corresponding to the country being graphed
 #' @param prediction A boolean input to generate the predictions over the next 8 days
-#' @param Pred_Day A specified number of Days past April 3rd the user wants to predict. Default is 8 days; only used with prediction is TRUE
+#' @param Pred_Day A specified number of Days past from April 3rd the user wants to predict. Default is 8 days; only used with prediction is TRUE
 #' @param glmer_results A boolean input to display results from glmer in blue
 #' 
 #' @return A graph displaying the number of new cases for specified country in black and the GLMM model of new cases in red if prediction is specified as true, the dotted lines are the predictions.
@@ -30,7 +30,7 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
     stop("'Country_Name' must be a character input")
   
   #Check Pred_Day is an integer variable
-  if(class(Pred_Day)!="numeric" || (class(Pred_Day)=="numeric" && Pred_Day != floor(Pred_Day)))
+  if(clas(Pred_Day)!="double")
     stop("'Pred_Day' must be an integer input")
   
   #________________________________________#
