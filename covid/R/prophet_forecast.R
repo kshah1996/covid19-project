@@ -18,8 +18,8 @@
 #' 
 #' @examples 
 #' 
-#' forecast("US", dat3, 7)
-#' forecast("Korea, S", dat3, 7)
+#' forecast("US", covid3, 7)
+#' forecast("Korea, S", covid3, 7)
 #' 
 #' @importFrom prophet prophet
 #' @importFrom prophet make_future_dataframe
@@ -33,9 +33,6 @@ forecast <- function(country, data, numPred){
   #Check country is a string variable
   if(class(country)!="character")
     stop("'country' must be a character input")
-  #Check data is a data.frame
-  if(class(data)!="data.frame")
-    stop("'data' must be a data frame input")
   #Check numPred is a numeric
   if(class(numPred)!="numeric")
     stop("'numPred' must be a numeric input")
