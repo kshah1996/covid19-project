@@ -21,7 +21,8 @@ library(mvtnorm)
 mwgrwMSE <- function(country_name = NULL, glmer_MSE = FALSE){
 
   ## more data processing
-  dat = readRDS("dat2.rds")
+  # dat = readRDS("dat2.rds")
+  dat = covid2
   # remove na data
   dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
   # modify china new_cases day 0 since it was NA previously
@@ -42,7 +43,8 @@ mwgrwMSE <- function(country_name = NULL, glmer_MSE = FALSE){
   glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dat, family = poisson)
   fix_glmer <- fixef(glmm1)
   
-  gamma <- read.table("longleaf/glmm_mwg_rw_gamma_1.txt", header = F, skip = 1)
+  # gamma <- read.table("longleaf/glmm_mwg_rw_gamma_1.txt", header = F, skip = 1)
+  gamma <- gamma_ll
   gamma2 <- as.matrix(gamma[,2:3])
   M <- 1000
   
@@ -76,7 +78,8 @@ mwgrwMSE <- function(country_name = NULL, glmer_MSE = FALSE){
       pred <- pred %>%
         mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop)) %>% 
         mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
-      newdat = readRDS("dat.rds")
+      #newdat = readRDS("dat.rds")
+      newdat = covid1
       newdat = newdat %>% filter(Country.Region==country_name)
       if(!glmer_MSE){
         MSE <- MSE + sum((pred[tdayp:tday,]$model_mwg-newdat[tdayp:tday,]$new_cases)^2)
@@ -110,7 +113,8 @@ mwgrwMSE <- function(country_name = NULL, glmer_MSE = FALSE){
     pred <- pred %>%
       mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop)) %>% 
       mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
-    newdat = readRDS("dat.rds")
+    #newdat = readRDS("dat.rds")
+    newdat = covid1
     newdat = newdat %>% filter(Country.Region==country_name)
     if(!glmer_MSE){
       MSE <- MSE + sum((pred[tdayp:tday,]$model_mwg-newdat[tdayp:tday,]$new_cases)^2)
