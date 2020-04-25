@@ -2,9 +2,6 @@
 
 export(countrygraph)
 export(forecast)
+export(getRF)
 export(mwgrw)
 export(mwgrwMSE)
-importFrom(prophet,make_future_dataframe)
-importFrom(prophet,plot)
-importFrom(prophet,predict)
-importFrom(prophet,prophet)
