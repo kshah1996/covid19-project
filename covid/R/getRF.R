@@ -43,6 +43,7 @@ getRF <- function(Country_Name, Pred_Day = 8) {
     drop_na()
   dat2_rf_X <- dat2_rf %>% select(day, GHS_Score, AgeGEQ65, UrbanPop)
   dat2_rf_Y <- dat2_rf %>% select(new_cases)
+  library(randomForest)
   rf1 <- randomForest(x = dat2_rf_X, y = dat2_rf$new_cases)
   
   # Dataset with RF predictions
