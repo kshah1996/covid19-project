@@ -8,7 +8,7 @@
 #' 
 #' @param Country_Name A character input corresponding to the country being graphed
 #' @param prediction A boolean input to generate the predictions over the next 8 days
-#' @param Pred_Day Number of Days from April 3rd the user wants to predict. default is 8 days
+#' @param Pred_Day A specified number of Days past April 3rd the user wants to predict. default is 8 days
 #' @return A graph displaying the number of new cases for specified country in black and the GLMM model of new cases in red if prediction is specified as true, the dotted lines are the predictions.
 #' 
 #' @examples 
@@ -23,10 +23,13 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL){
   
   #ERROR CHECK#
   
-  #Check f is a factor variable with two balanced levels
+  #Check Country_Name is a character
   if(class(Country_Name)!="character")
     stop("'Country_Name' must be a character input")
   
+  #Check Pred_Day is an integer variable
+  if(clas(Pred_Day)!="double")
+    stop("'Pred_Day' must be an integer input")
   
   #________________________________________#
   
