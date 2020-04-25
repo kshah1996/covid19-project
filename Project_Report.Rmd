@@ -594,56 +594,43 @@ After running the random forest model, we observed that fits to the data and pre
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
 library(randomForest)
 
-dat2 <- readRDS("dat2.rds")
-dat2_rf <- dat2 %>% select(Country.Region, day, GHS_Score, AgeGEQ65, UrbanPop, new_cases) %>%
+getRF <- function(Country_Name, Pred_Day = 8) {
+  # Run RF model on full dataset
+  dat2 <- readRDS("dat2.rds") %>%
+    mutate(new_cases = replace(new_cases, Country.Region == "China" & day==0, 0))
+  dat2_rf <- dat2 %>% select(Country.Region, day, GHS_Score, AgeGEQ65, UrbanPop, new_cases) %>%
   drop_na()
-dat2_rf_X <- dat2_rf %>% select(day, GHS_Score, AgeGEQ65, UrbanPop)
-dat2_rf_Y <- dat2_rf %>% select(new_cases)
+  dat2_rf_X <- dat2_rf %>% select(day, GHS_Score, AgeGEQ65, UrbanPop)
+  dat2_rf_Y <- dat2_rf %>% select(new_cases)
+  rf1 <- randomForest(x = dat2_rf_X, y = dat2_rf$new_cases)
+  
+  # Dataset with RF predictions
+  dat2_rf_preds <- dat2_rf %>% mutate(pred = predict(rf1))
+  dat2_rf_preds_country <- dat2_rf_preds %>% filter(Country.Region == Country_Name)
+  
+  # Manually create dataset for future predictions
+  day <- 0:(max(dat2_rf_preds_country$day) + Pred_Day)
+  GHS_Score <- dat2_rf_preds_country$GHS_Score[1]
+  AgeGEQ65 <- dat2_rf_preds_country$AgeGEQ65[1]
+  UrbanPop <- dat2_rf_preds_country$UrbanPop[1]
+  
+  prediction_df <- data.frame(day, GHS_Score, AgeGEQ65, UrbanPop)
+  prediction_df$pred <- predict(rf1, prediction_df)
+  prediction_df$new_cases <- c(dat2_rf_preds_country$new_cases, rep(NA, Pred_Day))
+  
+  ggplot(prediction_df, aes(x = day)) +
+    geom_point(aes(y = new_cases)) +
+    geom_line(aes(y = pred)) +
+    labs(x = "Day", y = "New Cases") + 
+    ggtitle(paste0(Country_Name, " Predictions (RF)"))
+}
 
-rf1 <- randomForest(x = dat2_rf_X, y = dat2_rf$new_cases)
+p1 <- getRF("US", 8)
+p2 <- getRF("China", 8)
+p3 <- getRF("Korea, South", 8)
+p4 <- getRF("Italy", 8)
 
-dat2_rf_preds <- dat2_rf %>% mutate(pred = predict(rf1))
-
-### USA
-dat2_rf_preds_usa <- dat2_rf_preds %>% filter(Country.Region == "US")
-
-day <- 0:70
-GHS_Score <- 83.5
-AgeGEQ65 <- 15.80765
-UrbanPop <- 82.256
-dat2_rf_usa <- data.frame(day, GHS_Score, AgeGEQ65, UrbanPop)
-dat2_rf_usa$pred <- predict(rf1, dat2_rf_usa)
-dat2_rf_usa$new_cases <- c(dat2_rf_preds_usa$new_cases, rep(NA, 31))
-
-ggplot(dat2_rf_usa, aes(x = day)) +
-  geom_point(aes(y = new_cases)) +
-  geom_line(aes(y = pred)) +
-  labs(x = "Day", y = "New Cases") + 
-  ggtitle("USA Predictions with Random Forest")
-
-#sum(dat2_rf_preds_usa$pred)
-#sum(dat2_rf_preds_usa$new_cases)
-
-#imp <- importance(rf1)
-#lattice::dotplot(tail(sort(imp[,1]),10), xlab="Mean Decrease Gini")
-
-### Austria
-
-dat2_rf_austria <- dat2_rf %>% filter(Country.Region == "Austria")
-dat2_rf_austria_futurepreds <- dat2_rf_austria
-dat2_rf_austria_futurepreds$day <- 29:57
-dat2_rf_austria_futurepreds$pred <- predict(rf1, dat2_rf_austria_futurepreds)
-dat2_rf_austria_futurepreds$new_cases <- NA
-
-dat2_rf_austria_currentpreds <- dat2_rf_austria
-dat2_rf_austria_currentpreds$pred <- predict(rf1, dat2_rf_austria_currentpreds)
-
-austria <- rbind(dat2_rf_austria_currentpreds, dat2_rf_austria_futurepreds)
-ggplot(austria, aes(x = day)) +
-  geom_point(aes(y = new_cases)) +
-  geom_line(aes(y = pred)) +
-  labs(x = "Day", y = "New Cases") + 
-  ggtitle("Austria Predictions with Random Forest")
+grid.arrange(p1, p2, p3, p4, ncol=2)
 ```
 
 For example, for the United States, as plotted above, the random forest model highly overpredicts early on and underpredicts as the situation worsens. Whereas the GLMM fit for the US was quite accurate (even with the US being quite an outlier in terms of number of daily new cases) because it was prespecified to be a bell curve, random forest struggles because its estimates for the United States are biased towards the outcome of all countries with a similar `GHS_Score`, `AgeGEQ65`, and `UrbanPop`. 
