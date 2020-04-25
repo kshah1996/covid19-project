@@ -3,6 +3,7 @@
 export(countrygraph)
 export(forecast)
 export(mwgrw)
+export(mwgrwMSE)
 importFrom(prophet,make_future_dataframe)
 importFrom(prophet,plot)
 importFrom(prophet,predict)

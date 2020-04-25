@@ -2,36 +2,33 @@ Package: covid
 Title: COVID-19 Case Prediction
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "Emily",
+    c(person(given = "Emily",
            family = "Damone",
            role = c("aut", "cre"),
            email = "edamone@live.unc.edu"),
                person(given = "Taylor",
            family = "Krajewski",
-           role = c("aut", "cre"),
+           role = c("aut"),
            email = "tjk@live.unc.edu"),
                person(given = "Alex",
            family = "Quinter",
-           role = c("aut", "cre"),
+           role = c("aut"),
            email = "alexq@live.unc.edu"),
                person(given = "Kushal",
            family = "Shah",
-           role = c("aut", "cre"),
+           role = c("aut"),
            email = "kushshah@live.unc.edu"),
                person(given = "Euphy",
            family = "Wu",
-           role = c("aut", "cre"),
+           role = c("aut"),
            email = "euphyw@live.unc.edu"),
                person(given = "Jonathan",
            family = "Zhang",
-           role = c("aut", "cre"),
-           email = "jzhang42@live.unc.edu")
-Description: This package allows users to model and graph cases of COVID-19 for a specified country from their 
-baseline day of 50 cases confirmed until April 3, 2020 using a Poisson GLMM. Users can also predict number
-of new cases for any country up until April 11, 2020. Modifications could be made to extend the data beyond April 11, 2020.
-Users can perform these same procedures using machine learning methods Random Forest or Prophet.
+           role = c("aut"),
+           email = "jzhang42@live.unc.edu"))
+Description: This package allows users to model and graph cases of COVID-19 for a specified country from their baseline day of 50 cases confirmed until April 3, 2020 using a Poisson GLMM. Users can also predict number of new cases for any country up until April 11, 2020. Modifications could be made to extend the data beyond April 11, 2020. Users can perform these same procedures using machine learning methods Random Forest or Prophet.
 License: What license it uses
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Imports: dplyr, ggplot2, prophet, tidyverse, stats, lme4, mvtnorm, randomForest

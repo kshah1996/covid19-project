@@ -30,14 +30,13 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
     stop("'Country_Name' must be a character input")
   
   #Check Pred_Day is an integer variable
-  if(class(Pred_Day)!="numeric" || (class(Pred_Day)=="numeric" && Pred_Day != floor(Pred_Day)))
+  if(!is_empty(Pred_Day) && (class(Pred_Day)!="numeric" || (class(Pred_Day)=="numeric" && Pred_Day != floor(Pred_Day))))
     stop("'Pred_Day' must be an integer input")
   
   #________________________________________#
   
   
   #FUNCTION#
-  
   # Read in data
   dat = readRDS("data/dat2.rds")
   
