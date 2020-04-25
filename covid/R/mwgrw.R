@@ -192,7 +192,7 @@ e.step= function(y, X, Z, ID, betat, Sigma_gammat, M, n, ni, sampler, burn.in = 
 #' @export
 mwgrw <- function(beta = NA, Sigma_gamma = NA, M=1000, Z=c(1,2), control=list(tol=10^-5,maxit=1000), verbose= TRUE){
   # Read in data
-  dat = readRDS("dat2.rds")
+  dat = readRDS("data/dat2.rds")
   
   # Remove NA data
   dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)

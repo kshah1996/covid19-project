@@ -60,4 +60,6 @@ forecast <- function(country, data, numPred){
   return(list(now,forecast))
 }
 
+dat = readRDS("data/dat2.rds")
+
 
