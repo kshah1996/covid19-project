@@ -1,5 +1,5 @@
 ---
-title: " "
+title: ""
 author: "Emily Damone, Taylor Krajewski, Alex Quinter, Kushal Shah, Euphy Wu, Jonathan Zhang"
 date: "4/22/2020"
 output: 
@@ -21,8 +21,13 @@ library(gridExtra)
 ```
 
 <p align="center">
-<img width="250" src="mask.png">
+<img width="500" src="mask.png">
 </p>
+
+
+
+<font size = "4"><div align="center">**Emily Damone, Taylor Krajewski, Alex Quinter, Kushal Shah, Euphy Wu, Jonathan Zhang**</div></font>
+
 
 
 # Introduction
