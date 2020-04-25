@@ -27,7 +27,8 @@ included.
 }
 \examples{
 
-forecast("US", dat3, 7)
-forecast("Korea, S", dat3, 7)
+forecast("US", covid3, 7)
+forecast("Korea, S", covid3, 7)
+
 
 }
