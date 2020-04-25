@@ -10,10 +10,13 @@
 #' 
 #' @return A graph displaying the number of new cases for specified country predicted through a random forest model.
 #' 
-#' @examples 
-#' 
+#' @examples
 #' getRF("US", 20)
 #' getRF("Korea, South")
+#' 
+#' @import randomForest
+#' @import tidyverse
+#' 
 #' 
 #' @export
 getRF <- function(Country_Name, Pred_Day = 8) {
@@ -43,8 +46,7 @@ getRF <- function(Country_Name, Pred_Day = 8) {
     drop_na()
   dat2_rf_X <- dat2_rf %>% select(day, GHS_Score, AgeGEQ65, UrbanPop)
   dat2_rf_Y <- dat2_rf %>% select(new_cases)
-  library(randomForest)
-  rf1 <- randomForest(x = dat2_rf_X, y = dat2_rf$new_cases)
+  rf1 <- randomForest::randomForest(x = dat2_rf_X, y = dat2_rf$new_cases)
   
   # Dataset with RF predictions
   dat2_rf_preds <- dat2_rf %>% mutate(pred = predict(rf1))

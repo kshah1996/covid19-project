@@ -21,7 +21,6 @@ of COVID-19 from their baseline day of 50 cases confirmed until April 3, 2020,
 with further predictions specified by the user.
 }
 \examples{
-
 getRF("US", 20)
 getRF("Korea, South")
 
