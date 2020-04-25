@@ -57,7 +57,7 @@ forecast <- function(country, data, numPred){
   
   forecast <- prophet::predict(now, future, )
   print(prophet::plot(now, forecast, plot_cap=F, uncertainty = T, ylabel = country) +  add_changepoints_to_plot(now))
-  return(list(now,forecast))
+  return(forecast)
 }
 
 dat = readRDS("data/dat2.rds")
