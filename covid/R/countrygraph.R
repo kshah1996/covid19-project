@@ -22,6 +22,8 @@
 #' countrygraph(Country_Name='China', prediction = TRUE)
 #' 
 #' @import tidyverse
+#' @import ggplot2
+#' @import dplyr
 #' 
 #' @export
 countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_results = FALSE){

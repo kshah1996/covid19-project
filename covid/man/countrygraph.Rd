@@ -34,6 +34,7 @@ model in explaining number of new cases for that country.
 
 countrygraph(Country_Name='US')
 countrygraph(Country_Name='US', prediction = TRUE)
+countrygraph(Country_Name='US', prediction = TRUE, Pred_Day=50, glmer_results= TRUE)
 countrygraph(Country_Name='China')
 countrygraph(Country_Name='China', prediction = TRUE)
 
