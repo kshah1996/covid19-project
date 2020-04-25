@@ -17,7 +17,7 @@
 #' 
 #' @export
 getRF <- function(Country_Name, Pred_Day = 8) {
-  
+  # Read in data
   dat2 <- readRDS("dat2.rds") %>%
     mutate(new_cases = replace(new_cases, Country.Region == "China" & day==0, 0))
   
@@ -38,7 +38,6 @@ getRF <- function(Country_Name, Pred_Day = 8) {
   #________________________________________#
   
   # Run RF model on full dataset
-  
   dat2_rf <- dat2 %>% select(Country.Region, day, GHS_Score, AgeGEQ65, UrbanPop, new_cases) %>%
     drop_na()
   dat2_rf_X <- dat2_rf %>% select(day, GHS_Score, AgeGEQ65, UrbanPop)
@@ -55,10 +54,12 @@ getRF <- function(Country_Name, Pred_Day = 8) {
   AgeGEQ65 <- dat2_rf_preds_country$AgeGEQ65[1]
   UrbanPop <- dat2_rf_preds_country$UrbanPop[1]
   
+  # Finalize dataframe with future predictions
   prediction_df <- data.frame(day, GHS_Score, AgeGEQ65, UrbanPop)
   prediction_df$pred <- predict(rf1, prediction_df)
   prediction_df$new_cases <- c(dat2_rf_preds_country$new_cases, rep(NA, Pred_Day))
   
+  # Plot country's cases and predictions
   ggplot(prediction_df, aes(x = day)) +
     geom_point(aes(y = new_cases)) +
     geom_line(aes(y = pred)) +
