@@ -6,6 +6,7 @@ output:
   html_document:
     toc: true
     toc_float: true
+    code_folding: hide
 header_includes:
 - \usepackage{amsmath}
 - \usepackage{amssymb}
@@ -304,7 +305,7 @@ Prophet utilizes *L-BFGS* to determine parameter estimates.
 
 Running the model we have on the dataset lead to parameter estimates as follows (code not explicity ran here, it was ran on the cluster).
 
-```
+```{r eval=FALSE}
 mwgrw(beta = NA, Sigma_gamma = NA, M=1000, Z=c(1,2), control=list(tol=10^-5,maxit=1000), verbose= TRUE)
 ```
 
