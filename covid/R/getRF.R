@@ -6,7 +6,7 @@
 #' with further predictions specified by the user.
 #' 
 #' @param Country_Name A character input corresponding to the country being graphed
-#' @param Pred_Day A specified number of Days past from April 3rd the user wants to predict. Default is 8 days; only used with prediction is TRUE
+#' @param Pred_Day A specified number of Days past from April 3rd the user wants to predict. Default is 8 days.
 #' 
 #' @return A graph displaying the number of new cases for specified country predicted through a random forest model.
 #' 
@@ -17,8 +17,9 @@
 #' 
 #' @export
 getRF <- function(Country_Name, Pred_Day = 8) {
+  
   # Read in data
-  dat2 <- readRDS("dat2.rds") %>%
+  dat2 <- covid2 %>%
     mutate(new_cases = replace(new_cases, Country.Region == "China" & day==0, 0))
   
   #ERROR CHECK#
