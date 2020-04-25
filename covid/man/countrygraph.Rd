@@ -38,4 +38,5 @@ countrygraph(Country_Name='US', prediction = TRUE, Pred_Day=50, glmer_results= T
 countrygraph(Country_Name='China')
 countrygraph(Country_Name='China', prediction = TRUE)
 
+
 }
