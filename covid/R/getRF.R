@@ -7,16 +7,13 @@
 #' 
 #' @param Country_Name A character input corresponding to the country being graphed
 #' @param Pred_Day A specified number of Days past from April 3rd the user wants to predict. Default is 8 days; only used with prediction is TRUE
-#' @param glmer_results A boolean input to display results from glmer in blue
 #' 
-#' @return A graph displaying the number of new cases for specified country in black and the GLMM model of new cases in red if prediction is specified as true, the dotted lines are the predictions.
+#' @return A graph displaying the number of new cases for specified country predicted through a random forest model.
 #' 
 #' @examples 
 #' 
-#' countrygraph(Country_Name='US')
-#' countrygraph(Country_Name='US', prediction = TRUE)
-#' countrygraph(Country_Name='China')
-#' countrygraph(Country_Name='China', prediction = TRUE)
+#' getRF("US", 20)
+#' getRF("Korea, South")
 #' 
 #' @export
 getRF <- function(Country_Name, Pred_Day = 8) {
