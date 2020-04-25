@@ -17,7 +17,6 @@
 mwgrwMSE <- function(country_name = NULL, glmer_MSE = FALSE){
 
   ## more data processing
-  # dat = readRDS("dat2.rds")
   dat = covid2
   # remove na data
   dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
