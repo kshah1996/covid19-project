@@ -636,7 +636,7 @@ Additionally, lack of widespread testing and the possibility of infected individ
 
 Finally, countries not accurately reporting data on cases of COVID-19, lag time between cases confirmed and cases reported, or major changes in diagnoses criteria can make model fitting quite difficult. For example, on February 6th, officials in China’s Hubei province revealed that new cases of COVID-19 had surged nearly nearly 10x more than the day before—reversing days of declines that experts had thought were a positive sign in terms of containment of the virus. The number of deaths on this day also increased drastically. The jump in new cases was nearly 15,000 and was due to a change in the criteria for counting diagnoses of the virus - China added a new category of ‘clinical cases’ to its reporting so that patients who exhibit all the symptoms of COVID-19 - including fever, cough, and shortness of breath - but have either not been tested or tested negative for the virus itself, would still be considered cases. As can be seen in the graph of China's new cases over time, this spike in number of new cases on February 6th due to a new classification of cases can make any model fit seem inaccurate. 
 
-```{r, echo=FALSE, warninG=FALSE, message=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 ## more data processing
 dat = readRDS("dat2.rds")
 # remove na data
