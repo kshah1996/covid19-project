@@ -1,14 +1,16 @@
 #' Generation of a graph for any country's number of new COVID-19 cases overlayed with Generalized Linear Mixed Model
 #' 
 #' This function creates a graph for user specified country that displays number of new cases
-#' of COVID-19 from their baseline day of 50 cases confirmed until April 3, 2020.
+#' of COVID-19 from their baseline day of 50 cases confirmed until April 3, 2020 in red.
 #' An option to generate the predictions for the next 8 days is present as well.
 #' Generalized Linear Mixed Model is graphed over the same period to show accuracy of 
 #' model in explaining number of new cases for that country.
 #' 
 #' @param Country_Name A character input corresponding to the country being graphed
 #' @param prediction A boolean input to generate the predictions over the next 8 days
-#' @param Pred_Day A specified number of Days past April 3rd the user wants to predict. default is 8 days
+#' @param Pred_Day A specified number of Days past from April 3rd the user wants to predict. Default is 8 days; only used with prediction is TRUE
+#' @param glmer_results A boolean input to display results from glmer in blue
+#' 
 #' @return A graph displaying the number of new cases for specified country in black and the GLMM model of new cases in red if prediction is specified as true, the dotted lines are the predictions.
 #' 
 #' @examples 
@@ -19,7 +21,7 @@
 #' countrygraph(Country_Name='China', prediction = TRUE)
 #' 
 #' @export
-countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL){
+countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_results = FALSE){
   
   #ERROR CHECK#
   
@@ -84,7 +86,8 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL){
   #Create graph for specified country
   dat2 <- dat %>% 
     filter(Country.Region==Country_Name) %>% 
-    mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
+    mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop)) %>% 
+    mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop))
   # New data with 8 new days
   newdat = readRDS("dat.rds")
   newdat = newdat %>% filter(Country.Region==Country_Name)
@@ -106,23 +109,26 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL){
   
   graph_newcases <- NULL
   if(!prediction){
-    graph_newcases <- ggplot(data=dat2)+
-      #True number of new cases
-      geom_line(aes(x=day,y=new_cases))+
-      #GLMM number of new cases
-      geom_line(aes(x=day,y=model_mwg), col= "red")+
-      
-      labs(title=Country_Name, y="New Cases", x="Days since baseline 50 cases")
-  }else{
-    graph_newcases <- ggplot()+
-      geom_line(data=pred[1:tdayp,],aes(x=day,y=model_mwg), col= "red") +
-      # Predictions
-      geom_line(data=pred[tdayp:tday,],aes(x=day,y=model_mwg), col= "red", linetype="dashed") +
-      geom_line(data=newdat[1:tdayp,], aes(x=day,y=new_cases))+
-      # Predictions
-      geom_line(data=newdat[tdayp:tday,], aes(x=day,y=new_cases), linetype="dashed")+
-      labs(title=Country_Name, y="New Cases", x="Days since baseline 50 cases")
-    if (!is_empty(Pred_Day)) {
+    if(!glmer_results){
+      graph_newcases <- ggplot(data=dat2)+
+        #True number of new cases
+        geom_line(aes(x=day,y=new_cases))+
+        #GLMM number of new cases
+        geom_line(aes(x=day,y=model_mwg), col= "red")+
+        
+        labs(title=Country_Name, y="New Cases", x="Days since baseline 50 cases")
+    }else{
+      graph_newcases <- ggplot(data=dat2)+
+        #True number of new cases
+        geom_line(aes(x=day,y=new_cases))+
+        #GLMM number of new cases
+        geom_line(aes(x=day,y=model_mwg), col= "red")+
+        #GLMER number of new cases
+        geom_line(aes(x=day,y=model_glmer), col= "blue")
+        labs(title=Country_Name, y="New Cases", x="Days since baseline 50 cases")
+    }
+
+  }else if (!is_empty(Pred_Day)) {
       tday = dim(dat2)[1]+Pred_Day
       tdayp = tday-(Pred_Day-1)
       
@@ -135,14 +141,56 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL){
       pred <- pred %>%
         mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop)) %>% 
         mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
-      
+      if(!glmer_results){
+        graph_newcases <- ggplot()+
+          geom_line(data=pred[1:tdayp,],aes(x=day,y=model_mwg), col= "red") +
+          # Predictions
+          geom_line(data=pred[tdayp:tday,],aes(x=day,y=model_mwg), col= "red", linetype="dashed") +
+          geom_line(data=newdat[1:tdayp,], aes(x=day,y=new_cases))+
+          # Predictions
+          geom_line(data=newdat[tdayp:min(tday,dim(dat2)[1]+8),], aes(x=day,y=new_cases), linetype="dashed")+
+          labs(title=Country_Name, y="New Cases", x="Days since baseline 50 cases")
+      }else{
+        graph_newcases <- ggplot()+
+          # glmm
+          geom_line(data=pred[1:tdayp,],aes(x=day,y=model_mwg), col= "red") +
+          # Predictions
+          geom_line(data=pred[tdayp:tday,],aes(x=day,y=model_mwg), col= "red", linetype="dashed") +
+          # glmer
+          geom_line(data=pred[1:tdayp,],aes(x=day,y=model_glmer), col= "blue") +
+          # Predictions
+          geom_line(data=pred[tdayp:tday,],aes(x=day,y=model_glmer), col= "blue", linetype="dashed") +
+          
+          geom_line(data=newdat[1:tdayp,], aes(x=day,y=new_cases))+
+          # Predictions
+          geom_line(data=newdat[tdayp:min(tday,dim(dat2)[1]+8),], aes(x=day,y=new_cases), linetype="dashed")+
+          labs(title=Country_Name, y="New Cases", x="Days since baseline 50 cases")
+      }
+
+  }else{
+    if(!glmer_results){
       graph_newcases <- ggplot()+
         geom_line(data=pred[1:tdayp,],aes(x=day,y=model_mwg), col= "red") +
         # Predictions
         geom_line(data=pred[tdayp:tday,],aes(x=day,y=model_mwg), col= "red", linetype="dashed") +
         geom_line(data=newdat[1:tdayp,], aes(x=day,y=new_cases))+
         # Predictions
-        geom_line(data=newdat[tdayp:min(tday,dim(dat2)[1]+8),], aes(x=day,y=new_cases), linetype="dashed")+
+        geom_line(data=newdat[tdayp:tday,], aes(x=day,y=new_cases), linetype="dashed")+
+        labs(title=Country_Name, y="New Cases", x="Days since baseline 50 cases")
+    }else{
+      graph_newcases <- ggplot()+
+        # glmm
+        geom_line(data=pred[1:tdayp,],aes(x=day,y=model_mwg), col= "red") +
+        # Predictions
+        geom_line(data=pred[tdayp:tday,],aes(x=day,y=model_mwg), col= "red", linetype="dashed") +
+        # glmer
+        geom_line(data=pred[1:tdayp,],aes(x=day,y=model_glmer), col= "blue") +
+        # Predictions
+        geom_line(data=pred[tdayp:tday,],aes(x=day,y=model_glmer), col= "blue", linetype="dashed") +
+        
+        geom_line(data=newdat[1:tdayp,], aes(x=day,y=new_cases))+
+        # Predictions
+        geom_line(data=newdat[tdayp:tday,], aes(x=day,y=new_cases), linetype="dashed")+
         labs(title=Country_Name, y="New Cases", x="Days since baseline 50 cases")
     }
   }
