@@ -38,7 +38,7 @@ mwgrwMSE <- function(country_name = NULL, glmer_MSE = FALSE){
   # unique country list
   order = unique(dat$Country.Region)
   
-  glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dat, family = poisson)
+  glmm1 <- suppressWarnings(glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dat, family = poisson))
   fix_glmer <- fixef(glmm1)
   
   # gamma <- read.table("longleaf/glmm_mwg_rw_gamma_1.txt", header = F, skip = 1)

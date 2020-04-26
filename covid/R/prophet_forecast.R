@@ -22,7 +22,7 @@
 #' @examples 
 #' 
 #' forecast("US", covid3, 7)
-#' forecast("Korea, S", covid3, 7)
+#' forecast("Korea, South", covid3, 7)
 #' 
 #' @import prophet
 #' 
