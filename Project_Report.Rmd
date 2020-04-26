@@ -1135,7 +1135,9 @@ grid.arrange(US[[1]], SouthKorea[[1]], Italy[[1]], China[[1]], ncol=2)
 
 We see in general, the model fits fairly well if the country has not reached its inflection point. You can see this from the graphs for the US and Italy. However, if the country has been effective at flattening the curve, such as China and South Korea, the method can not properly capture the inflection point nor make accurate forecasts for future cases.  
 
-To use later on, the MSEs of prediction for each of the four models were calculated to compare with the two other methods used. 
+#### MSE Calculation
+
+MSEs were calculated on a country by country bases for results with profet. Please note, the MSEs listed in the table below are for total number of cases and thus cannot be compared with the MSEs from the two methods reported previously. 
 
 ```{R, warning=F, message=F, echo=F}
 prophet_MSE <- function(country, forecast){
@@ -1153,16 +1155,15 @@ Italy_mse_prophet <- prophet_MSE("Italy", Italy)
 China_mse_prophet <- prophet_MSE("China", China)
 ```
 
-__I added this table here to better display all the MSEs. I figured we could move to later in the discussion if preferred. __
 
+Country   |  Prophet 
+--------- |  ------------------------
+US        | `r US_mse_prophet`
+S. Korea  |  `r SKorea_mse_prophet`
+Italy     |`r Italy_mse_prophet`
+China     | `r China_mse_prophet`
 
-Country   | Poisson GLMM | GLMER    |  Random Forest  |  Prophet 
---------- | ------------ | -------- |--------------   |  ------------------------
-US        |  6410718     | 90351421 |  1070773896     | `r US_mse_prophet`
-S. Korea  |  3047.854    | 3002.723 |  677133.4       |  `r SKorea_mse_prophet`
-Italy     |  6379592     | 4284941  |  24037815       |`r Italy_mse_prophet`
-China     |  4216.611    | 4216.598 |  175641644      | `r China_mse_prophet`
-
+We see extremely large MSE values, especially for the US. This is somewhat surprising since the model seems to fit fairly well. However, it is important to note that since we are working on the scale of total cases, counts are very large and errors in under or over prediction compiles over time. This can lead to very large MSEs calculated for future predictions.
 
 
 
