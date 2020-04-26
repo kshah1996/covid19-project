@@ -135,13 +135,13 @@ This function creates a graph for user specified country that displays (in black
 
 Function Inputs:
 
-* *Country_Name*: A character input corresponding to the country being graphed
+* `Country_Name`: A character input corresponding to the country being graphed
 
-* *prediction*: A boolean input to generate the predictions over the next 8 days
+* `prediction`: A boolean input to generate the predictions over the next 8 days
 
-* *Pred_Day*: A specified number of days past April 3rd the user wants to predict. Default is 8 days; only used when prediction is set to TRUE
+* `Pred_Day`: A specified number of days past April 3rd the user wants to predict. Default is 8 days; only used when prediction is set to TRUE
 
-* *glmer_results*: A boolean input to display results from glmer in blue
+* `glmer_results`: A boolean input to display results from glmer in blue
 
 
 ```{r, warning=FALSE, message=FALSE}
