@@ -786,6 +786,10 @@ getRF <- function(Country_Name, Pred_Day = 8) {
   prediction_df$pred <- predict(rf1, prediction_df)
   prediction_df$new_cases <- c(dat2_rf_preds_country$new_cases, rep(NA, Pred_Day))
   
+  # Obtain MSE
+  prediction_df$se <- (prediction_df$new_cases - prediction_df$pred)^2
+  MSE <- sum(prediction_df$se[1:nrow(dat2_rf_preds_country)])
+  
   # Plot country's cases and predictions
   ggplot(prediction_df, aes(x = day)) +
     geom_point(aes(y = new_cases)) +
@@ -1145,10 +1149,10 @@ __I added this table here to better display all the MSEs. I figured we could mov
 
 Country   | Poisson GLMM | GLMER    |  Random Forest  |  Prophet 
 --------- | ------------ | -------- |--------------   |  ------------------------
-US        |  6410718     | 90351421 |                 | `r US_mse_prophet`
-S. Korea  |  3047.854    | 3002.723 |                 |  `r SKorea_mse_prophet`
-Italy     |  6379592     | 4284941  |                 |`r Italy_mse_prophet`
-China     |  4216.611    | 4216.598 |                 | `r China_mse_prophet`
+US        |  6410718     | 90351421 |  1070773896     | `r US_mse_prophet`
+S. Korea  |  3047.854    | 3002.723 |  677133.4       |  `r SKorea_mse_prophet`
+Italy     |  6379592     | 4284941  |  24037815       |`r Italy_mse_prophet`
+China     |  4216.611    | 4216.598 |  175641644      | `r China_mse_prophet`
 
 
 
