@@ -131,9 +131,9 @@ All functions needed to model and predict number of new cases of COVID-19 can be
 
 ## Graph a Country
 
-This function creates a graph for user specified country that displays (in black) observed number of new cases of COVID-19 from their baseline day of 50 cases confirmed until April 3, 2020. The Poisson Generalized Linear Mixed Model is graphed over the same period (in red) to show accuracy of model in explaining number of new cases for that country. By specifiying glmer_results=TRUE, the glmer results are also graphed over the same period (in blue). An option to generate the predictions for the next 8 days is present as well. If set to true, predictions will be displayed as a dotted line extension of the GLMM (red) or glmer (blue) curves.
+This function creates a graph for user specified country that displays (in black) observed number of new cases of COVID-19 from their baseline day of 50 cases confirmed until April 3, 2020. The Poisson Generalized Linear Mixed Model is graphed over the same period (in red) to show accuracy of model in explaining number of new cases for that country. By specifiying glmer_results=TRUE, the glmer results are also graphed over the same period (in blue). An option to generate the predictions for the next 8 days is present as well. If set to true, predictions will be displayed as a dotted line extension of the GLMM (red) and glmer (blue) curves.
 
-Parameters in model:
+Function Inputs:
 
 * *Country_Name*: A character input corresponding to the country being graphed
 
