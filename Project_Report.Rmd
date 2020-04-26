@@ -129,7 +129,7 @@ All functions needed to model and predict number of new cases of COVID-19 can be
 
 ## Metropolis Within Gibbs Random Walk
 
-This function computes the estimates of a Poisson generalized linear mixed model with a log link for COVID-19 data from the Johns Hopkins CSSE. Other data included comes from the World Bank and the Global Health Secuiry Index. The response is the number of new cases, while the predictors include an intercept, time, time^2, GHS score, percentage of population over age 65, and percentage of population living in urban areas. Random effects can be adjusted but is defaulted to intercept and time (Helper functions provided as well).
+`mwgrw` computes the estimates of a Poisson generalized linear mixed model with a log link for COVID-19 data from the Johns Hopkins CSSE. Other data included comes from the World Bank and the Global Health Secuiry Index. The response is the number of new cases, while the predictors include an intercept, time, time^2, GHS score, percentage of population over age 65, and percentage of population living in urban areas. Random effects can be adjusted but is defaulted to intercept and time (Helper functions provided as well).
 
 Function Inputs:
 
@@ -137,7 +137,7 @@ Function Inputs:
 
 * `Sigma_gamma`: An intial matrix of size qxq, where q is the dimension of the random effects. Default values are 2x2. Default random effects would require a 2x2 matrix.
 
-* `M Chain`: Length for each country in the MCEM algorithmn. Defaults to 1000.
+* `M`: Chain length for each country in the MCEM algorithmn. Defaults to 1000.
 
 * `Z `:A vector that contains the subset of columns of X to be random effects. Defaults to intercept and time only.
 
@@ -423,9 +423,125 @@ mwgrw <- function(beta = NA, Sigma_gamma = NA, M=1000, Z=c(1,2), control=list(to
 }
 ```
 
+`mwgrwMSE` calculates the MSE for a specific country or every country based on their predictions for the 8 days following April, 03, 2020.
+
+Function Inputs:
+
+* `country_name`: A character input corresponding to the country, if left empty the function will calculate the MSE for all countries together
+
+* `glmer_MSE`: A boolean determining if the MSE should be calculated for the MCEM GLMM or the glmer function
+
+```{r, warning=FALSE, message=FALSE}
+mwgrwMSE <- function(country_name = NULL, glmer_MSE = FALSE){
+
+  ## more data processing
+  dat = readRDS("dat2.rds")
+  # remove na data
+  dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
+  # modify china new_cases day 0 since it was NA previously
+  dat[402,5]=548
+  dat$ID <- dat %>% group_indices(Country.Region)
+  
+  for (i in 1:max(dat$ID)) {
+    if (sum(dat$ID==i) < 5) {
+      dat<- dat[!(dat$ID==i),]
+    }
+  }
+  
+  dat$ID <- dat %>% group_indices(Country.Region)
+  
+  # unique country list
+  order = unique(dat$Country.Region)
+  
+  glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dat, family = poisson)
+  fix_glmer <- fixef(glmm1)
+  
+  gamma <- read.table("longleaf/glmm_mwg_rw_gamma_1.txt", header = F, skip = 1)
+  gamma2 <- as.matrix(gamma[,2:3])
+  M <- 1000
+  
+  fix_mwg <- c(0.844,0.202,-0.005,0.028,0.010,-0.001)
+  
+  MSE <- 0
+  if(is_empty(country_name)){
+    for(i in 1:99){
+      # All country MSE
+      country = i
+      country_name = order[i]
+      
+      ran_glmer <- c((ranef(glmm1)$Country.Region[country,])[[1]],(ranef(glmm1)$Country.Region[country,])[[2]],0,0,0,0)
+      ran_mwg <- c(mean(gamma2[((country-1)*M+1):(country*M),1]),mean(gamma2[((country-1)*M+1):(country*M),2]),0,0,0,0)
+      coef_glmer <- fix_glmer + ran_glmer
+      coef_mwg <- fix_mwg + ran_mwg
+      
+      dat2 <- dat %>% filter(Country.Region==country_name)
+      
+      
+      tday = dim(dat2)[1]+8
+      tdayp = tday-7
+      GHS_Score <- ((dat %>% filter(Country.Region==country_name))[1,])$GHS_Score
+      AgeGEQ65 <- ((dat %>% filter(Country.Region==country_name))[1,])$AgeGEQ65
+      UrbanPop <- ((dat %>% filter(Country.Region==country_name))[1,])$UrbanPop
+      pred <- tibble(int=rep(1,tday)) %>% 
+        add_column(day=(1:tday)) %>% 
+        add_column(day2=(1:tday)^2)%>% 
+        add_column(GHS_Score=rep(GHS_Score,tday))%>% 
+        add_column(AgeGEQ65=rep(AgeGEQ65,tday))%>% 
+        add_column(UrbanPop=rep(UrbanPop,tday))
+      pred <- pred %>%
+        mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop)) %>% 
+        mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
+      newdat = readRDS("dat.rds")
+      newdat = newdat %>% filter(Country.Region==country_name)
+      if(!glmer_MSE){
+        MSE <- MSE + sum((pred[tdayp:tday,]$model_mwg-newdat[tdayp:tday,]$new_cases)^2)
+      }else{
+        MSE <- MSE + sum((pred[tdayp:tday,]$model_glmer-newdat[tdayp:tday,]$new_cases)^2)
+      }
+    }
+    MSE <- MSE/(length(order)*8)
+    return(MSE)
+  }else{
+    # Specific country MSE
+    country = which(order==country_name)
+    ran_glmer <- c((ranef(glmm1)$Country.Region[country,])[[1]],(ranef(glmm1)$Country.Region[country,])[[2]],0,0,0,0)
+    ran_mwg <- c(mean(gamma2[((country-1)*M+1):(country*M),1]),mean(gamma2[((country-1)*M+1):(country*M),2]),0,0,0,0)
+    coef_glmer <- fix_glmer + ran_glmer
+    coef_mwg <- fix_mwg + ran_mwg
+    
+    dat2 <- dat %>% filter(Country.Region==country_name)
+    
+    
+    tday = dim(dat2)[1]+8
+    tdayp = tday-7
+    GHS_Score <- ((dat %>% filter(Country.Region==country_name))[1,])$GHS_Score
+    AgeGEQ65 <- ((dat %>% filter(Country.Region==country_name))[1,])$AgeGEQ65
+    UrbanPop <- ((dat %>% filter(Country.Region==country_name))[1,])$UrbanPop
+    pred <- tibble(int=rep(1,tday)) %>% 
+      add_column(day=(1:tday)) %>% 
+      add_column(day2=(1:tday)^2)%>% 
+      add_column(GHS_Score=rep(GHS_Score,tday))%>% 
+      add_column(AgeGEQ65=rep(AgeGEQ65,tday))%>% 
+      add_column(UrbanPop=rep(UrbanPop,tday))
+    pred <- pred %>%
+      mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop)) %>% 
+      mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
+    newdat = readRDS("dat.rds")
+    newdat = newdat %>% filter(Country.Region==country_name)
+    if(!glmer_MSE){
+      MSE <- MSE + sum((pred[tdayp:tday,]$model_mwg-newdat[tdayp:tday,]$new_cases)^2)
+    }else{
+      MSE <- MSE + sum((pred[tdayp:tday,]$model_glmer-newdat[tdayp:tday,]$new_cases)^2)
+    }
+    MSE <- MSE/8
+    return(MSE)
+  }
+
+}
+```
 ## Graph a Country
 
-This function creates a graph for user specified country that displays (in black) observed number of new cases of COVID-19 from their baseline day of 50 cases confirmed until April 3, 2020. The Poisson Generalized Linear Mixed Model is graphed over the same period (in red) to show accuracy of model in explaining number of new cases for that country. By specifiying glmer_results=TRUE, the glmer results are also graphed over the same period (in blue). An option to generate the predictions for the next 8 days is present as well. If set to true, predictions will be displayed as a dotted line extension of the GLMM (red) and glmer (blue) curves.
+`countrygraph` creates a graph for user specified country that displays (in black) observed number of new cases of COVID-19 from their baseline day of 50 cases confirmed until April 3, 2020. The Poisson Generalized Linear Mixed Model is graphed over the same period (in red) to show accuracy of model in explaining number of new cases for that country. By specifiying glmer_results=TRUE, the glmer results are also graphed over the same period (in blue). An option to generate the predictions for the next 8 days is present as well. If set to true, predictions will be displayed as a dotted line extension of the GLMM (red) and glmer (blue) curves.
 
 Function Inputs:
 
