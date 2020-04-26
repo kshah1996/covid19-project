@@ -845,15 +845,13 @@ We found this fit the number of new cases quite well for many countries, with so
 ## *Poisson GLMM*
 
 ### Model Creation
-Let $y_{ij}$ be the number of new cases country $i$ has on day $j$. 
+We let $y_{ij}$ be the number of new cases country $i$ has on day $j$ and assumed each $y_{ij} \sim Poisson(\lambda_{ij})$, where the mean and variance of $y_{ij}$ is assumed to be some $\lambda_{ij}$
 
-We assume that each $y_{ij} \sim Poisson(\lambda_{ij})$, where the mean and variance of $y_{ij}$ is assumed to be some $\lambda_{ij}$
+Our model includes an intercept, covariates for time and time squared, and covariates for Global Health Security index, proportion of the population 65 or older, and proportion of population living in an urban setting. Thus, the covariate vector pertaining to the $i^{th}$ countrh in the $j^{th}$ month is defined as $x_{ij} = (1, t_{ij}, t^2_{ij}, GHS, AgeGEQ65, UrbanPop)$.
 
-Let the covariate vector pertaining to the $i^{th}$ countrh in the $j^{th}$ month be defined as $x_{ij} = (1, t_{ij}, t^2_{ij}, GHS, AgeGEQ65, UrbanPop)$.
+Since we assume an intercept, $\beta_0$, in our model, and thus we have $\beta = (\beta_0, \beta_1, \beta_2, \beta_3, \beta_4, \beta_5, \beta_6)^T$.
 
-We assume an intercept, $\beta_0$, in our model, and thus we have $\beta = (\beta_0, \beta_1, \beta_2, \beta_3, \beta_4, \beta_5, \beta_6)^T$.
-
-We assumed counts can be modeled with a Poisson GLMM such that $log(\lambda_{ij})=x_{ij}\beta+\gamma_{i1}+\gamma_{i2}t_{ij} = x_{ij}\beta+z_{ij}\gamma_i$, where $b_i$ is a vector of unobserved country-level random effects. We assume that
+With our assumption that the counts can be modeled with Poisson GLMM, we have $log(\lambda_{ij})=x_{ij}\beta+\gamma_{i1}+\gamma_{i2}t_{ij} = x_{ij}\beta+z_{ij}\gamma_i$, where $\gamma_i$ is a vector of unobserved country-level random effects assumed to follow a bivariate normal distribution with mean 0 and covariance matrix G.
 
 $$\left(\begin{array}{cc}\gamma_{i1} \\\gamma_{i2}\end{array}\right) \sim N_2\bigg(\left(\begin{array}{cc}0 \\0\end{array}\right),\left(\begin{array}{cc}g_{11} & g_{12} \\g_{21} & g_{22}\end{array}\right)\bigg)$$
 
@@ -862,13 +860,13 @@ So, in our model, $\gamma_{i1}$ is the deviation of the $i^{th}$ country from th
 
 As in all GLMMs, the random effects are unobservable. Therefore, in order to obtain the likelihood, we must integrate them out.
 
-Thus, we must perform separate integrals for each $\left(\begin{array}{cc}\gamma_{i1} \\\gamma_{i2}\end{array}\right)$, which share the common distribution dtermined by $G=\left(\begin{array}{cc}g_{11} & g_{12} \\g_{21} & g_{22}\end{array}\right)$.
+Thus, we must perform separate integrals for each $\left(\begin{array}{cc}\gamma_{i1} \\\gamma_{i2}\end{array}\right)$, which share the common distribution determined by $G=\left(\begin{array}{cc}g_{11} & g_{12} \\g_{21} & g_{22}\end{array}\right)$.
 
-Thus, we write the likelihood:
+Letting $n$ be the total number of countries and $n_i$ be the observed days of recorded cases in each country, we write the likelihood:
 
 $$L(\beta, G | y, \gamma)=\prod^{n}_{i=1}\bigg(\prod^{n_i}_{j=1}f(y_{ij}|\lambda_{ij})\bigg)\phi(\gamma_i | 0, G) = \prod^{n}_{i=1}\int\bigg[\bigg(\prod^{n_i}_{j=1}f(y_{ij}|\lambda_{ij})\bigg)\phi(\gamma_i|0,G)\bigg]d\gamma_i$$
 
-and the log-likelihood:
+and taking the log, we can write the log-likelihood:
 
 $$l(\beta, G | y, \gamma)=\sum^{n}_{i=1}log\bigg[\int\bigg[\bigg(\prod^{n_i}_{j=1}f(y_{ij}|\lambda_{ij})\bigg)\phi(\gamma_i|0,G)\bigg]d\gamma_i\bigg]$$
 
