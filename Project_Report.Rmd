@@ -125,7 +125,7 @@ kable(US, rnames = FALSE,
 
 
 # Packaging
-All functions needed to model and predict number of new cases of COVID-19 can be found in our R package, covid. Below is a description of each of these functions along with their code.
+All functions needed to model and predict number of new cases of COVID-19 can be found in our R package, covid. Below is a description of each of these functions along with their code. All functions have tests written for them and the packages past these tests using `test_package("covid")` from the `testthat` package.
 
 ## Metropolis Within Gibbs Random Walk
 
