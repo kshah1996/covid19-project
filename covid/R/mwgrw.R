@@ -190,6 +190,13 @@ mwgrw <- function(beta = NA, Sigma_gamma = NA, M=1000, Z=c(1,2), control=list(to
   library(stats)
   library(lme4)
   library(mvtnorm)
+  
+  if(!is_empty(Sigma_gamma) && ((nrow(Sigma_gamma) != nrow(Sigma_gamma)) || (nrow(Sigma_gamma) != length(Z))))
+    stop("Invalid Sigma_gamma dimension")
+  
+  if((M != floor(M)) || (M < 1))
+    stop("Invalid M")
+  
   # Read in data
   dat = covid2
   # Remove NA data
