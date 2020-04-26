@@ -14,9 +14,9 @@ mwgrw(
 )
 }
 \arguments{
-\item{beta}{An intial vector of length 6 to be the starting values of beta for the MCEM algorithm}
+\item{beta}{An intial vector of length 6 to be the starting values of beta for the MCEM algorithm. Default values avaliable.}
 
-\item{Sigma_gamma}{An intial matrix of size qxq, where q is the dimension of the random effects. Default random effects would require a 2x2 matrix.}
+\item{Sigma_gamma}{An intial matrix of size qxq, where q is the dimension of the random effects. Default values are 2x2. Default random effects would require a 2x2 matrix.}
 
 \item{M}{Chain length for each country in the MCEM algorithmn. Defaults to 1000.}
 
@@ -35,5 +35,5 @@ with a log link for COVID-19 data from the Johns Hopkins CSSE. Other data includ
 comes from the World Bank and the Global Health Secuiry Index. The response is the
 number of new cases, while the predictors include an intercept, time, time^2, GHS score,
 percentage of population over age 65, and percentage of population living in urban areas.
-Random effects can be adjust but is defaulted to intercept and time.
+Random effects can be adjusted but is defaulted to intercept and time.
 }
