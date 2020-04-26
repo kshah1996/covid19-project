@@ -1005,7 +1005,19 @@ Italy <- countrygraph("Italy", prediction = TRUE, Pred_Day = 8, glmer_results = 
 grid.arrange(US, China, SK, Italy, ncol = 2)
 ```
 
-To assess how well our model performed in prediction compared to the glmer package, we can calculate the MSE over all countries for our implementation of the model and the glmer package. We get
+The glmer model is generally a bit higher than our model but the fits are comparable. It seems that for the US the fit is acceptable for the 8 days. For China and South Korea, both countries have almost finished their curve, which leads to predictions being fairly accurate as they are near zero. We address the anomaly seen in the China graph on Feb 06, 2020 later. Aside from this specific date, the fits for South Korea and Italy seem off. This is due to the non-bell shaped nature of their curves and the sporadic changes in new case number. These break our assumptions for our model which causes the fits to be questionable. Overall, comparing the MSEs for predictions over all countries for both our model and the glmer model, our model has a MSE of about half that of glmer. Although, the outlier points and countries with bad fits can effect this number drastically.
+
+MCEM GLMM MSE for prediction in all countries:
+
+```{r warning=FALSE}
+mwgrwMSE(,FALSE)
+```
+
+`glmer` MSE for prediction in all countries:
+
+```{r warning=FALSE}
+mwgrwMSE(,TRUE)
+```
 
 ## *Machine Learning*
 
