@@ -313,6 +313,13 @@ e.step= function(y, X, Z, ID, betat, Sigma_gammat, M, n, ni, sampler, burn.in = 
 }
 
 mwgrw <- function(beta = NA, Sigma_gamma = NA, M=1000, Z=c(1,2), control=list(tol=10^-5,maxit=1000), verbose= TRUE){
+  
+  if(!is_empty(Sigma_gamma) && ((nrow(Sigma_gamma) != nrow(Sigma_gamma)) || (nrow(Sigma_gamma) != length(Z))))
+    stop("Invalid Sigma_gamma dimension")
+  
+  if((M != floor(M)) || (M < 1))
+    stop("Invalid M")
+  
   # Read in data
   dat = readRDS("dat2.rds")
   # Remove NA data
