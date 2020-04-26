@@ -327,6 +327,18 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
 ## Prophet
 ```{r}
 forecast <- function(country, data, numPred){
+  #ERROR CHECK#
+  #Check country is a string variable
+  if(class(country)!="character")
+    stop("'country' must be a character input")
+  #Check numPred is a numeric
+  if(class(numPred)!="numeric")
+    stop("'numPred' must be a numeric input")
+  #Check if country listed is in the given dataset
+  if ((country %in% unique(data$Country.Region))==FALSE)
+    stop("'country' not listed in dataset")
+  #________________________________________#
+  
   dat <- data[data$Country.Region == country, ]
   prophet_dat <- as.data.frame(dat$date)
   prophet_dat$y <- as.numeric(dat$total_cases)
