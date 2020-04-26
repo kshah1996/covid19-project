@@ -748,7 +748,7 @@ Function Inputs:
 * `Country_Name`: a character value written exactly as the country is listed in the dataset  
 * `Pred_Day`: The number of days the user wants to predict in the future
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE}
 library(randomForest)
 
 getRF <- function(Country_Name, Pred_Day = 8) {
@@ -1080,7 +1080,7 @@ grid.arrange(US, China, SK, Italy, ncol = 2)
 
 The glmer model is generally a bit higher than our model but the fits are comparable. It seems that for the US the fit is acceptable for the 8 days. For China and South Korea, both countries have almost finished their curve, which leads to predictions being fairly accurate as they are near zero. We address the anomaly seen in the China graph on Feb 06, 2020 later. Aside from this specific date, the fits for South Korea and Italy seem off. This is due to the non-bell shaped nature of their curves and the sporadic changes in new case number. These break our assumptions for our model which causes the fits to be questionable. Overall, comparing the MSEs for predictions over all countries for both our model and the glmer model, our model has a MSE of about half that of glmer. Although, the outlier points and countries with bad fits can effect this number drastically.
 
-MCEM GLMM MSE for prediction in all countries:
+MCEM GLMM MSE for prediction for the next 8 days in all countries:
 
 ```{r warning=FALSE}
 mwgrwMSE(,FALSE)
@@ -1105,7 +1105,7 @@ China     |  4216.611    | 4216.598
 
 ### *Random Forest*
 
-After running the random forest model, we observed that fits to the data and predictions were very inaccurate, especially for countries whose curves differed considerably from other countries.
+After running the random forest model, we observed that fits to the data and predictions were decent for some countries, and entirely inaccurate for others. The fit was dependent on how close the country's covariates were to the other countries with a similar trajectories. For outlier countries like the United States, for example, fitting was entirely inaccurate, let alone predictions. For other countries, such as Italy (or China and South Korea, which have finished their curves), fitting was decent. In any case, random forest clearly cannot extrapolate, as predictions past a certain date are simply a flat line, which will not be observed in reality. Random Forest therefore cannot be used for future prediction of time points outside the given data.
 
 ```{r, message=FALSE, warning=FALSE}
 p1 <- getRF("US", 8)
@@ -1157,7 +1157,7 @@ We see in general, the model fits fairly well if the country has not reached its
 
 #### MSE Calculation
 
-MSEs were calculated on a country by country bases for results with profet. Please note, the MSEs listed in the table below are for total number of cases and thus cannot be compared with the MSEs from the two methods reported previously. 
+MSEs were calculated on a country-by-country basis (for the next 8 days of predicton) with Prophet. Please note, the MSEs listed in the table below are for total number of cases and thus cannot be compared with the MSEs from the two methods reported previously. 
 
 ```{R, warning=F, message=F, echo=F}
 prophet_MSE <- function(country, forecast){
@@ -1186,18 +1186,23 @@ China     | `r China_mse_prophet`
 We see extremely large MSE values, especially for the US. This is somewhat surprising since the model seems to fit fairly well. However, it is important to note that since we are working on the scale of total cases, counts are very large and errors in under or over prediction compiles over time. This can lead to very large MSEs calculated for future predictions.
 
 
-
 # Discussion
 
 ## *Comparison of Methods*
 
-In this setting, a random forest modeling approach (and the majority of available machine learning approaches) is limited by its inability to handle correlated, longitudinal data.
+In this setting, a random forest modeling approach and the majority of available machine learning and time-series modeling approaches are limited by their inability to handle correlated, longitudinal data.
+
+### Random Forest vs. Poisson GLMM
 
 One key limitation of random forest for this dataset is the fact that countries with similar GHS scores and population structures still had vastly different disease curves and trajectories with respect to new COVID cases per day. It is nearly impossible to gather a collection of covariates that accounts for the differences in curve structure between every country. Whether such a set of covariates even exists is unlikely, let alone actually finding it. Therefore, without being able to predict for an individual country based off of its previous time points (as was the case with the longitudinal GLMM modeling approach), making country-specific predictions through a random forest model was unlikely to be fruitful.
 
 Additionally, although random forest's nonparametric modeling structure may seem promising here, we noticed that generally, the number of new cases for the majority of countries follows a bell-shaped curve with time, although with vastly different parameters that specify the curve. This situation is indeed well-suited for parametric statistical methods that limit each country's model to a specified distribution, while still allowing the parameters of that distribution to vary wildly. Extra assumptions that were needed for GLMM, in this case, were helpful, because they ensured, for example, that the predicted new cases for any single day is nonnegative. This rigidity resulted in extrapolations (future time points) at least being reasonable.
 
+### Prophet vs. Poisson GLMM
+
 On the other hand, our time-series modeling approach, Prophet, suffered from the opposite problem that random forest did. Unlike random forest struggling to incorporate a country's previous values into the modeling, Prophet could *only* use a country's previous time points to predict future time points, and was unable to incoroporate information from other countries' disease curves. Therefore, Prophet could only be used reliably on countries with a large amount of time points, making global predictions impossible.
+
+### Heuristic Argument for the GLMM Approach
 
 In one sense, the GLMM approach takes the best from both worlds: it allows for flexibility where it is needed (in variation amongst the country-specific parameters), while also remaining rigid in a way that leads to reasonable predictions (giving every country the same bell-curve shape, which is a valid assumption based on disease literature and is reflected in the COVID data so far). To make future predictions for time points outside the current dataset, fixing a bellcurve-type structure helps.
 
