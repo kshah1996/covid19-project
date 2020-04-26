@@ -1119,6 +1119,19 @@ grid.arrange(p1, p2, p3, p4, ncol=2)
 
 For example, for the United States, as plotted above, the random forest model highly overpredicts early on and underpredicts as the situation worsens. Whereas the GLMM fit for the US was quite accurate (even with the US being quite an outlier in terms of number of daily new cases) because it was prespecified to be a bell curve, random forest struggles because its estimates for the United States are biased towards the outcome of all countries with a similar `GHS_Score`, `AgeGEQ65`, and `UrbanPop`. 
 
+We now look at the MSE's for the random forest prediction compared to the next eight days of each country's data. 
+
+Country   |  Random Forest 
+--------- |  ------------------------
+US        | 354404787
+S. Korea  | 4729.271
+Italy     | 514311.1
+China     | 169765
+
+Clearly, the Poisson GLMM works much better for the US and South Korea, and China. For Italy, the random forest MSE is lower, but keep in mind that random forest makes the same, flat prediction for Italy for every day of the future, as shown in the grahps above. Therefore, although the RF model happened to have decent predictions for Italy for the next few days, predictions would not hold up for dates further out into the future.
+
+Also keep in mind that each country's MSE is not comparable with any other country's MSE, because the scale of the number of new cases is vastly different in each case.
+
 ### *Prophet Time-Series Modeling*
 
 To build individual models for each country, we wrote a function to determine both model and forecast which we will utilize below. 
