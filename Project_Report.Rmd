@@ -35,14 +35,14 @@ library(gridExtra)
 
 COVID-19 (Novel Coronavirus) is an infectious disease that was first identified in December 2019 in Wuhan, the capital city of Hubei province in the People's Republic of China. Since its discovery, it has currently spread to over 90% of countries in the world and has infected nearly 2,000,000 people.
 
-Despite movement restrictions put in place by most countries, the disease continues to spread, and new cases are documented daily. However, the lack of symptoms for many infected with coronavirus along with lack of widespread testing has made it nearly impossible to determine how many new cases of Coronavirus there actually are each day. This makes modeling the pandemic extremely difficult. 
+Despite movement restrictions put in place by most countries, the disease continues to spread, and new cases are documented daily. However, the lack of symptoms for many infected with Coronavirus along with lack of widespread testing has made it nearly impossible to determine how many new cases of Coronavirus there actually are each day. This makes modeling the pandemic extremely difficult. 
 
-Many experts have made excellent models and predictions that inspired us to create our own. We have seen some excellent country-specific, or even US state-specific models that attempt to predict the number of new or total cases. In the model we will describe below, we attempted to predict the number of new cases for a country based on that country's previous number of documented cases, global health security index, percentage of population over 65 years old, and percentage of the population living in an urban setting. 
+Many experts have made models and predictions that inspired us to create our own. We have seen some excellent country-specific, or even US state-specific models that attempt to predict the number of new or total cases. In the model we will describe below, we attempted to predict the number of new cases for a country based on that country's previous number of documented cases, global health security index, percentage of population over 65 years old, and percentage of the population living in an urban setting. 
 
 
 # Project Goal
 
-To predict the number of new cases of Covid-19 a country can expect on a chosen day given that country's previous number of recorded cases and a few measurable variables specific to that country that may affect the spread of the virus.
+To predict the number of new cases of COVID-19 a country can expect on a chosen day given that country's previous number of recorded cases and a few measurable variables specific to that country that may affect the spread of the virus.
 
 
 # Data
@@ -51,7 +51,7 @@ To predict the number of new cases of Covid-19 a country can expect on a chosen 
 
 ### Hopkins COVID-19 Data
 
-Our initial dataset comes from the Johns Hopkins CSSE, a team which has been refreshing the dataset daily during the ongoing COVID-19 crisis. The dataset includes coronavirus total cases, recoveries, active cases, and deaths per day by country, with information for certain regions given in more detail (e.g. US states). 
+Our initial dataset comes from the Johns Hopkins CSSE, a team which has been refreshing the dataset daily during the ongoing COVID-19 crisis. The dataset includes Coronavirus total cases, recoveries, active cases, and deaths per day by country, with information for certain regions given in more detail (e.g. US states). 
 
 For this project, the focus was confirmed cases. Dates from the original dataset wre standardized by relabeling the date at which a country passes 50 total cases as "Day 0", with every day past that used for modeling purposes. A variable for new cases was created by lagging over total cases. 
 
@@ -125,7 +125,7 @@ kable(US, rnames = FALSE,
 
 
 # Packaging
-All functions needed to model and predict number of new cases of COVID-19 can be found in our R package, covid. Below is a description of each of these functions along with their code. All functions have tests written for them and the packages past these tests using `test_package("covid")` from the `testthat` package.
+All functions needed to model and predict number of new cases of COVID-19 can be found in our R package, covid. Below is a description of each of these functions along with their code. All functions have tests written for them and the packages pasS these tests using `test_package("covid")` from the `testthat` package.
 
 ## Metropolis Within Gibbs Random Walk
 
@@ -619,6 +619,15 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
 ## Random Forest
 
 ## Prophet
+
+This function returns a list including a graph of the model and forecast as well as a dataframe that includes all previous data and forecasted predictions for the length of numPred. 
+
+Function Inputs:
+  
+* `country`: a character value written exactly as the country is listed in the dataset  
+* `data`: Any dataframe that includes country name, total cases, and the country's total population    
+* `numPred`: The number of days you want to predict in the future  
+
 ```{r}
 forecast <- function(country, data, numPred){
   #ERROR CHECK#
@@ -649,13 +658,8 @@ forecast <- function(country, data, numPred){
   return(list(plot, forecast))
 }
 ```
-This function has three inputs:
-  
-`country`: a character value written exactly as the country is listed in the dataset  
-`data`: Any dataframe that includes country name, total cases, and the country's total population    
-`numPred`: The number of days you want to predict in the future  
 
-The function returns a list including a graph of the model and forecast as well as a dataframe that includes all previous data and forecasted predictions for the length of numPred. 
+
 
 # Methods
 
@@ -815,13 +819,13 @@ Therefore, although country-specific random effects could not be incorporated, a
 
 ### Prophet
 
-Additionally, we decided to consider a time-series modeling method called Prophet to further answer our scientific question of predicting new cases in future days. Prophet was originally developed by Facebook Research and is available in packages for both R and Python. The method was built for building time-series predictions for business forecasting problems, but we believe it may be used to predict future cases of Covid-19. Note, this method can only be used to model cases for one country at a time.
+Additionally, we decided to consider a time-series modeling method called Prophet to further answer our scientific question of predicting new cases in future days. Prophet was originally developed by Facebook Research and is available in packages for both R and Python. The method was built for building time-series predictions for business forecasting problems, but we believe it may be used to predict future cases of COVID-19. Note, this method can only be used to model cases for one country at a time.
 
 Prophet is based in a decomposable time series model as follows: 
 $$y(t) = g(t) + s(t) + h(t) +\epsilon_t$$
 $y(t)$ ~ total cases, $g(t)$ ~ non-periodic changes, $s(t)$~periodic changes (such as weekly or yearly), $h(t)$~holiday effects, $\epsilon_t$~$N(0,\sigma^2)$
 
-While the method allows for seasonal and holiday effects, we do not include such in our model as we do not believe it applies to Covid-19 cases. 
+While the method allows for seasonal and holiday effects, we do not include such in our model as we do not believe it applies to COVID-19 cases. 
 
 We utilized a logistic growth model, which has the following form: 
 $$g(t) = \frac{C(t)}{1 + \exp(-k(t-m))}$$ Where $C(t)$ is a function for the carrying capacity, $k(t)$ is the growth rate, and $m$ is an offset parameter. In typical time series models, C and k are constants, but an advantage of Prophet is allowing these to vary with time.
