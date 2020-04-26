@@ -47,6 +47,7 @@ mwgrwMSE <- function(country_name = NULL, glmer_MSE = FALSE){
   
   MSE <- 0
   if(is_empty(country_name)){
+    # All country MSE
     for(i in 1:99){
       country = i
       country_name = order[i]
@@ -85,6 +86,7 @@ mwgrwMSE <- function(country_name = NULL, glmer_MSE = FALSE){
     MSE <- MSE/(length(order)*8)
     return(MSE)
   }else{
+    # Specific country MSE
     country = which(order==country_name)
     ran_glmer <- c((ranef(glmm1)$Country.Region[country,])[[1]],(ranef(glmm1)$Country.Region[country,])[[2]],0,0,0,0)
     ran_mwg <- c(mean(gamma2[((country-1)*M+1):(country*M),1]),mean(gamma2[((country-1)*M+1):(country*M),2]),0,0,0,0)
