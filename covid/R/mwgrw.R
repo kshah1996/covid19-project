@@ -186,6 +186,10 @@ e.step= function(y, X, Z, ID, betat, Sigma_gammat, M, n, ni, sampler, burn.in = 
 #' 
 #' @export
 mwgrw <- function(beta = NA, Sigma_gamma = NA, M=1000, Z=c(1,2), control=list(tol=10^-5,maxit=1000), verbose= TRUE){
+  library(tidyverse)
+  library(stats)
+  library(lme4)
+  library(mvtnorm)
   # Read in data
   dat = covid2
   # Remove NA data

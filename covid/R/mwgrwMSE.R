@@ -15,7 +15,10 @@
 #' 
 #' @export
 mwgrwMSE <- function(country_name = NULL, glmer_MSE = FALSE){
-
+  library(tidyverse)
+  library(stats)
+  library(lme4)
+  library(mvtnorm)
   ## more data processing
   dat = covid2
   # remove na data

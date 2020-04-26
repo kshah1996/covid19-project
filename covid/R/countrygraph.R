@@ -26,7 +26,10 @@
 #' 
 #' @export
 countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_results = FALSE){
-  
+  library(tidyverse)
+  library(stats)
+  library(lme4)
+  library(mvtnorm)
   #ERROR CHECK#
   
   #Check Country_Name is a character
@@ -43,7 +46,7 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
   #FUNCTION#
   # Read in data
   dat = covid2
-  library(tidyverse)
+
   # Remove NA data
   dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
   
