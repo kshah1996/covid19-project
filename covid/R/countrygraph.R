@@ -1,17 +1,19 @@
 #' Generation of a graph for any country's number of new COVID-19 cases overlayed with Generalized Linear Mixed Model
 #' 
-#' This function creates a graph for user specified country that displays number of new cases
-#' of COVID-19 from their baseline day of 50 cases confirmed until April 3, 2020 in red.
-#' An option to generate the predictions for the next 8 days is present as well.
-#' Generalized Linear Mixed Model is graphed over the same period to show accuracy of 
+#' This function creates a graph for user specified country that displays (in black) observed number of new cases
+#' of COVID-19 from their baseline day of 50 cases confirmed until April 3, 2020.
+#' The Poisson Generalized Linear Mixed Model is graphed over the same period (in red) to show accuracy of 
 #' model in explaining number of new cases for that country.
+#' By specifiying glmer_results=TRUE, the glmer results are also graphed over the same period (in blue).
+#' An option to generate the predictions for the next 8 days is present as well. If set to true, predictions will be displayed as
+#' a dotted line extension of the GLMM (red) or glmer (blue) curves.
 #' 
 #' @param Country_Name A character input corresponding to the country being graphed
 #' @param prediction A boolean input to generate the predictions over the next 8 days
-#' @param Pred_Day A specified number of Days past April 3rd the user wants to predict. Default is 8 days; only used with prediction is TRUE
+#' @param Pred_Day A specified number of days past April 3rd the user wants to predict. Default is 8 days; only used when prediction is set to TRUE
 #' @param glmer_results A boolean input to display results from glmer in blue
 #' 
-#' @return A graph displaying the number of new cases for specified country in black and the GLMM model of new cases in red if prediction is specified as true, the dotted lines are the predictions.
+#' @return A graph displaying the number of new cases for specified country in black and the GLMM model of new cases in red, with a dotted extension if prediction is specified as true. GLMER graphed in blue if set to TRUE.
 #' 
 #' @examples 
 #' 
