@@ -736,7 +736,7 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
 
 ## Prophet
 
-This function returns a list including a graph of the model and forecast as well as a dataframe that includes all previous data and forecasted predictions for the length of numPred. 
+`forecast` returns a list including a graph of the model and forecast as well as a dataframe that includes all previous data and forecasted predictions for the length of numPred. 
 
 Function Inputs:
   
