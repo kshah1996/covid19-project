@@ -32,6 +32,6 @@ is not already installed use this URL: 'https://cran.r-project.org/src/contrib/A
 \examples{
 
 forecast("US", covid3, 7)
-forecast("Korea, S", covid3, 7)
+forecast("Korea, South", covid3, 7)
 
 }
