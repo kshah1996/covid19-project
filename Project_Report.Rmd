@@ -1006,110 +1006,6 @@ grid.arrange(US, China, SK, Italy, ncol = 2)
 ```
 
 To assess how well our model performed in prediction compared to the glmer package, we can calculate the MSE over all countries for our implementation of the model and the glmer package. We get
-```{r echo=FALSE , warning=FALSE, message=FALSE}
-## more data processing
-dat = readRDS("dat2.rds")
-# remove na data
-dat <- dat %>% mutate(day2 = day^2) %>% drop_na(GHS_Score) %>% drop_na(AgeGEQ65) %>% drop_na(UrbanPop)
-# modify china new_cases day 0 since it was NA previously
-dat[402,5]=548
-dat$ID <- dat %>% group_indices(Country.Region)
-
-for (i in 1:max(dat$ID)) {
-  if (sum(dat$ID==i) < 5) {
-    dat<- dat[!(dat$ID==i),]
-  }
-}
-
-dat$ID <- dat %>% group_indices(Country.Region)
-
-# unique country list
-order = unique(dat$Country.Region)
-
-glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + UrbanPop + (day | Country.Region), data = dat, family = poisson)
-fix_glmer <- fixef(glmm1)
-
-gamma <- read.table("longleaf/glmm_mwg_rw_gamma_1.txt", header = F, skip = 1)
-gamma2 <- as.matrix(gamma[,2:3])
-M <- 1000
-fix_mwg <- c(0.844,0.202,-0.005,0.028,0.010,-0.001)
-
-MSE <- 0
-
-for(i in 1:99){
-  country = i
-  country_name = order[i]
-  
-  ran_glmer <- c((ranef(glmm1)$Country.Region[country,])[[1]],(ranef(glmm1)$Country.Region[country,])[[2]],0,0,0,0)
-  ran_mwg <- c(mean(gamma2[((country-1)*M+1):(country*M),1]),mean(gamma2[((country-1)*M+1):(country*M),2]),0,0,0,0)
-  coef_glmer <- fix_glmer + ran_glmer
-  coef_mwg <- fix_mwg + ran_mwg
-  
-  dat2 <- dat %>% filter(Country.Region==country_name)
-  
-  tday = dim(dat2)[1]+8
-  tdayp = tday-7
-  GHS_Score <- ((dat %>% filter(Country.Region==country_name))[1,])$GHS_Score
-  AgeGEQ65 <- ((dat %>% filter(Country.Region==country_name))[1,])$AgeGEQ65
-  UrbanPop <- ((dat %>% filter(Country.Region==country_name))[1,])$UrbanPop
-  pred <- tibble(int=rep(1,tday)) %>% 
-    add_column(day=(1:tday)) %>% 
-    add_column(day2=(1:tday)^2)%>% 
-    add_column(GHS_Score=rep(GHS_Score,tday))%>% 
-    add_column(AgeGEQ65=rep(AgeGEQ65,tday))%>% 
-    add_column(UrbanPop=rep(UrbanPop,tday))
-  pred <- pred %>%
-    mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop)) %>% 
-    mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
-  newdat = readRDS("dat.rds")
-  newdat = newdat %>% filter(Country.Region==country_name)
-  
-  MSE <- MSE + sum((pred[tdayp:tday,]$model_glmer-newdat[tdayp:tday,]$new_cases)^2)
-}
-MSE <- MSE/(99*8)
-
-MSE2 <- 0
-
-for(i in 1:99){
-  country = i
-  country_name = order[i]
-  
-  ran_glmer <- c((ranef(glmm1)$Country.Region[country,])[[1]],(ranef(glmm1)$Country.Region[country,])[[2]],0,0,0,0)
-  ran_mwg <- c(mean(gamma2[((country-1)*M+1):(country*M),1]),mean(gamma2[((country-1)*M+1):(country*M),2]),0,0,0,0)
-  coef_glmer <- fix_glmer + ran_glmer
-  coef_mwg <- fix_mwg + ran_mwg
-  
-  dat2 <- dat %>% filter(Country.Region==country_name)
-  
-  tday = dim(dat2)[1]+8
-  tdayp = tday-7
-  GHS_Score <- ((dat %>% filter(Country.Region==country_name))[1,])$GHS_Score
-  AgeGEQ65 <- ((dat %>% filter(Country.Region==country_name))[1,])$AgeGEQ65
-  UrbanPop <- ((dat %>% filter(Country.Region==country_name))[1,])$UrbanPop
-  pred <- tibble(int=rep(1,tday)) %>% 
-    add_column(day=(1:tday)) %>% 
-    add_column(day2=(1:tday)^2)%>% 
-    add_column(GHS_Score=rep(GHS_Score,tday))%>% 
-    add_column(AgeGEQ65=rep(AgeGEQ65,tday))%>% 
-    add_column(UrbanPop=rep(UrbanPop,tday))
-  pred <- pred %>%
-    mutate(model_glmer=exp(coef_glmer[1]+coef_glmer[2]*day+coef_glmer[3]*day^2+coef_glmer[4]*GHS_Score+coef_glmer[5]*AgeGEQ65+coef_glmer[6]*UrbanPop)) %>% 
-    mutate(model_mwg=exp(coef_mwg[1]+coef_mwg[2]*day+coef_mwg[3]*day^2+coef_mwg[4]*GHS_Score+coef_mwg[5]*AgeGEQ65+coef_mwg[6]*UrbanPop))
-  newdat = readRDS("dat.rds")
-  newdat = newdat %>% filter(Country.Region==country_name)
-  
-  MSE2 <- MSE2 + sum((pred[tdayp:tday,]$model_mwg-newdat[tdayp:tday,]$new_cases)^2)
-}
-MSE2 <- MSE2/(99*8)
-```
-
-```{r}
-## glmer MSE
-MSE
-## Our model MSE
-MSE2
-```
-
 
 ## *Machine Learning*
 
@@ -1227,12 +1123,12 @@ China_mse_prophet <- prophet_MSE("China", China)
 __I added this table here to better display all the MSEs. I figured we could move to later in the discussion if preferred. __
 
 
-Country   | Poisson GLMM | GLMER  |  Random Forest  |  Prophet 
---------- | ------------ | ------ |--------------   |  ------------------------
-US        |              |        |                 | `r US_mse_prophet`
-S. Korea  |              |        |                 |  `r SKorea_mse_prophet`
-Italy     |              |        |                 |`r Italy_mse_prophet`
-China     |              |        |                 | `r China_mse_prophet`
+Country   | Poisson GLMM | GLMER    |  Random Forest  |  Prophet 
+--------- | ------------ | -------- |--------------   |  ------------------------
+US        |  6410718     | 90351421 |                 | `r US_mse_prophet`
+S. Korea  |  3047.854    | 3002.723 |                 |  `r SKorea_mse_prophet`
+Italy     |  6379592     | 4284941  |                 |`r Italy_mse_prophet`
+China     |  4216.611    | 4216.598 |                 | `r China_mse_prophet`
 
 
 
