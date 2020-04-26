@@ -786,7 +786,7 @@ getRF <- function(Country_Name, Pred_Day = 8) {
   prediction_df$pred <- predict(rf1, prediction_df)
   prediction_df$new_cases <- c(dat2_rf_preds_country$new_cases, rep(NA, Pred_Day))
   
-  # Obtain MSE
+  # Obtain MSE for next 8 days of data
   prediction_df$se <- (prediction_df$new_cases - prediction_df$pred)^2
   MSE <- sum(prediction_df$se[1:nrow(dat2_rf_preds_country)])
   
