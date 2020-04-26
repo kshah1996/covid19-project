@@ -172,10 +172,10 @@ e.step= function(y, X, Z, ID, betat, Sigma_gammat, M, n, ni, sampler, burn.in = 
 #' comes from the World Bank and the Global Health Secuiry Index. The response is the
 #' number of new cases, while the predictors include an intercept, time, time^2, GHS score,
 #' percentage of population over age 65, and percentage of population living in urban areas.
-#' Random effects can be adjust but is defaulted to intercept and time.
+#' Random effects can be adjusted but is defaulted to intercept and time.
 #' 
-#' @param beta An intial vector of length 6 to be the starting values of beta for the MCEM algorithm
-#' @param Sigma_gamma An intial matrix of size qxq, where q is the dimension of the random effects. Default random effects would require a 2x2 matrix.
+#' @param beta An intial vector of length 6 to be the starting values of beta for the MCEM algorithm. Default values avaliable.
+#' @param Sigma_gamma An intial matrix of size qxq, where q is the dimension of the random effects. Default values are 2x2. Default random effects would require a 2x2 matrix.
 #' @param M Chain length for each country in the MCEM algorithmn. Defaults to 1000.
 #' @param Z A vector that contains the subset of columns of X to be random effects. Defaults to intercept and time only.
 #' @param control A list of control parameters for the MCEM algorithm. tol is the convergence tolerance, and maxit is the maximum number of iterations
