@@ -922,7 +922,7 @@ So, in our model, $\gamma_{i1}$ is the deviation of the $i^{th}$ country from th
 
 As in all GLMMs, the random effects are unobservable. Therefore, in order to obtain the likelihood, we must integrate them out.
 
-Thus, we must perform separate integrals for each $\left(\begin{array}{cc}\gamma_{i1} \\\gamma_{i2}\end{array}\right)$, which share the common distribution determined by $G=\left(\begin{array}{cc}g_{11} & g_{12} \\g_{21} & g_{22}\end{array}\right)$.
+Thus, we must perform separate integrals for each $\left(\begin{array}{cc}\gamma_{i1} \\\gamma_{i2}\end{array}\right)$, which share the covariance matrix determined by $G=\left(\begin{array}{cc}g_{11} & g_{12} \\g_{21} & g_{22}\end{array}\right)$.
 
 Letting $n$ be the total number of countries and $n_i$ be the observed days of recorded cases in each country, we write the likelihood:
 
