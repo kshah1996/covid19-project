@@ -1085,6 +1085,15 @@ mwgrwMSE(,FALSE)
 mwgrwMSE(,TRUE)
 ```
 
+MSEs for prediction in a select few countries:
+
+Country   | Poisson GLMM | GLMER    
+--------- | ------------ | -------- 
+US        |  6410718     | 90351421 
+S. Korea  |  3047.854    | 3002.723 
+Italy     |  6379592     | 4284941  
+China     |  4216.611    | 4216.598 
+
 ## *Machine Learning*
 
 ### *Random Forest*
