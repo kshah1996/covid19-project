@@ -125,11 +125,11 @@ kable(US, rnames = FALSE,
 
 
 # Packaging
-All functions needed to model and predict number of new cases of COVID-19 can be found in our R package, covid. Below is a description of each of these functions along with their code. All functions have tests written for them and the packages pasS these tests using `test_package("covid")` from the `testthat` package. Methodology behind the creation of these functions will be explained in detail in following sections.
+All functions needed to model and predict number of new cases of COVID-19 can be found in our R package: `covid`. Below is a description of each of these functions along with their code. All functions have tests written for them and the packages pass these tests using `test_package("covid")` from the `testthat` package. Methodology behind the creation of these functions will be explained in detail in following sections.
 
 ## *Metropolis Within Gibbs Random Walk*
 
-`mwgrw` computes the estimates of a Poisson generalized linear mixed model with a log link for COVID-19 data from the CSSE at Johns Hopkins. Other data included comes from the World Bank and the Global Health Secuiry Index. The response is the number of new cases, while the predictors include an intercept, time, time$^2$, GHS score, percentage of population over age 65, and percentage of population living in urban areas. Random effects can be adjusted but is defaulted to intercept and time (Helper functions provided as well).
+`mwgrw` computes the estimates of a Poisson generalized linear mixed model with a log link for COVID-19 data from the CSSE at Johns Hopkins. Other data included comes from the World Bank and the Global Health Security Index. The response is the number of new cases, while the predictors include terms for intercept, time, time$^2$, GHS score, percentage of population over age 65, and percentage of population living in urban areas. Random effects can be adjusted but is defaulted to intercept and time (Helper functions provided as well).
 
 Function Inputs:
 
@@ -741,7 +741,7 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
 
 ## *Random Forest*
 
-`getRF` returns a graph of the random forest model and predictions specified by the user.
+`getRF` returns a graph of the random forest model and predictions for the number of days specified by the user.
 
 Function Inputs:
   
@@ -1108,7 +1108,7 @@ China     |  4216.611    | 4216.598
 
 ### *Random Forest*
 
-After running the random forest model, we observed that fits to the data and predictions were decent for some countries, and entirely inaccurate for others. The fit was dependent on how close the country's covariates were to the other countries with a similar trajectories. For outlier countries like the United States, for example, fitting was entirely inaccurate, let alone predictions. For other countries, such as Italy (or China and South Korea, which have finished their curves), fitting was decent. In any case, random forest clearly cannot extrapolate, as predictions past a certain date are simply a flat line, which will not be observed in reality. Random Forest therefore cannot be used for future prediction of time points outside the given data.
+After running the random forest model, we observed that fits to the data and predictions were decent for some countries, and entirely inaccurate for others. The fit was dependent on how close the country's covariates were to the other countries with a similar trajectories. For outlier countries like the United States, for example, fitting was entirely inaccurate, let alone predictions. For other countries, such as Italy (or China and South Korea, which have finished their curves), fitting was decent. In both cases, however, random forest clearly cannot extrapolate, as predictions past a certain date are simply a flat line, which will not be observed in reality. Random Forest therefore cannot be used for future prediction of time points outside the given data.
 
 ```{r, message=FALSE, warning=FALSE}
 p1 <- getRF("US", 8)
@@ -1120,7 +1120,7 @@ grid.arrange(p1, p2, p3, p4, ncol=2)
 ```
 
 
-For example, for the United States, as plotted above, the random forest model highly overpredicts early on and underpredicts as the situation worsens, whereas the GLMM fit for the US was quite accurate (even with the US being somewhat of an outlier in terms of number of daily new cases). Because it was prespecified to be a bell curve, random forest struggles because its estimates for the United States are biased towards the outcome of all countries with a similar `GHS_Score`, `AgeGEQ65`, and `UrbanPop`. 
+For example, for the United States, as plotted above, the random forest model highly overpredicts early on and underpredicts as the situation worsens, whereas the GLMM fit for the US was quite accurate (even with the US being an outlier in terms of number of daily new cases) because it was prespecified to be a bell curve. On the other hand, random forest struggles because its estimates for the United States are biased towards the outcome of all countries with a similar `GHS_Score`, `AgeGEQ65`, and `UrbanPop`. 
 
 #### MSE Calculation
 
@@ -1158,7 +1158,7 @@ China <- forecast("China", dat_limit, 8)
 grid.arrange(US[[1]], SouthKorea[[1]], Italy[[1]], China[[1]], ncol=2)
 ```
 
-We see, in general, the model fits fairly well if the country has not reached its inflection point. You can see this from the graphs for the US and Italy. However, if the country has been effective at flattening the curve, such as China and South Korea, the method can not properly capture the inflection point nor make accurate forecasts for future cases.  
+We see, in general, the model fits fairly well if the country has not reached its inflection point. You can see this from the graphs for the US and Italy. However, if the country has been effective at flattening the curve, such as China and South Korea, the method can not properly capture the inflection point nor make accurate forecasts for future cases. Additionally, the exponential growth fit cannot be used for future predictions past a certain time point because each country's curve is bound to flatten eventually.
 
 #### MSE Calculation
 
@@ -1183,12 +1183,12 @@ China_mse_prophet <- prophet_MSE("China", China)
 
 Country   |  Prophet 
 --------- |  ------------------------
-US        | `r US_mse_prophet`
-S. Korea  |  `r SKorea_mse_prophet`
-Italy     |`r Italy_mse_prophet`
-China     | `r China_mse_prophet`
+US        | `r format(US_mse_prophet,scientific=F)`
+S. Korea  |  `r format(SKorea_mse_prophet, scientific = F)`
+Italy     |`r format(Italy_mse_prophet, scientific = F)`
+China     | `r format(China_mse_prophet, scientific = F)`
 
-We see extremely large MSE values, especially for the US. This is somewhat surprising since the model seems to fit fairly well. However, it is important to note that since we are working on the scale of total cases, counts are very large and errors in under or over prediction compiles over time. This can lead to very large MSEs calculated for future predictions.
+We see extremely large MSE values, especially for the US. This is somewhat surprising since the model seems to fit fairly well. However, it is important to note that since we are working on the scale of total cases, counts are very large and errors in under or over prediction compile over time. This can lead to very large MSEs calculated for future predictions.
 
 
 # Discussion
