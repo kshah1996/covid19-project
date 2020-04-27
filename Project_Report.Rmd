@@ -143,7 +143,7 @@ Function Inputs:
 
 * `control`: A list of control parameters for the MCEM algorithm. tol is the convergence tolerance, and maxit is the maximum number of iterations
 
-* `verbose`: A boolean indicating if output should be printed at each iteration
+* `verbose`: A Boolean indicating if output should be printed at each iteration
 
 ```{r, warning=FALSE, message=FALSE}
 # Helper functions for MWGRW
@@ -436,7 +436,7 @@ Function Inputs:
 
 * `country_name`: A character input corresponding to the country, if left empty the function will calculate the MSE for all countries together
 
-* `glmer_MSE`: A boolean determining if the MSE should be calculated for the MCEM GLMM or the glmer function
+* `glmer_MSE`: A Boolean determining if the MSE should be calculated for the MCEM GLMM or the glmer function
 
 ```{r, warning=FALSE, message=FALSE}
 mwgrwMSE <- function(country_name = NULL, glmer_MSE = FALSE){
@@ -554,11 +554,11 @@ Function Inputs:
 
 * `Country_Name`: A character input corresponding to the country being graphed
 
-* `prediction`: A boolean input to generate the predictions over the next 8 days
+* `prediction`: A Boolean input to generate the predictions over the next 8 days
 
 * `Pred_Day`: A specified number of days past April 3rd the user wants to predict. Default is 8 days; only used when prediction is set to TRUE
 
-* `glmer_results`: A boolean input to display results from glmer in blue
+* `glmer_results`: A Boolean input to display results from glmer in blue
 
 
 ```{r, warning=FALSE, message=FALSE}
@@ -809,12 +809,12 @@ getRF <- function(Country_Name, Pred_Day = 8) {
 
 ## *Prophet*
 
-`forecast` returns a list including a graph of the model and forecast as well as a dataframe that includes all previous data and forecasted predictions for the length of numPred. 
+`forecast` returns a list including a graph of the model and forecast as well as a data frame that includes all previous data and forecasted predictions for the length of `numPred`. 
 
 Function Inputs:
   
 * `country`: a character value written exactly as the country is listed in the dataset  
-* `data`: Any dataframe that includes country name, total cases, and the country's total population    
+* `data`: Any data frame that includes country name, total cases, and the country's total population    
 * `numPred`: The number of days you want to predict in the future  
 
 ```{r}
@@ -964,7 +964,7 @@ Q(\theta|\theta^{(t)})&=E[l_c(\theta)|\theta^{(t)}]\\
 &=\sum^{n}_{i=1}\bigg[\int\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ij}^{(t)}))+log(\phi(\gamma_i|0,G^{(t)}))\bigg]f(\gamma_i|\beta^{(t)},G^{(t)})d\gamma_i\bigg]
 \end{align}
 
-where $\lambda_{ij}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\gamma_{i}}$. If we could sample from the posterior distribution of $\gamma_i$ we could approximate this intergral through a MC approach.
+where $\lambda_{ij}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\gamma_{i}}$. If we could sample from the posterior distribution of $\gamma_i$ we could approximate this integral through a MC approach.
 
 \begin{align}
 Q(\theta|\theta^{(t)})&=\frac{1}{M}\sum^{n}_{i=1}\bigg[\sum^{M}_{k=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ijk}^{(t)}))+log(\phi(\Gamma_{ik}|0,G^{(t)}))\bigg]\bigg]\\
@@ -1016,7 +1016,7 @@ $y(t)$ ~ total cases, $g(t)$ ~ non-periodic changes, $s(t)$ ~ periodic changes (
 While the method allows for seasonal and holiday effects, we did not include these in our model as we do not believe they apply to COVID-19 cases. 
 
 We utilized a logistic growth model, which has the following form: 
-$$g(t) = \frac{C(t)}{1 + \exp(-k(t-m))}$$ Where $C(t)$ is a function for the carrying capacity, $k(t)$ is the growth rate, and $m$ is an offset parameter. In typical time series models,$C$ and $k$ are constants, but an advantage of Prophet is allowing these to vary with time.
+$$g(t) = \frac{C(t)}{1 + \exp(-k(t-m))}$$ Where $C(t)$ is a function for the carrying capacity, $k(t)$ is the growth rate, and $m$ is an offset parameter. In typical time series models, $C$ and $k$ are constants, but an advantage of Prophet is allowing these to vary with time.
 
 Prophet utilizes *L-BFGS* to determine parameter estimates. 
 
@@ -1024,7 +1024,7 @@ Prophet utilizes *L-BFGS* to determine parameter estimates.
 
 ## *Poisson GLMM*
 
-Running the model we have on the dataset lead to parameter estimates as follows *(code not explicity ran here, it was ran on the cluster)*.
+Running the model we have on the dataset lead to parameter estimates as follows *(code not explicitly ran here, it was ran on the cluster)*.
 
 ```{r eval=FALSE}
 mwgrw(beta = NA, Sigma_gamma = NA, M=1000, Z=c(1,2), control=list(tol=10^-5,maxit=1000), verbose= TRUE)
