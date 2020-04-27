@@ -51,9 +51,9 @@ To predict the number of new cases of COVID-19 a country can expect on a chosen 
 
 ### Hopkins COVID-19 Data
 
-Our initial dataset comes from the Johns Hopkins CSSE, a team which has been refreshing the dataset daily during the ongoing COVID-19 crisis. The dataset includes Coronavirus total cases, recoveries, active cases, and deaths per day by country, with information for certain regions given in more detail (e.g. US states). 
+Our initial dataset comes from the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University, a team which has been refreshing the dataset daily during the ongoing COVID-19 crisis. The dataset includes Coronavirus total cases, recoveries, active cases, and deaths per day by country, with information for certain regions given in more detail (e.g. US states). 
 
-For this project, the focus was confirmed cases. Dates from the original dataset wre standardized by relabeling the date at which a country passes 50 total cases as "Day 0", with every day past that used for modeling purposes. A variable for new cases was created by lagging over total cases. 
+For this project, the focus was confirmed cases. Dates from the original dataset were standardized by relabeling the date at which a country passes 50 total cases as "Day 0", with every day past that used for modeling purposes. A variable for new cases was created by lagging over total cases. 
 
 ### World Bank Data
 According to the CDC, "older adults and people who have severe underlying medical conditions like heart or lung disease or diabetes seem to be at higher risk for developing more serious complications from COVID-19 illness." 
@@ -65,7 +65,7 @@ We found these percentages from a World Bank dataset, last updated in 2019, that
 
 ### Global Health Security Index Data
 
-The Global Health Security (GHS) Index is a comprehensive assessment of a country's health security capabilities. Countries receive an ovreall score as well as individual scores for each of the 6 categories:
+The Global Health Security (GHS) Index is a comprehensive assessment of a country's health security capabilities. Countries receive an overall score as well as individual scores for each of the 6 categories:
 
 <p align="center">
 <img width="600" src="ghs image.png">
@@ -93,7 +93,7 @@ For this project, we have included a country's overall GHS Index as a covariate 
 
 ## *Data Processing*
 
-The Hopkins and GHS Index data were combined so that along with each country's case counts, we could use GHS Score, urban population percentage, and percentage of population older than 65. For project, the aforementioend variables were used along with country, day and number of new cases. 
+The Hopkins, World Bank, and GHS Index data were combined so that, along with each country's case counts, we could use GHS Score, urban population percentage, and percentage of population older than 65. For our project, the aforementioend variables were used along with country, day and number of new cases. 
 
 ## *Finalized Data*
 
@@ -125,11 +125,11 @@ kable(US, rnames = FALSE,
 
 
 # Packaging
-All functions needed to model and predict number of new cases of COVID-19 can be found in our R package, covid. Below is a description of each of these functions along with their code. All functions have tests written for them and the packages pasS these tests using `test_package("covid")` from the `testthat` package.
+All functions needed to model and predict number of new cases of COVID-19 can be found in our R package, covid. Below is a description of each of these functions along with their code. All functions have tests written for them and the packages pasS these tests using `test_package("covid")` from the `testthat` package. Methodology behind the creation of these functions will be explained in detail in following sections.
 
-## Metropolis Within Gibbs Random Walk
+## *Metropolis Within Gibbs Random Walk*
 
-`mwgrw` computes the estimates of a Poisson generalized linear mixed model with a log link for COVID-19 data from the Johns Hopkins CSSE. Other data included comes from the World Bank and the Global Health Secuiry Index. The response is the number of new cases, while the predictors include an intercept, time, time$^2$, GHS score, percentage of population over age 65, and percentage of population living in urban areas. Random effects can be adjusted but is defaulted to intercept and time (Helper functions provided as well).
+`mwgrw` computes the estimates of a Poisson generalized linear mixed model with a log link for COVID-19 data from the CSSE at Johns Hopkins. Other data included comes from the World Bank and the Global Health Secuiry Index. The response is the number of new cases, while the predictors include an intercept, time, time$^2$, GHS score, percentage of population over age 65, and percentage of population living in urban areas. Random effects can be adjusted but is defaulted to intercept and time (Helper functions provided as well).
 
 Function Inputs:
 
@@ -430,7 +430,7 @@ mwgrw <- function(beta = NA, Sigma_gamma = NA, M=1000, Z=c(1,2), control=list(to
 }
 ```
 
-`mwgrwMSE` calculates the MSE for a specific country or every country based on their predictions for the 8 days following April, 03, 2020.
+`mwgrwMSE` calculates the MSE for a specific country or every country based on their predictions for the 8 days following April 03, 2020.
 
 Function Inputs:
 
@@ -546,7 +546,7 @@ mwgrwMSE <- function(country_name = NULL, glmer_MSE = FALSE){
 
 }
 ```
-## Graph a Country
+## *Graph a Country*
 
 `countrygraph` creates a graph for user specified country that displays (in black) observed number of new cases of COVID-19 from their baseline day of 50 cases confirmed until April 3, 2020. The Poisson Generalized Linear Mixed Model is graphed over the same period (in red) to show accuracy of model in explaining number of new cases for that country. By specifiying glmer_results=TRUE, the glmer results are also graphed over the same period (in blue). An option to generate the predictions for the next 8 days is present as well. If set to true, predictions will be displayed as a dotted line extension of the GLMM (red) and glmer (blue) curves.
 
@@ -739,7 +739,7 @@ countrygraph <- function(Country_Name, prediction = FALSE, Pred_Day=NULL, glmer_
 }
 ```
 
-## Random Forest
+## *Random Forest*
 
 `getRF` returns a graph of the random forest model and predictions specified by the user.
 
@@ -807,7 +807,7 @@ getRF <- function(Country_Name, Pred_Day = 8) {
 ```
 
 
-## Prophet
+## *Prophet*
 
 `forecast` returns a list including a graph of the model and forecast as well as a dataframe that includes all previous data and forecasted predictions for the length of numPred. 
 
@@ -918,9 +918,9 @@ We found this fit the number of new cases quite well for many countries, with so
 ## *Poisson GLMM*
 
 ### Model Creation
-We let $y_{ij}$ be the number of new cases country $i$ has on day $j$ and assumed each $y_{ij} \sim Poisson(\lambda_{ij})$, where the mean and variance of $y_{ij}$ is assumed to be some $\lambda_{ij}$
+We let $y_{ij}$ be the number of new cases country $i$ has on day $j$ and assumed each $y_{ij} \sim Poisson(\lambda_{ij})$, where the mean and variance of $y_{ij}$ is assumed to be some $\lambda_{ij}$.
 
-Our model includes an intercept, covariates for time and time squared, and covariates for Global Health Security index, proportion of the population 65 or older, and proportion of population living in an urban setting. Thus, the covariate vector pertaining to the $i^{th}$ countrh in the $j^{th}$ month is defined as $x_{ij} = (1, t_{ij}, t^2_{ij}, GHS, AgeGEQ65, UrbanPop)$.
+Our model includes an intercept, covariates for time and time squared, and covariates for Global Health Security index, proportion of the population 65 or older, and proportion of population living in an urban setting. Thus, the covariate vector pertaining to the $i^{th}$ country in the $j^{th}$ month is defined as $x_{ij} = (1, t_{ij}, t^2_{ij}, GHS, AgeGEQ65, UrbanPop)$.
 
 Since we assume an intercept, $\beta_0$, in our model, and thus we have $\beta = (\beta_0, \beta_1, \beta_2, \beta_3, \beta_4, \beta_5, \beta_6)^T$.
 
@@ -970,9 +970,10 @@ where $\lambda_{ij}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\gamma_{i}}$. If we could s
 Q(\theta|\theta^{(t)})&=\frac{1}{M}\sum^{n}_{i=1}\bigg[\sum^{M}_{k=1}\bigg[\sum^{n_i}_{j=1}log(f(y_{ij}|\lambda_{ijk}^{(t)}))+log(\phi(\Gamma_{ik}|0,G^{(t)}))\bigg]\bigg]\\
 \end{align}
 
-where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country, and $\lambda_{ijk}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\Gamma_{ik}}$. To sample from this multivariate posterior, we tried 3 different approaches: an independence random walk, a Metropolis-within-Gibbs random walk, and an adaptive Metropolis-within-Gibbs random walk. Of these 3 methods, we decided that the Metropolis-within-Gibbs random walk approach was the most suitable. We consider a new $X^*=x^{(t)}+\epsilon$ at each Gibbs step, where $\epsilon\sim N(0,0.01)$. Then we using the Metropolis Hastings ratio to determine if it is accepted or rejected into the Markov Chain.
+where $\Gamma_{ik}$ is one of the $M$ samples from the $i$-th country, and $\lambda_{ijk}^{(t)}=e^{x_{ij}\beta^{(t)}+z_{ij}\Gamma_{ik}}$. To sample from this multivariate posterior, we tried 3 different approaches: an independence random walk, a Metropolis-within-Gibbs random walk, and an adaptive Metropolis-within-Gibbs random walk. Of these 3 methods, we decided that the Metropolis-within-Gibbs random walk approach was the most suitable. We consider a new $X^*=x^{(t)}+\epsilon$ at each Gibbs step, where $\epsilon\sim N(0,0.01)$. Then we used the Metropolis Hastings ratio to determine if it is accepted or rejected into the Markov Chain.
 
-Now for the M-step, once we have the Q-function, we need to maximize it with respect to $\beta$ and $G$. We see from the Q-function above, that after we draw the $M$ samples for each $i$, $\Gamma_{ik}$, the maximization process of $\beta$ follows the maximization of parameters in a Poisson GLM with a few tweaks. First, each sample must be weighted $\frac{1}{M}$. Second, we need to add an offset that are the random effects $z_i\gamma_i$. Then using the glm function in R, we can perform the M-step for $\beta$. For the parameters in $G$, we use the sample variance/covariance of the Markov chains that we created. Afterwards, we start the E-step again and iterate until convergence.
+Now for the M-step, once we have the Q-function, we need to maximize it with respect to $\beta$ and $G$. We see from the Q-function above that after we draw the $M$ samples for each $i$, $\Gamma_{ik}$, the maximization process of $\beta$ follows the maximization of parameters in a Poisson GLM with a few tweaks. First, each sample must be weighted $\frac{1}{M}$. Second, we need to add an offset for the random effects $z_i\gamma_i$. Then using the glm function in R, we can perform the M-step for $\beta$. For the parameters in $G$, we use the sample variance/covariance of the Markov chains that we created. 
+When the M-step is completed, we start the E-step again and iterate until convergence.
 
 ### Model Prediction
 
@@ -982,7 +983,7 @@ To evaluate our model, we compare the predictions that our models made to the da
 \hat{\gamma_i}&=E[\gamma_i|y_i,\hat{\beta},\hat{G}]\\
 &=\int\gamma_if(\gamma_i|y_i,\hat{\beta},\hat{G})d\gamma_i
 \end{align}
-As in the E-step we can use a MC approach to estimate this mean as follows.
+As in the E-step, we can use a MC approach to estimate this mean as follows.
 \begin{align}
 E[\gamma_i|y_i,\hat{\beta},\hat{G}]&=\frac{1}{M}\sum^{M}_{k=1}\Gamma_{ik}
 \end{align}
@@ -1000,22 +1001,22 @@ Two modeling techniques were considered for the machine learning section: Random
 
 ### Random Forest
 
-There is some existing literature for machine learning methods for longitudinal data, however, the extent is limited and recent method developments lack direct applications in R. For example, Ngufor et al. (2018) develop a "Mixed Effect Random Forest", but its implementation in R is still limited and produces vague error messages. 
+There is some existing literature for machine learning methods for longitudinal data; however, the extent is limited and recent method developments lack direct applications in R. For example, Ngufor et al. (2018) develop a "Mixed Effect Random Forest", but its implementation in R is still limited and produces vague error messages. 
 
 Therefore, although country-specific random effects could not be incorporated, a regular random forest technique was applied to this dataset instead, as it is still a nonparametric technique and may be able to uncover the temporal structure of the dataset. We used `day`, `GHS_Score`, `AgeGEQ65`, and `UrbanPop` to predict new cases, with the hope that the country-specific variables may result in more country-specific predictions.
 
 ### Prophet
 
-Additionally, we decided to consider a time-series modeling method called Prophet to further answer our scientific question of predicting new cases in future days. Prophet was originally developed by Facebook Research and is available in packages for both R and Python. The method was built for building time-series predictions for business forecasting problems, but we believe it may be used to predict future cases of COVID-19. Note, this method can only be used to model cases for one country at a time.
+Additionally, we decided to consider a time-series modeling method called Prophet to further answer our scientific question of predicting new cases in future days. Prophet was originally developed by Facebook Research and is available in packages for both R and Python. The method was built for building time-series predictions for business forecasting problems, but we believe it may be used to predict future cases of COVID-19. *Note: this method can only be used to model cases for one country at a time.*
 
-Prophet is based in a decomposable time series model as follows: 
+Prophet is based on a decomposable time series model as follows: 
 $$y(t) = g(t) + s(t) + h(t) +\epsilon_t$$
-$y(t)$ ~ total cases, $g(t)$ ~ non-periodic changes, $s(t)$~periodic changes (such as weekly or yearly), $h(t)$~holiday effects, $\epsilon_t$~$N(0,\sigma^2)$
+$y(t)$ ~ total cases, $g(t)$ ~ non-periodic changes, $s(t)$ ~ periodic changes (such as weekly or yearly), $h(t)$ ~ holiday effects, $\epsilon_t$ ~ $N(0,\sigma^2)$
 
-While the method allows for seasonal and holiday effects, we do not include such in our model as we do not believe it applies to COVID-19 cases. 
+While the method allows for seasonal and holiday effects, we did not include these in our model as we do not believe they apply to COVID-19 cases. 
 
 We utilized a logistic growth model, which has the following form: 
-$$g(t) = \frac{C(t)}{1 + \exp(-k(t-m))}$$ Where $C(t)$ is a function for the carrying capacity, $k(t)$ is the growth rate, and $m$ is an offset parameter. In typical time series models, C and k are constants, but an advantage of Prophet is allowing these to vary with time.
+$$g(t) = \frac{C(t)}{1 + \exp(-k(t-m))}$$ Where $C(t)$ is a function for the carrying capacity, $k(t)$ is the growth rate, and $m$ is an offset parameter. In typical time series models,$C$ and $k$ are constants, but an advantage of Prophet is allowing these to vary with time.
 
 Prophet utilizes *L-BFGS* to determine parameter estimates. 
 
@@ -1023,7 +1024,7 @@ Prophet utilizes *L-BFGS* to determine parameter estimates.
 
 ## *Poisson GLMM*
 
-Running the model we have on the dataset lead to parameter estimates as follows (code not explicity ran here, it was ran on the cluster).
+Running the model we have on the dataset lead to parameter estimates as follows *(code not explicity ran here, it was ran on the cluster)*.
 
 ```{r eval=FALSE}
 mwgrw(beta = NA, Sigma_gamma = NA, M=1000, Z=c(1,2), control=list(tol=10^-5,maxit=1000), verbose= TRUE)
@@ -1039,7 +1040,7 @@ Iter: 67 Qf: -86700.985 g11: 1.922342 g12: -0.067895 g22: 0.010088 beta0: 0.844 
 
 with final parameter estimates of $\hat{\beta}=(0.844,0.202,-0.005,0.028,0.010,-0.001)$ and $\hat{G}=\left(\begin{array}{cc}1.922 & -0.068 \\-0.068 & 0.010\end{array}\right)$.
 
-We can compare this to estimates from the glmer package in R.
+We can compare these to estimates from the glmer package in R.
 
 ```{r echo=FALSE}
 ## more data processing
@@ -1063,11 +1064,11 @@ suppressWarnings(glmm1 <- glmer(new_cases ~ day + day2 + GHS_Score + AgeGEQ65 + 
 summary(glmm1)
 ```
 
-We see that the estimates are very close to what glmer reports. The difference could be attributed to the Laplace approximation that the glmer package uses or to the acceptance rates of our chains. In certain countries, the acceptance rate was very good and at 50%, but or other countries it was in the single digits. We tried adaptive methods to try to remedy this as well, but they did not perform any better than the standard Metropolis within Gibbs random walk. The chains could have been run for longer as well, $M>1000$, but due to the large computation costs it was already bordering on unfeasible given our time frame.
+We see that the estimates are very close to what glmer reports. The difference could be attributed to the Laplace approximation that the glmer package uses or to the acceptance rates of our chains. In certain countries the acceptance rate was very good, around 50%, but in other countries it was in the single digits. We tried adaptive methods to remedy this as well, but they did not perform any better than the standard Metropolis within Gibbs random walk. The chains could have been run for longer as well, $M>1000$, but due to the large computational costs it was already bordering on unfeasible given our time frame.
 
-As can be seen in the glmer summary above, both $day$ and $day^{2}$ are highly significant in our model. Looking at the fixed covariates we added for Global Health Security Index (GHS_Score), percentage of population over the age of 65 (AgeGEQ65), and percentage of population living in an urban setting (UrbanPop), we see that, of these three, only a country's Global Health Security Index was significant in our model. Despite our assumption based on current literature that a large proportion of a population being over 65 years old or living in an urban setting could impact number of cases of COVID-19, we find that these predictors are not actually significant in our model. One potential reason could be that high hospitalization rate associated with COVID-19 is not an indication of high incidence among the population over the age of 65 rate. With relatively high hospitalization rate and death rate, the senior population are likely to gain the impression of the population with the highest incidence rate. Even though areas with high population density are having high COVID-19 incidence rate, it is not precise to consider the percentage of population living in an urban setting without considering the area of land associated with it.
+As can be seen in the glmer summary above, both $day$ and $day^{2}$ are highly significant in our model. Looking at the fixed covariates we added for Global Health Security Index ($GHS_Score$), percentage of population over the age of 65 ($AgeGEQ65$), and percentage of population living in an urban setting ($UrbanPop$), we see that, of these three, only a country's Global Health Security Index was significant in our model. Despite our assumption based on current literature that a large proportion of a population being over 65 years old or living in an urban setting could impact number of cases of COVID-19, we find that these predictors are not actually significant in our model. One potential reason could be that high hospitalization rate associated with COVID-19 is not an indication of high incidence among the population over the age of 65 rate. With relatively high hospitalization and death rates, the senior population is likely to gain the impression of the population with the highest incidence rate. Additionally, even though areas with high population density show high COVID-19 incidence rates, it is not precise to consider the percentage of population living in an urban setting without considering the area of land associated with it.
 
-Below in red are the predictions of our GLMM model for four countries, the United States, China, South Korea, and Italy. The model was built on data up until April, 03 2020, and then we use the predictions to project the next 8 days. Since the original data is from the past, we also know the true observed number of new cases in these countries as well (displayed in black). The dashed lines indicated time points that were not included in the generation of our model, and the blue line indicates the predictions provided by the glmer function.
+Below, in red, are the predictions of our Poisson GLMM model for four countries: the United States, China, South Korea, and Italy. The model was built on data up until April 03 2020, and then we use predictions to project the next 8 days. Since the original data is from the past, we also know the true observed number of new cases in these countries as well (displayed in black). The dashed lines indicated time points that were not included in the generation of our model, and the blue line indicates the predictions provided by the glmer function.
 
 
 ```{r warning=FALSE}
@@ -1078,9 +1079,11 @@ Italy <- countrygraph("Italy", prediction = TRUE, Pred_Day = 8, glmer_results = 
 grid.arrange(US, China, SK, Italy, ncol = 2)
 ```
 
-The glmer model is generally a bit higher than our model but the fits are comparable. It seems that for the US the fit is acceptable for the 8 days. For China and South Korea, both countries have almost finished their curve, which leads to predictions being fairly accurate as they are near zero. We address the anomaly seen in the China graph on Feb 06, 2020 later. Aside from this specific date, the fits for South Korea and Italy seem off. This is due to the non-bell shaped nature of their curves and the sporadic changes in new case number. These break our assumptions for our model which causes the fits to be questionable. Overall, comparing the MSEs for predictions over all countries for both our model and the glmer model, our model has a MSE of about half that of glmer. Although, the outlier points and countries with bad fits can effect this number drastically.
+The glmer model is generally a bit higher than our model but the fits are comparable. It seems that, for the US, the fit is acceptable for the 8 days predicted. For China and South Korea, both countries have almost finished their curve, which leads to predictions being fairly accurate as they are near zero. We address the anomaly seen in the China graph on Feb 06, 2020 later. Aside from this specific date, our predictions for China are fairly accurate. The fits for South Korea and Italy seem off. This is due to the non-bell shaped nature of their curves and the sporadic changes in new case number. These break our assumptions for our model which cause the fits to be questionable. Overall, comparing the MSEs for predictions over all countries for both our model and the glmer model, our model has a MSE of about half that of glmer. Although, the outlier points and countries with bad fits can effect this number drastically.
 
-MCEM GLMM MSE for prediction for the next 8 days in all countries:
+#### MSE Calculation
+
+MCEM GLMM MSE for prediction for the next 8 days (April 4, 2020 through April 13, 2020) in all countries:
 
 ```{r warning=FALSE}
 mwgrwMSE(,FALSE)
@@ -1117,7 +1120,9 @@ grid.arrange(p1, p2, p3, p4, ncol=2)
 ```
 
 
-For example, for the United States, as plotted above, the random forest model highly overpredicts early on and underpredicts as the situation worsens. Whereas the GLMM fit for the US was quite accurate (even with the US being quite an outlier in terms of number of daily new cases) because it was prespecified to be a bell curve, random forest struggles because its estimates for the United States are biased towards the outcome of all countries with a similar `GHS_Score`, `AgeGEQ65`, and `UrbanPop`. 
+For example, for the United States, as plotted above, the random forest model highly overpredicts early on and underpredicts as the situation worsens, whereas the GLMM fit for the US was quite accurate (even with the US being somewhat of an outlier in terms of number of daily new cases). Because it was prespecified to be a bell curve, random forest struggles because its estimates for the United States are biased towards the outcome of all countries with a similar `GHS_Score`, `AgeGEQ65`, and `UrbanPop`. 
+
+#### MSE Calculation
 
 We now look at the MSE's for the random forest prediction compared to the next eight days of each country's data. 
 
@@ -1128,7 +1133,7 @@ S. Korea  | 4729.271
 Italy     | 514311.1
 China     | 169765
 
-Clearly, the Poisson GLMM works much better for the US and South Korea, and China. For Italy, the random forest MSE is lower, but keep in mind that random forest makes the same, flat prediction for Italy for every day of the future, as shown in the grahps above. Therefore, although the RF model happened to have decent predictions for Italy for the next few days, predictions would not hold up for dates further out into the future.
+Clearly, the Poisson GLMM works much better for the US, South Korea, and China. For Italy, the random forest MSE is lower that the Poisson GLMM MSE, but keep in mind that random forest makes the same, flat prediction for Italy for every day of the future, as shown in the grahps above. Therefore, although the RF model happened to have decent predictions for Italy for the next few days, predictions would not hold up for dates further in the future.
 
 Also keep in mind that each country's MSE is not comparable with any other country's MSE, because the scale of the number of new cases is vastly different in each case.
 
@@ -1153,7 +1158,7 @@ China <- forecast("China", dat_limit, 8)
 grid.arrange(US[[1]], SouthKorea[[1]], Italy[[1]], China[[1]], ncol=2)
 ```
 
-We see in general, the model fits fairly well if the country has not reached its inflection point. You can see this from the graphs for the US and Italy. However, if the country has been effective at flattening the curve, such as China and South Korea, the method can not properly capture the inflection point nor make accurate forecasts for future cases.  
+We see, in general, the model fits fairly well if the country has not reached its inflection point. You can see this from the graphs for the US and Italy. However, if the country has been effective at flattening the curve, such as China and South Korea, the method can not properly capture the inflection point nor make accurate forecasts for future cases.  
 
 #### MSE Calculation
 
@@ -1194,13 +1199,13 @@ In this setting, a random forest modeling approach and the majority of available
 
 ### Random Forest vs. Poisson GLMM
 
-One key limitation of random forest for this dataset is the fact that countries with similar GHS scores and population structures still had vastly different disease curves and trajectories with respect to new COVID cases per day. It is nearly impossible to gather a collection of covariates that accounts for the differences in curve structure between every country. Whether such a set of covariates even exists is unlikely, let alone actually finding it. Therefore, without being able to predict for an individual country based off of its previous time points (as was the case with the longitudinal GLMM modeling approach), making country-specific predictions through a random forest model was unlikely to be fruitful.
+One key limitation of random forest for this dataset is the fact that countries with similar GHS scores and population structures still had vastly different disease curves and trajectories with respect to new COVID cases per day. It is nearly impossible to gather a collection of covariates that accounts for the differences in curve structure between every country. Whether such a set of covariates even exists is unlikely, let alone actually finding it. Therefore, without being able to predict for an individual country based off of its previous time points (as was the case with the longitudinal Poisson GLMM modeling approach), making country-specific predictions through a random forest model was unlikely to be fruitful.
 
 Additionally, although random forest's nonparametric modeling structure may seem promising here, we noticed that generally, the number of new cases for the majority of countries follows a bell-shaped curve with time, although with vastly different parameters that specify the curve. This situation is indeed well-suited for parametric statistical methods that limit each country's model to a specified distribution, while still allowing the parameters of that distribution to vary wildly. Extra assumptions that were needed for GLMM, in this case, were helpful, because they ensured, for example, that the predicted new cases for any single day is nonnegative. This rigidity resulted in extrapolations (future time points) at least being reasonable.
 
 ### Prophet vs. Poisson GLMM
 
-On the other hand, our time-series modeling approach, Prophet, suffered from the opposite problem that random forest did. Unlike random forest struggling to incorporate a country's previous values into the modeling, Prophet could *only* use a country's previous time points to predict future time points, and was unable to incoroporate information from other countries' disease curves. Therefore, Prophet could only be used reliably on countries with a large amount of time points, making global predictions impossible.
+On the other hand, our time-series modeling approach, Prophet, suffered from the opposite problem of random forest. Unlike random forest, which struggled to incorporate a country's previous values into the model, Prophet could *only* use a country's previous time points to predict future time points and was unable to incoroporate information from other countries' pandemic curves. Therefore, Prophet could only be used reliably on countries with a large amount of time points, making global predictions impossible.
 
 ### Heuristic Argument for the GLMM Approach
 
