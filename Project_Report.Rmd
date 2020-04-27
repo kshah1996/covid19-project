@@ -1079,7 +1079,7 @@ Italy <- countrygraph("Italy", prediction = TRUE, Pred_Day = 8, glmer_results = 
 grid.arrange(US, China, SK, Italy, ncol = 2)
 ```
 
-The glmer model is generally a bit higher than our model but the fits are comparable. It seems that, for the US, the fit is acceptable for the 8 days predicted. For China and South Korea, both countries have almost finished their curve, which leads to predictions being fairly accurate as they are near zero. We address the anomaly seen in the China graph on Feb 06, 2020 later. Aside from this specific date, our predictions for China are fairly accurate. The fits for South Korea and Italy seem off. This is due to the non-bell shaped nature of their curves and the sporadic changes in new case number. These break our assumptions for our model which cause the fits to be questionable. Overall, comparing the MSEs for predictions over all countries for both our model and the glmer model, our model has a MSE of about half that of glmer. Although, the outlier points and countries with bad fits can effect this number drastically.
+The glmer model is generally a bit higher than our model but the fits are comparable. It seems that, for the US, the fit is acceptable for the 8 days predicted. For China and South Korea, both countries have almost finished their curve, which leads to predictions being fairly accurate as they are near zero. We address the anomaly seen in the China graph on Feb 06, 2020 later. Aside from this specific date, our predictions for China are fairly accurate. The fits for South Korea and Italy seem off. This is due to the non-bell-shaped nature of their curves and the sporadic changes in new case number. These break our assumptions for our model which cause the fits to be questionable. Overall, comparing the MSEs for predictions over all countries for both our model and the glmer model, our model has a MSE of about half that of glmer. Although, the outlier points and countries with bad fits can effect this number drastically.
 
 #### MSE Calculation
 
@@ -1108,7 +1108,7 @@ China     |  4216.611    | 4216.598
 
 ### *Random Forest*
 
-After running the random forest model, we observed that fits to the data and predictions were decent for some countries, and entirely inaccurate for others. The fit was dependent on how close the country's covariates were to the other countries with a similar trajectories. For outlier countries like the United States, for example, fitting was entirely inaccurate, let alone predictions. For other countries, such as Italy (or China and South Korea, which have finished their curves), fitting was decent. In both cases, however, random forest clearly cannot extrapolate, as predictions past a certain date are simply a flat line, which will not be observed in reality. Random Forest therefore cannot be used for future prediction of time points outside the given data.
+After running the random forest model, we observed that fits to the data and predictions were decent for some countries, and entirely inaccurate for others. The fit was dependent on how close the country's covariates were to the other countries with similar trajectories. For outlier countries like the United States, for example, fitting was entirely inaccurate, let alone predictions. For other countries, such as Italy (or China and South Korea, which have finished their curves), fitting was decent. In both cases, however, random forest clearly cannot extrapolate, as predictions past a certain date are simply a flat line, which will not be observed in reality. Random Forest therefore cannot be used for future prediction of time points outside the given data.
 
 ```{r, message=FALSE, warning=FALSE}
 p1 <- getRF("US", 8)
@@ -1133,7 +1133,7 @@ S. Korea  | 4729.271
 Italy     | 514311.1
 China     | 169765
 
-Clearly, the Poisson GLMM works much better for the US, South Korea, and China. For Italy, the random forest MSE is lower that the Poisson GLMM MSE, but keep in mind that random forest makes the same, flat prediction for Italy for every day of the future, as shown in the grahps above. Therefore, although the RF model happened to have decent predictions for Italy for the next few days, predictions would not hold up for dates further in the future.
+Clearly, the Poisson GLMM works much better for the US, South Korea, and China. For Italy, the random forest MSE is lower that the Poisson GLMM MSE, but keep in mind that random forest makes the same, flat prediction for Italy for every day of the future, as shown in the graphs above. Therefore, although the RF model happened to have decent predictions for Italy for the next few days, predictions would not hold up for dates further in the future.
 
 Also keep in mind that each country's MSE is not comparable with any other country's MSE, because the scale of the number of new cases is vastly different in each case.
 
@@ -1162,7 +1162,7 @@ We see, in general, the model fits fairly well if the country has not reached it
 
 #### MSE Calculation
 
-MSEs were calculated on a country-by-country basis (for the next 8 days of predicton) with Prophet. Please note, the MSEs listed in the table below are for total number of cases and thus cannot be compared with the MSEs from the two methods reported previously. 
+MSEs were calculated on a country-by-country basis (for the next 8 days of prediction) with Prophet. Please note, the MSEs listed in the table below are for total number of cases and thus cannot be compared with the MSEs from the two methods reported previously. 
 
 ```{R, warning=F, message=F, echo=F}
 prophet_MSE <- function(country, forecast){
@@ -1205,7 +1205,7 @@ Additionally, although random forest's nonparametric modeling structure may seem
 
 ### Prophet vs. Poisson GLMM
 
-On the other hand, our time-series modeling approach, Prophet, suffered from the opposite problem of random forest. Unlike random forest, which struggled to incorporate a country's previous values into the model, Prophet could *only* use a country's previous time points to predict future time points and was unable to incoroporate information from other countries' pandemic curves. Therefore, Prophet could only be used reliably on countries with a large amount of time points, making global predictions impossible.
+On the other hand, our time-series modeling approach, Prophet, suffered from the opposite problem of random forest. Unlike random forest, which struggled to incorporate a country's previous values into the model, Prophet could *only* use a country's previous time points to predict future time points and was unable to incorporate information from other countries' pandemic curves. Therefore, Prophet could only be used reliably on countries with a large amount of time points, making global predictions impossible.
 
 ### Heuristic Argument for the GLMM Approach
 
@@ -1227,7 +1227,7 @@ Another limitation we faced was inability to gather data on movement restriction
 Additionally, lack of widespread testing and the possibility of infected individuals lacking symptoms make it impossible to know how many cases of COVID-19 there truly are, and hence we face limitations in evaluating the true accuracy of our model.
 
 
-Finally, countries not accurately reporting data on cases of COVID-19, lag time between cases confirmed and cases reported, or major changes in diagnoses criteria can make model fitting quite difficult. For example, on February 6th, officials in China’s Hubei province revealed that new cases of COVID-19 had surged nearly nearly 10x more than the day before—reversing days of declines that experts had thought were a positive sign in terms of containment of the virus. The number of deaths on this day also increased drastically. The jump in new cases was nearly 15,000 and was due to a change in the criteria for counting diagnoses of the virus - China added a new category of ‘clinical cases’ to its reporting so that patients who exhibit all the symptoms of COVID-19 - including fever, cough, and shortness of breath - but have either not been tested or tested negative for the virus itself, would still be considered cases. As can be seen in the graph of China's new cases over time, this spike in number of new cases on February 6th due to a new classification of cases can make any model fit seem inaccurate. 
+Finally, countries not accurately reporting data on cases of COVID-19, lag time between cases confirmed and cases reported, or major changes in diagnoses criteria can make model fitting quite difficult. For example, on February 6th, officials in China’s Hubei province revealed that new cases of COVID-19 had surged nearly 10x more than the day before—reversing days of declines that experts had thought were a positive sign in terms of containment of the virus. The number of deaths on this day also increased drastically. The jump in new cases was nearly 15,000 and was due to a change in the criteria for counting diagnoses of the virus - China added a new category of ‘clinical cases’ to its reporting so that patients who exhibit all the symptoms of COVID-19 - including fever, cough, and shortness of breath - but have either not been tested or tested negative for the virus itself, would still be considered cases. As can be seen in the graph of China's new cases over time, this spike in number of new cases on February 6th due to a new classification of cases can make any model fit seem inaccurate. 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 ## more data processing
@@ -1287,9 +1287,9 @@ ggplot(data=dat2)+
 
 ### Statistical Limitations
 
-De Angelis et. al. (2015) describe how Markov chain Monte Carlo (MCMC) approaches have become a 'gold standard' in the world of modeling infectious diseases. However, they note several complications that we can fully understand after working through this project. These include: writing a likelihood in closed form, data augmentation that invlolves imputation of more unkowns than feasible to handle, and difficulty implementing the model in real time due to high level of computational effort.
+De Angelis et. al. (2015) describe how Markov chain Monte Carlo (MCMC) approaches have become a 'gold standard' in the world of modeling infectious diseases. However, they note several complications that we can fully understand after working through this project. These include: writing a likelihood in closed form, data augmentation that involves imputation of more unknowns than feasible to handle, and difficulty implementing the model in real time due to high level of computational effort.
 
-These computational limitations can be seen when running our Poisson GLMM code. We ran the modeling on longleaf and it took 3 hours to complete. With real-time data it is not out of the ordinary to run models at least once a day if not more frequently depending on the reliability of the data coming in. When one is attempting to capture the true nature of the outbreak in real time it is critical to have models which incorperate accurate, up-to-date information and receive results with a turnaround time that is still applicable in the situation. 
+These computational limitations can be seen when running our Poisson GLMM code. We ran the modeling on longleaf and it took 3 hours to complete. With real-time data it is not out of the ordinary to run models at least once a day if not more frequently depending on the reliability of the data coming in. When one is attempting to capture the true nature of the outbreak in real time it is critical to have models which incorporate accurate, up-to-date information and receive results with a turnaround time that is still applicable in the situation. 
 
 We have also seen a limitation on our normality assumption. As more data comes in, countries who have reached their peak in case counts seem to be taking a more linear or right-skewed decrease in the number of new cases. 
 
